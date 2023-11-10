@@ -341,10 +341,14 @@ pub fn init_gui() {
             }
 
             // Radar
-            if let Some(((_, _), (width, _))) = *window_info.lock().unwrap() {
-                (*ui_functions.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
-                    render_radar(ui, width);
-                }));      
+            if !no_pawn && (*CONFIG.lock().unwrap()).show_radar {
+                if let Some(((_, _), (width, _))) = *window_info.lock().unwrap() {
+                    (*ui_functions.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
+                        render_radar(ui, width, *CONFIG.lock().unwrap());
+                    }));      
+                }
+            } else {
+                (*ui_functions.lock().unwrap()).remove("radar");
             }
 
             // Aimbot
