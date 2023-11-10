@@ -6,7 +6,7 @@ use directories::UserDirs;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref DEBUG: bool = env::var("DEBUG").unwrap_or("".to_string()) == "true" || true; // [PROD] CHANGE
+    pub static ref DEBUG: bool = env::var("DEBUG").unwrap_or("".to_string()) == "true" || true;
     pub static ref TOGGLE_KEY: VirtualKeyCode = VirtualKeyCode::Insert;
 
     pub static ref PROCESS_EXECUTABLE: String = "cs2.exe".to_string();

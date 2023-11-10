@@ -1,4 +1,4 @@
-use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}, f32::consts::PI, collections::HashMap};
+use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}, collections::HashMap};
 use colored::Colorize;
 use imgui::{Ui, ColorEditFlags};
 use lazy_static::lazy_static;
@@ -7,7 +7,8 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{ui::{menu::render_menu, radar::render_radar}, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::{game::{GAME, update_entity_list_entry, set_view_angle}, entity::Entity, bone::{BoneIndex, aim_position_to_bone_index}}};
+use crate::cheat::features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair}, aimbot::{run_aimbot, aimbot_check}};
+use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
 lazy_static! {
@@ -298,25 +299,10 @@ pub fn init_gui() {
                     continue;
                 }
 
+                // Aimbot Check
                 if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
                     if let Some(bone) = entity.get_bone() {
-                        let pos = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
-                        let distance_to_sight = distance_to_vec(bone.bone_pos_list[BoneIndex::Head as usize].screen_pos, pos);
-
-                        if distance_to_sight < max_aim_distance {
-                            max_aim_distance = distance_to_sight;
-
-                            if !(*CONFIG.lock().unwrap()).visible_check || entity.pawn.b_spotted_by_mask & (1 << local_player_controller_index) != 0 || local_entity.pawn.b_spotted_by_mask & (1 << i) != 0 {
-                                if let Some(bone) = entity.get_bone() {
-                                    let bone_index = aim_position_to_bone_index((*CONFIG.lock().unwrap()).aim_position);
-                                    aim_pos = bone.bone_pos_list[bone_index].pos;
-
-                                    if bone_index as usize == BoneIndex::Head as usize {
-                                        aim_pos.z -= -1.0;
-                                    }
-                                }
-                            }
-                        }
+                        aimbot_check(bone, width, height, &mut aim_pos, &mut max_aim_distance, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, *CONFIG.lock().unwrap());
                     }
                 }
             }
@@ -324,11 +310,8 @@ pub fn init_gui() {
             // FOV Circle
             if !no_pawn && (*CONFIG.lock().unwrap()).show_aim_fov_range {
                 if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
-                    let center_point: Vector2<f32> = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
-                    let radius = ((*CONFIG.lock().unwrap()).aim_fov / 180.0 * PI / 2.0).tan() / (local_entity.pawn.fov as f32 / 180.0 * PI / 2.0).tan() * width as f32;
-
                     (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
-                        ui.get_background_draw_list().add_circle(center_point, radius, color_u32_to_f32((*CONFIG.lock().unwrap()).aim_fov_range_color)).build();
+                        render_fov_circle(ui, width, height, local_entity.pawn.fov, *CONFIG.lock().unwrap());
                     }));
                 }
             } else {
@@ -338,22 +321,8 @@ pub fn init_gui() {
             // FOV
             if !no_pawn && (*CONFIG.lock().unwrap()).show_fov_line {
                 if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
-                    let mut line_end_point: [Vector2<f32>; 2] = [Vector2 { x: 0.0, y: 0.0 }, Vector2 { x: 0.0, y: 0.0 }];
-                    let pos: Vector2<f32> = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
-                    let radian = (local_entity.pawn.fov as f32 / 2.0).to_radians();
-                    let color = color_u32_to_f32((*CONFIG.lock().unwrap()).fov_line_color);
-
-                    line_end_point[0].y = pos.y - (*CONFIG.lock().unwrap()).fov_line_size;
-                    line_end_point[1].y = line_end_point[0].y;
-                    
-                    let length = (*CONFIG.lock().unwrap()).fov_line_size * radian.tan();
-
-                    line_end_point[0].x = pos.x - length;
-                    line_end_point[1].x = pos.x + length;
-
                     (*ui_functions.lock().unwrap()).insert("fov".to_string(), Box::new(move |ui| {
-                        ui.get_background_draw_list().add_line(pos, line_end_point[0], color).build();
-                        ui.get_background_draw_list().add_line(pos, line_end_point[1], color).build();
+                        render_fov(ui, width, height, local_entity.pawn.fov, *CONFIG.lock().unwrap());
                     }));
                 }
             } else {
@@ -363,18 +332,8 @@ pub fn init_gui() {
             // Crosshair
             if (*CONFIG.lock().unwrap()).show_crosshair {
                 if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
-                    let sight_pos: Vector2<f32> = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
-                    let color = color_u32_to_f32((*CONFIG.lock().unwrap()).crosshair_color);
-
-                    let line1_first = Vector2 { x: sight_pos.x - (*CONFIG.lock().unwrap()).crosshair_size, y: sight_pos.y };
-                    let line1_second = Vector2 { x: sight_pos.x + (*CONFIG.lock().unwrap()).crosshair_size, y: sight_pos.y };
-
-                    let line2_first = Vector2 { x: sight_pos.x, y: sight_pos.y - (*CONFIG.lock().unwrap()).crosshair_size };
-                    let line2_second = Vector2 { x: sight_pos.x, y: sight_pos.y + (*CONFIG.lock().unwrap()).crosshair_size };
-
                     (*ui_functions.lock().unwrap()).insert("crosshair".to_string(), Box::new(move |ui| {
-                        ui.get_background_draw_list().add_line(line1_first, line1_second, color).build();
-                        ui.get_background_draw_list().add_line(line2_first, line2_second, color).build();
+                        render_crosshair(ui, width, height, *CONFIG.lock().unwrap());
                     }));
                 }
             } else {
@@ -390,34 +349,7 @@ pub fn init_gui() {
 
             // Aimbot
             if !no_pawn && *aimbot_toggled.lock().unwrap() {
-                let local_pos = local_entity.pawn.camera_pos;
-                let opp_pos = Vector3 { x: aim_pos.x - local_pos.x, y: aim_pos.y - local_pos.y, z: aim_pos.z - local_pos.z };
-                let distance = f32::sqrt(f32::powf(opp_pos.x, 2.0) + f32::powf(opp_pos.y, 2.0));
-                let mut yaw = f32::atan2(opp_pos.y, opp_pos.x) * 57.295779513 - local_entity.pawn.view_angle.y;
-                let mut pitch = -f32::atan(opp_pos.z / distance) * 57.295779513 - local_entity.pawn.view_angle.x;
-                let norm = f32::sqrt(f32::powf(yaw, 2.0) + f32::powf(pitch, 2.0));
-
-                if norm < (*CONFIG.lock().unwrap()).aim_fov {
-                    yaw = yaw * (1.0 - (*CONFIG.lock().unwrap()).smooth) + local_entity.pawn.view_angle.y;
-                    pitch = pitch * (1.0 - (*CONFIG.lock().unwrap()).smooth) + local_entity.pawn.view_angle.x;
-
-                    if local_entity.pawn.shots_fired > (*CONFIG.lock().unwrap()).rcs_bullet as u64 {
-                        let mut punch_angle = Vector2 { x: 0.0, y: 0.0 };
-
-                        if local_entity.pawn.aim_punch_cache.count <= 0 && local_entity.pawn.aim_punch_cache.count > 0xFFFF {
-                            continue;
-                        }
-
-                        if !read_memory_auto(local_entity.pawn.aim_punch_cache.data + (local_entity.pawn.aim_punch_cache.count - 1) * std::mem::size_of::<Vector3<f32>>() as u64, &mut punch_angle) {
-                            continue;
-                        }
-
-                        yaw = yaw - punch_angle.y * (*CONFIG.lock().unwrap()).rcs_scale.0;
-                        pitch = pitch - punch_angle.x * (*CONFIG.lock().unwrap()).rcs_scale.1;
-                    }
-
-                    set_view_angle(yaw, pitch);
-                }
+                run_aimbot(*CONFIG.lock().unwrap(), aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
             }
 
             sleep(THREAD_DELAYS.game_tasks);

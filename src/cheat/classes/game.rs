@@ -5,9 +5,9 @@ use mint::Vector2;
 use lazy_static::lazy_static;
 
 use crate::utils::process_manager::{get_process_module_handle, read_memory_auto, write_memory_auto};
-use crate::cheat::offsets::{ENTITY_LIST, MATRIX, VIEW_ANGLE, LOCAL_PLAYER_CONTROLLER, LOCAL_PLAYER_PAWN, FORCE_JUMP, GLOBAL_VARS};
+use crate::cheat::classes::offsets::{ENTITY_LIST, MATRIX, VIEW_ANGLE, LOCAL_PLAYER_CONTROLLER, LOCAL_PLAYER_PAWN, FORCE_JUMP, GLOBAL_VARS};
 use crate::utils::config::DEBUG;
-use crate::cheat::view::View;
+use crate::cheat::classes::view::View;
 
 lazy_static! {
     pub static ref GAME: Arc<Mutex<Game>> = Arc::new(Mutex::new(Game {

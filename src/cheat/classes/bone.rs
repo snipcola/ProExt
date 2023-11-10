@@ -1,8 +1,8 @@
 use mint::{Vector3, Vector2};
 
 use crate::utils::process_manager::read_memory_auto;
-use crate::cheat::offsets::PAWN_OFFSETS;
-use crate::cheat::game::GAME;
+use crate::cheat::classes::offsets::PAWN_OFFSETS;
+use crate::cheat::classes::game::GAME;
 
 #[derive(Clone, Copy)]
 pub enum BoneIndex {
@@ -95,7 +95,7 @@ impl Bone {
 }
 
 mod bone_joint_list {
-    use crate::cheat::bone::BoneIndex;
+    use crate::cheat::classes::bone::BoneIndex;
 
     pub static TRUNK: [BoneIndex; 4] = [BoneIndex::Head, BoneIndex::Neck0, BoneIndex::Spine2, BoneIndex::Pelvis];
     pub static LEFT_ARM: [BoneIndex; 4] = [BoneIndex::Neck0, BoneIndex::ArmUpperL, BoneIndex::ArmLowerL, BoneIndex::HandL];

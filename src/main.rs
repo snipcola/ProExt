@@ -1,4 +1,5 @@
-#![allow(dead_code)] // [PROD] REMOVE
+// [PROD] REMOVE
+#![allow(dead_code)]
 
 mod utils;
 mod cheat;
@@ -8,8 +9,8 @@ use std::thread::{self, sleep};
 use colored::Colorize;
 
 use crate::utils::process_manager::{AttachStatus, attach_process_manager};
-use crate::cheat::offsets::update_offsets;
-use crate::cheat::game::init_game_address;
+use crate::cheat::classes::offsets::update_offsets;
+use crate::cheat::classes::game::init_game_address;
 use crate::ui::main::init_gui;
 use crate::utils::pause::pause;
 use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, DEBUG, PROCESS_EXECUTABLE, THREAD_DELAYS};
