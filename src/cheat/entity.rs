@@ -238,13 +238,13 @@ impl PlayerPawn {
 
     pub fn get_weapon_name(&mut self) -> bool {
         let weapon_name_address = trace_address(self.address + (*PAWN_OFFSETS.lock().unwrap()).p_clipping_weapon as u64, &[0x10, 0x20, 0x0]);
-        let mut buffer: [u8; 260] = [0; 260];
+        let mut buffer: [u8; 40] = [0; 40];
 
         if weapon_name_address == 0 {
             return false;
         }
         
-        if !read_memory(weapon_name_address, &mut buffer, 260) {
+        if !read_memory(weapon_name_address, &mut buffer, 40) {
             return false;
         }
         
