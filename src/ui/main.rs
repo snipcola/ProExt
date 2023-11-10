@@ -206,7 +206,7 @@ pub fn init_gui() {
     let aimbot_toggled = AIMBOT_TOGGLED.clone();
     let ui_functions = UI_FUNCTIONS.clone();
     let window_info = WINDOW_INFO.clone();
-    let game_tasks_thread = thread::spawn(move || {
+    let cheat_tasks_thread = thread::spawn(move || {
         loop {
             if (*aimbot_toggled.lock().unwrap()) && !is_window_focused(window_hwnd) {
                 (*aimbot_toggled.lock().unwrap()) = false;
@@ -352,11 +352,11 @@ pub fn init_gui() {
                 run_aimbot(*CONFIG.lock().unwrap(), aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
             }
 
-            sleep(THREAD_DELAYS.game_tasks);
+            sleep(THREAD_DELAYS.cheat_tasks);
         }
     });
 
-    if *DEBUG { println!("{} GameTasks Thread ID: {} (delay: {})", "[ INFO ]".blue().bold(), format!("{:?}", game_tasks_thread.thread().id()).bold(), format!("{:?}", THREAD_DELAYS.game_tasks).bold()); }
+    if *DEBUG { println!("{} CheatTasks Thread ID: {} (delay: {})", "[ INFO ]".blue().bold(), format!("{:?}", cheat_tasks_thread.thread().id()).bold(), format!("{:?}", THREAD_DELAYS.cheat_tasks).bold()); }
 
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();
