@@ -1,4 +1,3 @@
-// [PROD] REMOVE
 #![allow(dead_code)]
 
 mod utils;

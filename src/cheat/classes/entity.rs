@@ -198,7 +198,7 @@ impl PlayerController {
         self.player_name = buffer_to_string(&buffer);
 
         if self.player_name.is_empty() {
-            self.player_name = "Name_None".to_string();
+            self.player_name = "None".to_string();
         }
 
         return true;
@@ -256,7 +256,9 @@ impl PlayerPawn {
         self.weapon_name = buffer_to_string(&buffer);
 
         if self.weapon_name.is_empty() {
-            self.weapon_name = "Weapon_None".to_string();
+            self.weapon_name = "None".to_string();
+        } else {
+            self.weapon_name = self.weapon_name.replace("weapon_", "");
         }
 
         return true;
