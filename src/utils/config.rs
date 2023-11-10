@@ -20,7 +20,7 @@ lazy_static! {
     pub static ref THREAD_DELAYS: ThreadDelays = ThreadDelays {
         update_configs: Duration::from_millis(50),
         window_tasks: Duration::from_millis(10),
-        game_tasks: Duration::from_millis(2)
+        cheat_tasks: Duration::from_millis(2)
     };
 
     pub static ref CONFIG_DIR: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
@@ -31,7 +31,7 @@ lazy_static! {
 pub struct ThreadDelays {
     pub update_configs: Duration,
     pub window_tasks: Duration,
-    pub game_tasks: Duration
+    pub cheat_tasks: Duration
 }
 
 pub fn get_directory_dir(name: &str) -> Option<String> {
