@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::cheat::features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang};
+use crate::cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop}, classes::entity::Flags};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -18,6 +18,7 @@ lazy_static! {
     pub static ref UI_FUNCTIONS: Arc<Mutex<HashMap<String, Box<dyn Fn(&mut Ui) + Send>>>> = Arc::new(Mutex::new(HashMap::new()));
 
     pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    pub static ref BUNNYHOP_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(true));
     pub static ref EXIT: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
 }
@@ -130,6 +131,7 @@ pub fn init_gui() {
     let window_last_moved = WINDOW_LAST_MOVED.clone();
     let window_focused = WINDOW_FOCUSED.clone();
     let aimbot_toggled = AIMBOT_TOGGLED.clone();
+    let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
     
     let key_event_thread = thread::spawn(move || {
         let _ = rdev::listen(move | event | {
@@ -155,6 +157,10 @@ pub fn init_gui() {
                                 }
                             }
                         }
+
+                        if (*bunnyhop_toggled.lock().unwrap()) && key == rdev::Key::Space && is_window_focused(window_hwnd) {
+                            (*bunnyhop_toggled.lock().unwrap()) = false;
+                        }
                     }
                 },
                 rdev::EventType::KeyPress(key) => {
@@ -165,6 +171,10 @@ pub fn init_gui() {
                                 (*aimbot_toggled.lock().unwrap()) = true;
                             }
                         }
+                    }
+
+                    if !(*bunnyhop_toggled.lock().unwrap()) && key == rdev::Key::Space && is_window_focused(window_hwnd) {
+                        (*bunnyhop_toggled.lock().unwrap()) = true;
                     }
                 },
                 rdev::EventType::ButtonPress(button) => {
@@ -219,12 +229,17 @@ pub fn init_gui() {
     if *DEBUG { println!("{} WindowTasks Thread ID: {} (delay: {})", "[ INFO ]".blue().bold(), format!("{:?}", window_tasks_thread.thread().id()).bold(), format!("{:?}", THREAD_DELAYS.window_tasks).bold()); }
 
     let aimbot_toggled = AIMBOT_TOGGLED.clone();
+    let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
     let ui_functions = UI_FUNCTIONS.clone();
     let window_info = WINDOW_INFO.clone();
     let cheat_tasks_thread = thread::spawn(move || {
         loop {
             if (*aimbot_toggled.lock().unwrap()) && !is_window_focused(window_hwnd) {
                 (*aimbot_toggled.lock().unwrap()) = false;
+            }
+
+            if (*bunnyhop_toggled.lock().unwrap()) && !is_window_focused(window_hwnd) {
+                (*bunnyhop_toggled.lock().unwrap()) = false;
             }
 
             let mut no_pawn = false;
@@ -235,6 +250,7 @@ pub fn init_gui() {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
                 (*ui_functions.lock().unwrap()).remove("fov");
                 (*ui_functions.lock().unwrap()).remove("crosshair");
+                (*ui_functions.lock().unwrap()).remove("head_shoot_line");
                 (*ui_functions.lock().unwrap()).remove("radar");
             };
 
@@ -385,6 +401,11 @@ pub fn init_gui() {
             // Anti Flashbang
             if !no_pawn && (*CONFIG.lock().unwrap()).anti_flashbang {
                 run_anti_flashbang(local_entity.pawn.address);
+            }
+
+            // Bunnyhop
+            if !no_pawn && (*CONFIG.lock().unwrap()).bunny_hop {
+                run_bunny_hop(*bunnyhop_toggled.lock().unwrap(), local_entity.pawn.has_flag(Flags::InAir));
             }
 
             // Aimbot
