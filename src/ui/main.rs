@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop}, classes::entity::Flags};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -232,6 +232,7 @@ pub fn init_gui() {
     let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
     let ui_functions = UI_FUNCTIONS.clone();
     let window_info = WINDOW_INFO.clone();
+    let mut window_hidden_from_capture = false;
     let cheat_tasks_thread = thread::spawn(move || {
         loop {
             if (*aimbot_toggled.lock().unwrap()) && !is_window_focused(window_hwnd) {
@@ -240,6 +241,14 @@ pub fn init_gui() {
 
             if (*bunnyhop_toggled.lock().unwrap()) && !is_window_focused(window_hwnd) {
                 (*bunnyhop_toggled.lock().unwrap()) = false;
+            }
+
+            if !window_hidden_from_capture && (*CONFIG.lock().unwrap()).obs_bypass {
+                hide_window_from_capture(self_hwnd, true);
+                window_hidden_from_capture = true;
+            } else if window_hidden_from_capture && !(*CONFIG.lock().unwrap()).obs_bypass {
+                hide_window_from_capture(self_hwnd, false);
+                window_hidden_from_capture = false;
             }
 
             let mut no_pawn = false;
