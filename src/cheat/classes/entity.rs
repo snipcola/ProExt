@@ -1,16 +1,18 @@
 use mint::{Vector2, Vector3};
 
 use crate::utils::process_manager::{get_address_with_offset, read_memory, read_memory_auto, trace_address};
-use crate::cheat::bone::Bone;
-use crate::cheat::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS};
-use crate::cheat::game::GAME;
-use crate::cheat::bone::BoneJointPos;
+use crate::cheat::classes::bone::Bone;
+use crate::cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS};
+use crate::cheat::classes::game::GAME;
+use crate::cheat::classes::bone::BoneJointPos;
 
+#[derive(Clone)]
 pub struct CUtlVector {
     pub count: u64,
     pub data: u64
 }
 
+#[derive(Clone)]
 pub struct PlayerController {
     pub address: u64,
     pub team_id: i32,
@@ -20,6 +22,7 @@ pub struct PlayerController {
     pub player_name: String
 }
 
+#[derive(Clone)]
 pub struct PlayerPawn {
     pub address: u64,
     pub bone_data: Bone,
@@ -43,6 +46,7 @@ pub enum Flags {
     InAir = 1 << 0
 }
 
+#[derive(Clone)]
 pub struct Entity {
     pub controller: PlayerController,
     pub pawn: PlayerPawn
