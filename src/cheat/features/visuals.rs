@@ -26,8 +26,8 @@ pub fn render_fov(ui: &mut Ui, window_width: i32, window_height: i32, fov: i32, 
     line_end_point[0].x = pos.x - length;
     line_end_point[1].x = pos.x + length;
 
-    ui.get_background_draw_list().add_line(pos, line_end_point[0], color).build();
-    ui.get_background_draw_list().add_line(pos, line_end_point[1], color).build();
+    ui.get_background_draw_list().add_line(pos, line_end_point[0], color).thickness(1.5).build();
+    ui.get_background_draw_list().add_line(pos, line_end_point[1], color).thickness(1.5).build();
 }
 
 pub fn render_crosshair(ui: &mut Ui, window_width: i32, window_height: i32, config: Config) {

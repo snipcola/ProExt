@@ -264,6 +264,9 @@ pub fn init_gui() {
             let mut max_aim_distance: f32 = 100000.0;
             let mut aim_pos = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
 
+            // Radar Data
+            let mut radar_points: Vec<(Vector3<f32>, f32)> = Vec::new();
+
             // Entities
             for i in 0 .. 64 {
                 let mut entity = Entity::default();
@@ -292,6 +295,11 @@ pub fn init_gui() {
 
                 if !entity.is_alive() {
                     continue;
+                }
+
+                // Radar Point
+                if (*CONFIG.lock().unwrap()).show_radar {
+                    radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y));
                 }
 
                 // [TODO] Does nothing until world_to_screen() is fixed.
@@ -342,11 +350,9 @@ pub fn init_gui() {
 
             // Radar
             if !no_pawn && (*CONFIG.lock().unwrap()).show_radar {
-                if let Some(((_, _), (width, _))) = *window_info.lock().unwrap() {
-                    (*ui_functions.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
-                        render_radar(ui, width, *CONFIG.lock().unwrap());
-                    }));      
-                }
+                (*ui_functions.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
+                    render_radar(ui, *CONFIG.lock().unwrap(), local_entity.pawn.pos, local_entity.pawn.view_angle.y, radar_points.clone());
+                }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("radar");
             }
