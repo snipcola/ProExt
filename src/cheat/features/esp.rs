@@ -1,8 +1,8 @@
 use std::f32::consts::PI;
 
-use imgui::Ui;
+use imgui::{Ui, ImColor32};
 use mint::{Vector3, Vector2, Vector4};
-use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::main::{color_u32_to_f32, rectangle}};
+use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::main::{color_u32_to_f32, rectangle, stroke_text, distance_between_vec3}};
 
 pub fn render_bones(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Config) {
     let mut previous: BoneJointPos = BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false };
@@ -72,4 +72,21 @@ pub fn render_line_to_enemy(ui: &mut Ui, rect: Vector4<f32>, config: Config, win
 
 pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, config: Config) {
     rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.box_color).into(), 1.3);
+}
+
+pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, pos: Vector2<f32>) {
+    stroke_text(ui, weapon_name.to_string(), pos, ImColor32::from_rgba(255, 255, 255, 255), false);
+}
+
+pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, rect: Vector4<f32>) {
+    let distance = distance_between_vec3(pawn_pos, local_pawn_pos) as u32 / 100;
+    stroke_text(ui, format!("{}m", distance), Vector2 { x: rect.x + rect.z + 4.0, y: rect.y }, ImColor32::from_rgba(255, 255, 255, 255), false);
+}
+
+pub fn render_player_name(ui: &mut Ui, player_name: &str, rect: Vector4<f32>, config: Config) {
+    if config.health_bar_type == 0 {
+        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, ImColor32::from_rgba(255, 255, 255, 255), true);
+    } else {
+        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, ImColor32::from_rgba(255, 255, 255, 255), true);
+    }
 }
