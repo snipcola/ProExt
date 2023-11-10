@@ -4,8 +4,7 @@ use crate::utils::process_manager::{get_address_with_offset, read_memory, read_m
 use crate::cheat::bone::Bone;
 use crate::cheat::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS};
 use crate::cheat::game::GAME;
-
-use super::bone::BoneJointPos;
+use crate::cheat::bone::BoneJointPos;
 
 pub struct CUtlVector {
     pub count: u64,
