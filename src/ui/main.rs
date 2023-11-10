@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::draw_bones}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_line_to_enemy, render_box}}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -66,6 +66,10 @@ pub fn rectangle_filled(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, colo
     let b = Vector2 { x: pos.x + size.x, y: pos.y + size.y };
 
     ui.get_background_draw_list().add_polyline(vec![a, Vector2 { x: b.x, y: a.y }, b, Vector2 { x: a.x, y: b.y }], color).filled(true).build();
+}
+
+pub fn rectangle(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, color: ImColor32, thickness: f32) {
+    ui.get_background_draw_list().add_rect(pos, Vector2 { x: pos.x + size.x, y: pos.y + size.y }, color).thickness(thickness).build();
 }
 
 pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<rdev::Button, rdev::Key> {
@@ -251,13 +255,23 @@ pub fn init_gui() {
                 window_hidden_from_capture = false;
             }
 
+            let game = GAME.lock().unwrap().clone();
+            let config = CONFIG.lock().unwrap().clone();
+            let window_info = match window_info.lock().unwrap().clone() {
+                Some(window_info) => window_info,
+                _ => { continue; }
+            };
+
             let mut no_pawn = false;
-            let matrix_address = GAME.lock().unwrap().address.matrix;
-            let controller_address = GAME.lock().unwrap().address.local_controller;
-            let pawn_address = GAME.lock().unwrap().address.local_pawn;
+            let matrix_address = game.address.matrix;
+            let controller_address = game.address.local_controller;
+            let pawn_address = game.address.local_pawn;
             
             let remove_esp = |entity: u64| {
-                (*ui_functions.lock().unwrap()).remove(&format!("draw_bones_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("bones_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("eye_ray_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("line_to_enemy_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("box_{}", entity));
             };
 
             let remove_ui_elements = || {
@@ -300,8 +314,8 @@ pub fn init_gui() {
                 continue;
             }
 
-            if !local_entity.update_pawn(local_pawn_address) {
-                if !(*CONFIG.lock().unwrap()).show_when_spec {
+            if !local_entity.update_pawn(local_pawn_address, window_info, game.view) {
+                if !config.show_when_spec {
                     remove_ui_elements();
                     continue;
                 };
@@ -321,7 +335,7 @@ pub fn init_gui() {
                 let mut entity = Entity::default();
                 let mut entity_address: u64 = 0;
 
-                if !read_memory_auto((*GAME.lock().unwrap()).address.entity_list_entry + (i + 1) * 0x78, &mut entity_address) {
+                if !read_memory_auto(game.address.entity_list_entry + (i + 1) * 0x78, &mut entity_address) {
                     remove_esp(i);
                     continue;
                 }
@@ -337,12 +351,12 @@ pub fn init_gui() {
                     continue;
                 }
 
-                if !entity.update_pawn(entity.pawn.address) {
+                if !entity.update_pawn(entity.pawn.address, window_info, game.view) {
                     remove_esp(i);
                     continue;
                 }
 
-                if (*CONFIG.lock().unwrap()).team_check && entity.controller.team_id == local_entity.controller.team_id {
+                if config.team_check && entity.controller.team_id == local_entity.controller.team_id {
                     remove_esp(i);
                     continue;
                 }
@@ -353,109 +367,135 @@ pub fn init_gui() {
                 }
 
                 // Radar Point
-                if (*CONFIG.lock().unwrap()).show_radar {
+                if config.show_radar {
                     radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y));
                 }
 
-                if !entity.is_in_screen() {
+                if !entity.is_in_screen(window_info, game.view) {
                     remove_esp(i);
                     continue;
                 }
 
+                // Bone
+                let bone = match entity.get_bone() {
+                    Some(bone) => bone,
+                    _ => { continue; }
+                };
+
                 // Aimbot Check
-                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
-                    if let Some(bone) = entity.get_bone() {
-                        aimbot_check(bone, width, height, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, *CONFIG.lock().unwrap());
-                    }
+                aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, config);
+
+                // Bones
+                if config.show_bone_esp {
+                    (*ui_functions.lock().unwrap()).insert(format!("bones_{}", i), Box::new(move |ui| {
+                        render_bones(ui, bone.bone_pos_list, config);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("bones_{}", i));
                 }
 
-                // Draw Bones
-                if (*CONFIG.lock().unwrap()).show_bone_esp {
-                    if let Some(bone) = entity.get_bone() {
-                        (*ui_functions.lock().unwrap()).insert(format!("draw_bones_{}", i), Box::new(move |ui| {
-                            draw_bones(ui, bone.bone_pos_list, *CONFIG.lock().unwrap());
-                        }));
-                    };
+                // Eye Ray
+                if config.show_eye_ray {
+                    (*ui_functions.lock().unwrap()).insert(format!("eye_ray_{}", i), Box::new(move |ui| {
+                        render_eye_ray(ui, bone.bone_pos_list, entity.pawn.view_angle, config, game.view, window_info);
+                    }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("draw_bones_{}", i));
+                    (*ui_functions.lock().unwrap()).remove(&format!("eye_ray_{}", i));
+                }
+
+                // Box Rect
+                let rect = {
+                    if config.box_type == 0 {
+                        get_2d_box(bone.bone_pos_list, entity.pawn.screen_pos)
+                    } else {
+                        get_2d_bone_rect(bone.bone_pos_list)
+                    }
+                };
+
+                // Line to Enemy
+                if config.show_line_to_enemy {
+                    (*ui_functions.lock().unwrap()).insert(format!("line_to_enemy_{}", i), Box::new(move |ui| {
+                        render_line_to_enemy(ui, rect, config, window_info.1.0);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("line_to_enemy_{}", i));
+                }
+
+                // Box
+                if config.show_box_esp {
+                    (*ui_functions.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
+                        render_box(ui, rect, config);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("box_{}", i));
                 }
             }
 
             // FOV Circle
-            if !no_pawn && (*CONFIG.lock().unwrap()).show_aim_fov_range {
-                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
-                    (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
-                        render_fov_circle(ui, width, height, local_entity.pawn.fov, *CONFIG.lock().unwrap());
-                    }));
-                }
+            if !no_pawn && config.show_aim_fov_range {
+                (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
+                    render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, config);
+                }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
             }
 
             // FOV
-            if !no_pawn && (*CONFIG.lock().unwrap()).show_fov_line {
-                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
-                    (*ui_functions.lock().unwrap()).insert("fov".to_string(), Box::new(move |ui| {
-                        render_fov(ui, width, height, local_entity.pawn.fov, *CONFIG.lock().unwrap());
-                    }));
-                }
+            if !no_pawn && config.show_fov_line {
+                (*ui_functions.lock().unwrap()).insert("fov".to_string(), Box::new(move |ui| {
+                    render_fov(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, config);
+                }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("fov");
             }
 
             // Crosshair
-            if (*CONFIG.lock().unwrap()).show_crosshair {
-                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
-                    (*ui_functions.lock().unwrap()).insert("crosshair".to_string(), Box::new(move |ui| {
-                        render_crosshair(ui, width, height, *CONFIG.lock().unwrap());
-                    }));
-                }
+            if config.show_crosshair {
+                (*ui_functions.lock().unwrap()).insert("crosshair".to_string(), Box::new(move |ui| {
+                    render_crosshair(ui, window_info.1.0, window_info.1.1, config);
+                }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("crosshair");
             }
 
             // Head Shoot Line
-            if (*CONFIG.lock().unwrap()).show_head_shoot_line {
-                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
-                    (*ui_functions.lock().unwrap()).insert("head_shoot_line".to_string(), Box::new(move |ui| {
-                        render_head_shoot_line(ui, width, height, local_entity.pawn.fov, local_entity.pawn.view_angle.x, *CONFIG.lock().unwrap());
-                    }));
-                };
+            if config.show_head_shoot_line {
+                (*ui_functions.lock().unwrap()).insert("head_shoot_line".to_string(), Box::new(move |ui| {
+                    render_head_shoot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
+                }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("head_shoot_line");
             }
 
             // Radar
-            if !no_pawn && (*CONFIG.lock().unwrap()).show_radar {
+            if !no_pawn && config.show_radar {
                 (*ui_functions.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
-                    render_radar(ui, *CONFIG.lock().unwrap(), local_entity.pawn.pos, local_entity.pawn.view_angle.y, radar_points.clone());
+                    render_radar(ui, config, local_entity.pawn.pos, local_entity.pawn.view_angle.y, radar_points.clone());
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("radar");
             }
 
             // Anti Flashbang
-            if !no_pawn && (*CONFIG.lock().unwrap()).anti_flashbang {
+            if !no_pawn && config.anti_flashbang {
                 run_anti_flashbang(local_entity.pawn.address);
             }
 
             // Bunnyhop
-            if !no_pawn && (*CONFIG.lock().unwrap()).bunny_hop {
-                run_bunny_hop(*bunnyhop_toggled.lock().unwrap(), local_entity.pawn.has_flag(Flags::InAir));
+            if !no_pawn && config.bunny_hop {
+                run_bunny_hop(bunnyhop_toggled.lock().unwrap().clone(), local_entity.pawn.has_flag(Flags::InAir));
             }
 
             // Aimbot
             if !no_pawn && *aimbot_toggled.lock().unwrap() {
                 if let Some(aim_pos) = aim_pos {
-                    run_aimbot(*CONFIG.lock().unwrap(), aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
+                    run_aimbot(config, aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
                 }
             }
-
-            sleep(THREAD_DELAYS.cheat_tasks);
         }
     });
 
-    if *DEBUG { println!("{} CheatTasks Thread ID: {} (delay: {})", "[ INFO ]".blue().bold(), format!("{:?}", cheat_tasks_thread.thread().id()).bold(), format!("{:?}", THREAD_DELAYS.cheat_tasks).bold()); }
+    if *DEBUG { println!("{} CheatTasks Thread ID: {}", "[ INFO ]".blue().bold(), format!("{:?}", cheat_tasks_thread.thread().id()).bold()); }
 
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();

@@ -33,11 +33,13 @@ lazy_static! {
     }));
 }
 
+#[derive(Clone)]
 pub struct Game {
     pub address: Address,
     pub view: View
 }
 
+#[derive(Clone)]
 pub struct Address {
     pub client_dll: u64,
     pub entity_list: u64,
