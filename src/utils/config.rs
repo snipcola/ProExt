@@ -265,7 +265,7 @@ impl Default for Config {
             obs_bypass: true,
             bunny_hop: false,
             show_when_spec: true,
-            anti_flashbang: true
+            anti_flashbang: false
         };
     }
 }
