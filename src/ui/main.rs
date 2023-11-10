@@ -1,13 +1,13 @@
 use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}, collections::HashMap};
 use colored::Colorize;
-use imgui::{Ui, ColorEditFlags};
+use imgui::{Ui, ColorEditFlags, ImColor32};
 use lazy_static::lazy_static;
 
 use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, DeviceEvent, ElementState}, dpi::{PhysicalSize, PhysicalPosition}}, Surface};
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::cheat::features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair}, aimbot::{run_aimbot, aimbot_check}};
+use crate::cheat::features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -44,12 +44,27 @@ pub fn color_u32_to_f32(color: (u32, u32, u32, u32)) -> (f32, f32, f32, f32) {
     return (color.0 as f32 / 255.0, color.1 as f32 / 255.0, color.2 as f32 / 255.0, color.3 as f32 / 255.0);
 }
 
+pub fn color_with_alpha_mask((red, green, blue, _): (u32, u32, u32, u32), alpha_mask: u32) -> (f32, f32, f32) {
+    let red = (red & alpha_mask) >> 24;
+    let green = (green & alpha_mask) >> 24;
+    let blue = (blue & alpha_mask) >> 24;
+
+    return (red as f32 / 255.0, green as f32 / 255.0, blue as f32 / 255.0);
+}
+
 pub fn distance_to_vec(pos1: Vector2<f32>, pos2: Vector2<f32>) -> f32 {
     let x_diff = pos2.x - pos1.x;
     let y_diff = pos2.y - pos1.y;
     let distance = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
 
     return distance;
+}
+
+pub fn rectangle_filled(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, color: ImColor32) {
+    let a = pos;
+    let b = Vector2 { x: pos.x + size.x, y: pos.y + size.y };
+
+    ui.get_background_draw_list().add_polyline(vec![a, Vector2 { x: b.x, y: a.y }, b, Vector2 { x: a.x, y: b.y }], color).filled(true).build();
 }
 
 pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<rdev::Button, rdev::Key> {
@@ -302,7 +317,6 @@ pub fn init_gui() {
                     radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y));
                 }
 
-                // [TODO] Does nothing until world_to_screen() is fixed.
                 if !entity.is_in_screen() {
                     continue;
                 }
@@ -346,6 +360,17 @@ pub fn init_gui() {
                 }
             } else {
                 (*ui_functions.lock().unwrap()).remove("crosshair");
+            }
+
+            // Head Shoot Line
+            if (*CONFIG.lock().unwrap()).show_head_shoot_line {
+                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
+                    (*ui_functions.lock().unwrap()).insert("head_shoot_line".to_string(), Box::new(move |ui| {
+                        render_head_shoot_line(ui, width, height, local_entity.pawn.fov, local_entity.pawn.view_angle.x, *CONFIG.lock().unwrap());
+                    }));
+                };
+            } else {
+                (*ui_functions.lock().unwrap()).remove("head_shoot_line");
             }
 
             // Radar

@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use imgui::Ui;
 use mint::Vector2;
 
-use crate::{ui::main::color_u32_to_f32, utils::config::Config};
+use crate::{ui::main::{color_u32_to_f32, color_with_alpha_mask, rectangle_filled}, utils::config::Config};
 
 pub fn render_fov_circle(ui: &mut Ui, window_width: i32, window_height: i32, fov: i32, config: Config) {
     let center_point: Vector2<f32> = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
@@ -42,4 +42,14 @@ pub fn render_crosshair(ui: &mut Ui, window_width: i32, window_height: i32, conf
 
     ui.get_background_draw_list().add_line(line1_first, line1_second, color).build();
     ui.get_background_draw_list().add_line(line2_first, line2_second, color).build();
+}
+
+pub fn render_head_shoot_line(ui: &mut Ui, window_width: i32, window_height: i32, fov: i32, view_angle_x: f32, config: Config) {
+    let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 - window_height as f32 / (2.0 * f32::sin(fov as f32 * PI / 180.0) / f32::sin(90.0 * PI / 180.0)) * f32::sin(view_angle_x as f32 * PI / 180.0) / f32::sin(90.0 * PI / 180.0) };
+
+    rectangle_filled(ui, Vector2 { x: pos.x - 21.0, y: pos.y - 1.0 }, Vector2 { x: 17.0, y: 3.0 }, color_with_alpha_mask(config.head_shoot_line_color, 0xFF000000).into());
+    rectangle_filled(ui, Vector2 { x: pos.x - 20.0, y: pos.y }, Vector2 { x: 17.0, y: 3.0 }, color_u32_to_f32(config.head_shoot_line_color).into());
+
+    rectangle_filled(ui, Vector2 { x: pos.x + 5.0, y: pos.y - 1.0 }, Vector2 { x: 17.0, y: 3.0 }, color_with_alpha_mask(config.head_shoot_line_color, 0xFF000000).into());
+    rectangle_filled(ui, Vector2 { x: pos.x + 6.0, y: pos.y }, Vector2 { x: 17.0, y: 3.0 }, color_u32_to_f32(config.head_shoot_line_color).into());
 }
