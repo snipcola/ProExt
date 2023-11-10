@@ -150,7 +150,7 @@ pub fn render_menu(ui: &mut Ui) {
 
                         // PointSize, Proportion, & RadarRange
                         ui.slider_config("PointSize", 0.8, 2.0).display_format("%.1f").build(&mut (*config).radar_point_size_proportion);
-                        ui.slider_config("Proportion", 500.0, 3300.0).display_format("%.1f").build(&mut (*config).proportion);
+                        ui.slider_config("Proportion", 500.0, 3500.0).display_format("%.1f").build(&mut (*config).proportion);
                         ui.slider_config("RadarRange", 100.0, 300.0).display_format("%.1f").build(&mut (*config).radar_range);
                     });
 

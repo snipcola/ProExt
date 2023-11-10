@@ -20,7 +20,7 @@ lazy_static! {
     pub static ref THREAD_DELAYS: ThreadDelays = ThreadDelays {
         update_configs: Duration::from_millis(25),
         window_tasks: Duration::from_millis(5),
-        cheat_tasks: Duration::from_millis(1)
+        cheat_tasks: Duration::from_millis(0)
     };
 
     pub static ref CONFIG_DIR: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
@@ -235,12 +235,12 @@ impl Default for Config {
             box_color: (255, 255, 255, 255),
             eye_ray_color: (255, 0, 0, 255),
             show_radar: true,
-            radar_range: 150.0,
+            radar_range: 147.0,
             show_radar_cross_line: true,
             radar_cross_line_color: (255, 255, 255, 255),
             radar_type: 2,
             radar_point_size_proportion: 1.0,
-            proportion: 2230.0,
+            proportion: 3500.0,
             trigger_bot: true,
             team_check: true,
             visible_check: true,
