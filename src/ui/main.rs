@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::draw_bones}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -255,12 +255,21 @@ pub fn init_gui() {
             let matrix_address = GAME.lock().unwrap().address.matrix;
             let controller_address = GAME.lock().unwrap().address.local_controller;
             let pawn_address = GAME.lock().unwrap().address.local_pawn;
+            
+            let remove_esp = |entity: u64| {
+                (*ui_functions.lock().unwrap()).remove(&format!("draw_bones_{}", entity));
+            };
+
             let remove_ui_elements = || {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
                 (*ui_functions.lock().unwrap()).remove("fov");
                 (*ui_functions.lock().unwrap()).remove("crosshair");
                 (*ui_functions.lock().unwrap()).remove("head_shoot_line");
                 (*ui_functions.lock().unwrap()).remove("radar");
+                
+                for i in 0 .. 64 {
+                    remove_esp(i);
+                }
             };
 
             if !read_memory(matrix_address, &mut (*GAME.lock().unwrap()).view.matrix, 64) {
@@ -302,7 +311,7 @@ pub fn init_gui() {
 
             // Aimbot Data
             let mut max_aim_distance: f32 = 100000.0;
-            let mut aim_pos = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
+            let mut aim_pos: Option<Vector3<f32>> = None;
 
             // Radar Data
             let mut radar_points: Vec<(Vector3<f32>, f32)> = Vec::new();
@@ -313,27 +322,33 @@ pub fn init_gui() {
                 let mut entity_address: u64 = 0;
 
                 if !read_memory_auto((*GAME.lock().unwrap()).address.entity_list_entry + (i + 1) * 0x78, &mut entity_address) {
+                    remove_esp(i);
                     continue;
                 }
 
                 if entity_address == local_entity.controller.address {
                     local_player_controller_index = i;
+                    remove_esp(i);
                     continue;
                 }
 
                 if !entity.update_controller(entity_address) {
+                    remove_esp(i);
                     continue;
                 }
 
                 if !entity.update_pawn(entity.pawn.address) {
+                    remove_esp(i);
                     continue;
                 }
 
                 if (*CONFIG.lock().unwrap()).team_check && entity.controller.team_id == local_entity.controller.team_id {
+                    remove_esp(i);
                     continue;
                 }
 
                 if !entity.is_alive() {
+                    remove_esp(i);
                     continue;
                 }
 
@@ -343,14 +358,26 @@ pub fn init_gui() {
                 }
 
                 if !entity.is_in_screen() {
+                    remove_esp(i);
                     continue;
                 }
 
                 // Aimbot Check
                 if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
                     if let Some(bone) = entity.get_bone() {
-                        aimbot_check(bone, width, height, &mut aim_pos, &mut max_aim_distance, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, *CONFIG.lock().unwrap());
+                        aimbot_check(bone, width, height, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, *CONFIG.lock().unwrap());
                     }
+                }
+
+                // Draw Bones
+                if (*CONFIG.lock().unwrap()).show_bone_esp {
+                    if let Some(bone) = entity.get_bone() {
+                        (*ui_functions.lock().unwrap()).insert(format!("draw_bones_{}", i), Box::new(move |ui| {
+                            draw_bones(ui, bone.bone_pos_list, *CONFIG.lock().unwrap());
+                        }));
+                    };
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("draw_bones_{}", i));
                 }
             }
 
@@ -419,7 +446,9 @@ pub fn init_gui() {
 
             // Aimbot
             if !no_pawn && *aimbot_toggled.lock().unwrap() {
-                run_aimbot(*CONFIG.lock().unwrap(), aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
+                if let Some(aim_pos) = aim_pos {
+                    run_aimbot(*CONFIG.lock().unwrap(), aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
+                }
             }
 
             sleep(THREAD_DELAYS.cheat_tasks);

@@ -94,7 +94,7 @@ impl Bone {
     }
 }
 
-mod bone_joint_list {
+pub mod bone_joint_list {
     use crate::cheat::classes::bone::BoneIndex;
 
     pub static TRUNK: [BoneIndex; 4] = [BoneIndex::Head, BoneIndex::Neck0, BoneIndex::Spine2, BoneIndex::Pelvis];
