@@ -18,9 +18,9 @@ lazy_static! {
     pub static ref PACKAGE_AUTHORS: String = env!("CARGO_PKG_AUTHORS").replace(":", " & ").to_string();
 
     pub static ref THREAD_DELAYS: ThreadDelays = ThreadDelays {
-        update_configs: Duration::from_millis(50),
-        window_tasks: Duration::from_millis(10),
-        cheat_tasks: Duration::from_millis(2)
+        update_configs: Duration::from_millis(25),
+        window_tasks: Duration::from_millis(5),
+        cheat_tasks: Duration::from_millis(1)
     };
 
     pub static ref CONFIG_DIR: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
