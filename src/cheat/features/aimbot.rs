@@ -8,42 +8,46 @@ pub fn run_aimbot(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32
     let mut pitch = -f32::atan(pos.z / distance) * 57.295779513 - view_angle.x;
     let norm = f32::sqrt(f32::powf(yaw, 2.0) + f32::powf(pitch, 2.0));
 
-    if norm < config.aim_fov {
-        yaw = yaw * (1.0 - config.smooth) + view_angle.y;
-        pitch = pitch * (1.0 - config.smooth) + view_angle.x;
+    if norm > config.aim_fov {
+        return;
+    }
 
-        if shots_fired > config.rcs_bullet as u64 {
-            let mut punch_angle = Vector2 { x: 0.0, y: 0.0 };
+    yaw = yaw * (1.0 - config.smooth) + view_angle.y;
+    pitch = pitch * (1.0 - config.smooth) + view_angle.x;
 
-            if aim_punch_cache.count <= 0 && aim_punch_cache.count > 0xFFFF {
-                return;
-            }
+    if shots_fired > config.rcs_bullet as u64 {
+        let mut punch_angle = Vector2 { x: 0.0, y: 0.0 };
 
-            if !read_memory_auto(aim_punch_cache.data + (aim_punch_cache.count - 1) * std::mem::size_of::<Vector3<f32>>() as u64, &mut punch_angle) {
-                return;
-            }
-
-            yaw = yaw - punch_angle.y * config.rcs_scale.0;
-            pitch = pitch - punch_angle.x * config.rcs_scale.1;
+        if aim_punch_cache.count <= 0 && aim_punch_cache.count > 0xFFFF {
+            return;
         }
 
-        set_view_angle(yaw, pitch);
+        if !read_memory_auto(aim_punch_cache.data + (aim_punch_cache.count - 1) * std::mem::size_of::<Vector3<f32>>() as u64, &mut punch_angle) {
+            return;
+        }
+
+        yaw = yaw - punch_angle.y * config.rcs_scale.0;
+        pitch = pitch - punch_angle.x * config.rcs_scale.1;
     }
+
+    set_view_angle(yaw, pitch);
 }
 
-pub fn aimbot_check(bone: Bone, window_width: i32, window_height: i32, aim_pos: &mut Vector3<f32>, max_aim_distance: &mut f32, b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, config: Config) {
+pub fn aimbot_check(bone: Bone, window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, config: Config) {
     let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
-    let distance_to_sight = distance_to_vec(bone.bone_pos_list[BoneIndex::Head as usize].screen_pos, pos);
+    let bone_index = aim_position_to_bone_index(config.aim_position);
+    let distance_to_sight = distance_to_vec(bone.bone_pos_list[bone_index].screen_pos, pos);
 
     if distance_to_sight < *max_aim_distance {
         *max_aim_distance = distance_to_sight;
 
-        if !config.visible_check || b_spotted_by_mask & (1 << local_player_controller_index) != 0 || b_spotted_by_mask & (1 << i) != 0 {
-            let bone_index = aim_position_to_bone_index(config.aim_position);
-            *aim_pos = bone.bone_pos_list[bone_index].pos;
+        if !config.visible_check || b_spotted_by_mask & (1 << local_player_controller_index) != 0 || local_b_spotted_by_mask & (1 << i) != 0 {
+            *aim_pos = Some(bone.bone_pos_list[bone_index].pos);
 
             if bone_index as usize == BoneIndex::Head as usize {
-                aim_pos.z -= -1.0;
+                if let Some(aim_pos) = aim_pos {
+                    aim_pos.z -= -1.0;
+                }
             }
         }
     }

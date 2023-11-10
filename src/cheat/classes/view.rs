@@ -7,15 +7,13 @@ pub struct View {
 
 impl View {
     pub fn world_to_screen(&self, pos: Vector3<f32>, to_pos: &mut Vector2<f32>) -> bool {
-        let window_info = WINDOW_INFO.lock().unwrap();
-        let view = self.matrix[3][0] * pos.x + self.matrix[3][2] * pos.z + self.matrix[3][3]; 
+        let view = self.matrix[3][0] * pos.x + self.matrix[3][1] * pos.y + self.matrix[3][2] * pos.z + self.matrix[3][3]; 
         
-        // [TODO] Figure out why this returns false even if entity on screen at certain positions.
-        // if view <= 0.01 {
-        //     return false;
-        // }
+        if view <= 0.01 {
+            return false;
+        }
 
-        if let Some(((_, _), (x, y))) = *window_info {
+        if let Some(((_, _), (x, y))) = *WINDOW_INFO.lock().unwrap() {
             let sight_x = x as f32 / 2.0;
             let sight_y = y as f32 / 2.0;
 
