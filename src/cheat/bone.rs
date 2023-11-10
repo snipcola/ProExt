@@ -95,7 +95,7 @@ impl Bone {
 }
 
 mod bone_joint_list {
-    use super::BoneIndex;
+    use crate::cheat::bone::BoneIndex;
 
     pub static TRUNK: [BoneIndex; 4] = [BoneIndex::Head, BoneIndex::Neck0, BoneIndex::Spine2, BoneIndex::Pelvis];
     pub static LEFT_ARM: [BoneIndex; 4] = [BoneIndex::Neck0, BoneIndex::ArmUpperL, BoneIndex::ArmLowerL, BoneIndex::HandL];

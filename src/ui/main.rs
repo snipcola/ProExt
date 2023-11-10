@@ -1,4 +1,4 @@
-use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}, f32::consts::PI};
+use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}, f32::consts::PI, collections::HashMap};
 use colored::Colorize;
 use imgui::{Ui, ColorEditFlags};
 use lazy_static::lazy_static;
@@ -14,6 +14,7 @@ lazy_static! {
     pub static ref WINDOW_INFO: Arc<Mutex<Option<((i32, i32), (i32, i32))>>> = Arc::new(Mutex::new(None));
     pub static ref WINDOW_LAST_MOVED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
     pub static ref WINDOW_FOCUSED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    pub static ref UI_FUNCTIONS: Arc<Mutex<HashMap<String, Box<dyn Fn(&mut Ui) + Send>>>> = Arc::new(Mutex::new(HashMap::new()));
 
     pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(true));
@@ -133,7 +134,7 @@ pub fn init_gui() {
                         match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                             Ok(_) => {},
                             Err(aimbot_key) => {
-                                if key == aimbot_key && is_window_focused(window_hwnd) {
+                                if (*aimbot_toggled.lock().unwrap()) && key == aimbot_key && is_window_focused(window_hwnd) {
                                     (*aimbot_toggled.lock().unwrap()) = false;
                                 }
                             }
@@ -144,7 +145,7 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                         Ok(_) => {},
                         Err(aimbot_key) => {
-                            if key == aimbot_key && is_window_focused(window_hwnd) {
+                            if !(*aimbot_toggled.lock().unwrap()) && key == aimbot_key && is_window_focused(window_hwnd) {
                                 (*aimbot_toggled.lock().unwrap()) = true;
                             }
                         }
@@ -154,7 +155,7 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                         Err(_) => {},
                         Ok(aimbot_button) => {
-                            if button == aimbot_button && is_window_focused(window_hwnd) {
+                            if !(*aimbot_toggled.lock().unwrap()) && button == aimbot_button && is_window_focused(window_hwnd) {
                                 (*aimbot_toggled.lock().unwrap()) = true;
                             }
                         }
@@ -164,7 +165,7 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                         Err(_) => {},
                         Ok(aimbot_button) => {
-                            if button == aimbot_button && is_window_focused(window_hwnd) {
+                            if (*aimbot_toggled.lock().unwrap()) && button == aimbot_button && is_window_focused(window_hwnd) {
                                 (*aimbot_toggled.lock().unwrap()) = false;
                             }
                         }
@@ -201,11 +202,235 @@ pub fn init_gui() {
 
     if *DEBUG { println!("{} WindowTasks Thread ID: {} (delay: {})", "[ INFO ]".blue().bold(), format!("{:?}", window_tasks_thread.thread().id()).bold(), format!("{:?}", THREAD_DELAYS.window_tasks).bold()); }
 
+    let aimbot_toggled = AIMBOT_TOGGLED.clone();
+    let ui_functions = UI_FUNCTIONS.clone();
+    let window_info = WINDOW_INFO.clone();
+    let game_tasks_thread = thread::spawn(move || {
+        loop {
+            if (*aimbot_toggled.lock().unwrap()) && !is_window_focused(window_hwnd) {
+                (*aimbot_toggled.lock().unwrap()) = false;
+            }
+
+            let mut no_pawn = false;
+            let matrix_address = GAME.lock().unwrap().address.matrix;
+            let controller_address = GAME.lock().unwrap().address.local_controller;
+            let pawn_address = GAME.lock().unwrap().address.local_pawn;
+            let remove_ui_elements = || {
+                (*ui_functions.lock().unwrap()).remove("fov_circle");
+                (*ui_functions.lock().unwrap()).remove("fov");
+                (*ui_functions.lock().unwrap()).remove("crosshair");
+                (*ui_functions.lock().unwrap()).remove("radar");
+            };
+
+            if !read_memory(matrix_address, &mut (*GAME.lock().unwrap()).view.matrix, 64) {
+                remove_ui_elements();
+                continue;
+            }
+
+            update_entity_list_entry();
+
+            let mut local_controller_address = 0;
+            let mut local_pawn_address = 0;
+
+            if !read_memory_auto(controller_address, &mut local_controller_address) {
+                remove_ui_elements();
+                continue;
+            }
+
+            if !read_memory_auto(pawn_address, &mut local_pawn_address) {
+                remove_ui_elements();
+                continue;
+            }
+
+            let mut local_entity = Entity::default();
+            let mut local_player_controller_index = 1;
+
+            if !local_entity.update_controller(local_controller_address) {
+                remove_ui_elements();
+                continue;
+            }
+
+            if !local_entity.update_pawn(local_pawn_address) {
+                if !(*CONFIG.lock().unwrap()).show_when_spec {
+                    remove_ui_elements();
+                    continue;
+                };
+
+                no_pawn = true;
+            }
+
+            // Aimbot Data
+            let mut max_aim_distance: f32 = 100000.0;
+            let mut aim_pos = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
+
+            // Entities
+            for i in 0 .. 64 {
+                let mut entity = Entity::default();
+                let mut entity_address: u64 = 0;
+
+                if !read_memory_auto((*GAME.lock().unwrap()).address.entity_list_entry + (i + 1) * 0x78, &mut entity_address) {
+                    continue;
+                }
+
+                if entity_address == local_entity.controller.address {
+                    local_player_controller_index = i;
+                    continue;
+                }
+
+                if !entity.update_controller(entity_address) {
+                    continue;
+                }
+
+                if !entity.update_pawn(entity.pawn.address) {
+                    continue;
+                }
+
+                if (*CONFIG.lock().unwrap()).team_check && entity.controller.team_id == local_entity.controller.team_id {
+                    continue;
+                }
+
+                if !entity.is_alive() {
+                    continue;
+                }
+
+                // [TODO] Does nothing until world_to_screen() is fixed.
+                if !entity.is_in_screen() {
+                    continue;
+                }
+
+                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
+                    if let Some(bone) = entity.get_bone() {
+                        let pos = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
+                        let distance_to_sight = distance_to_vec(bone.bone_pos_list[BoneIndex::Head as usize].screen_pos, pos);
+
+                        if distance_to_sight < max_aim_distance {
+                            max_aim_distance = distance_to_sight;
+
+                            if !(*CONFIG.lock().unwrap()).visible_check || entity.pawn.b_spotted_by_mask & (1 << local_player_controller_index) != 0 || local_entity.pawn.b_spotted_by_mask & (1 << i) != 0 {
+                                if let Some(bone) = entity.get_bone() {
+                                    let bone_index = aim_position_to_bone_index((*CONFIG.lock().unwrap()).aim_position);
+                                    aim_pos = bone.bone_pos_list[bone_index].pos;
+
+                                    if bone_index as usize == BoneIndex::Head as usize {
+                                        aim_pos.z -= -1.0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // FOV Circle
+            if !no_pawn && (*CONFIG.lock().unwrap()).show_aim_fov_range {
+                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
+                    let center_point: Vector2<f32> = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
+                    let radius = ((*CONFIG.lock().unwrap()).aim_fov / 180.0 * PI / 2.0).tan() / (local_entity.pawn.fov as f32 / 180.0 * PI / 2.0).tan() * width as f32;
+
+                    (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
+                        ui.get_background_draw_list().add_circle(center_point, radius, color_u32_to_f32((*CONFIG.lock().unwrap()).aim_fov_range_color)).build();
+                    }));
+                }
+            } else {
+                (*ui_functions.lock().unwrap()).remove("fov_circle");
+            }
+
+            // FOV
+            if !no_pawn && (*CONFIG.lock().unwrap()).show_fov_line {
+                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
+                    let mut line_end_point: [Vector2<f32>; 2] = [Vector2 { x: 0.0, y: 0.0 }, Vector2 { x: 0.0, y: 0.0 }];
+                    let pos: Vector2<f32> = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
+                    let radian = (local_entity.pawn.fov as f32 / 2.0).to_radians();
+                    let color = color_u32_to_f32((*CONFIG.lock().unwrap()).fov_line_color);
+
+                    line_end_point[0].y = pos.y - (*CONFIG.lock().unwrap()).fov_line_size;
+                    line_end_point[1].y = line_end_point[0].y;
+                    
+                    let length = (*CONFIG.lock().unwrap()).fov_line_size * radian.tan();
+
+                    line_end_point[0].x = pos.x - length;
+                    line_end_point[1].x = pos.x + length;
+
+                    (*ui_functions.lock().unwrap()).insert("fov".to_string(), Box::new(move |ui| {
+                        ui.get_background_draw_list().add_line(pos, line_end_point[0], color).build();
+                        ui.get_background_draw_list().add_line(pos, line_end_point[1], color).build();
+                    }));
+                }
+            } else {
+                (*ui_functions.lock().unwrap()).remove("fov");
+            }
+
+            // Crosshair
+            if (*CONFIG.lock().unwrap()).show_crosshair {
+                if let Some(((_, _), (width, height))) = *window_info.lock().unwrap() {
+                    let sight_pos: Vector2<f32> = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
+                    let color = color_u32_to_f32((*CONFIG.lock().unwrap()).crosshair_color);
+
+                    let line1_first = Vector2 { x: sight_pos.x - (*CONFIG.lock().unwrap()).crosshair_size, y: sight_pos.y };
+                    let line1_second = Vector2 { x: sight_pos.x + (*CONFIG.lock().unwrap()).crosshair_size, y: sight_pos.y };
+
+                    let line2_first = Vector2 { x: sight_pos.x, y: sight_pos.y - (*CONFIG.lock().unwrap()).crosshair_size };
+                    let line2_second = Vector2 { x: sight_pos.x, y: sight_pos.y + (*CONFIG.lock().unwrap()).crosshair_size };
+
+                    (*ui_functions.lock().unwrap()).insert("crosshair".to_string(), Box::new(move |ui| {
+                        ui.get_background_draw_list().add_line(line1_first, line1_second, color).build();
+                        ui.get_background_draw_list().add_line(line2_first, line2_second, color).build();
+                    }));
+                }
+            } else {
+                (*ui_functions.lock().unwrap()).remove("crosshair");
+            }
+
+            // Radar
+            if let Some(((_, _), (width, _))) = *window_info.lock().unwrap() {
+                (*ui_functions.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
+                    render_radar(ui, width);
+                }));      
+            }
+
+            // Aimbot
+            if !no_pawn && *aimbot_toggled.lock().unwrap() {
+                let local_pos = local_entity.pawn.camera_pos;
+                let opp_pos = Vector3 { x: aim_pos.x - local_pos.x, y: aim_pos.y - local_pos.y, z: aim_pos.z - local_pos.z };
+                let distance = f32::sqrt(f32::powf(opp_pos.x, 2.0) + f32::powf(opp_pos.y, 2.0));
+                let mut yaw = f32::atan2(opp_pos.y, opp_pos.x) * 57.295779513 - local_entity.pawn.view_angle.y;
+                let mut pitch = -f32::atan(opp_pos.z / distance) * 57.295779513 - local_entity.pawn.view_angle.x;
+                let norm = f32::sqrt(f32::powf(yaw, 2.0) + f32::powf(pitch, 2.0));
+
+                if norm < (*CONFIG.lock().unwrap()).aim_fov {
+                    yaw = yaw * (1.0 - (*CONFIG.lock().unwrap()).smooth) + local_entity.pawn.view_angle.y;
+                    pitch = pitch * (1.0 - (*CONFIG.lock().unwrap()).smooth) + local_entity.pawn.view_angle.x;
+
+                    if local_entity.pawn.shots_fired > (*CONFIG.lock().unwrap()).rcs_bullet as u64 {
+                        let mut punch_angle = Vector2 { x: 0.0, y: 0.0 };
+
+                        if local_entity.pawn.aim_punch_cache.count <= 0 && local_entity.pawn.aim_punch_cache.count > 0xFFFF {
+                            continue;
+                        }
+
+                        if !read_memory_auto(local_entity.pawn.aim_punch_cache.data + (local_entity.pawn.aim_punch_cache.count - 1) * std::mem::size_of::<Vector3<f32>>() as u64, &mut punch_angle) {
+                            continue;
+                        }
+
+                        yaw = yaw - punch_angle.y * (*CONFIG.lock().unwrap()).rcs_scale.0;
+                        pitch = pitch - punch_angle.x * (*CONFIG.lock().unwrap()).rcs_scale.1;
+                    }
+
+                    set_view_angle(yaw, pitch);
+                }
+            }
+
+            sleep(THREAD_DELAYS.game_tasks);
+        }
+    });
+
+    if *DEBUG { println!("{} GameTasks Thread ID: {} (delay: {})", "[ INFO ]".blue().bold(), format!("{:?}", game_tasks_thread.thread().id()).bold(), format!("{:?}", THREAD_DELAYS.game_tasks).bold()); }
+
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();
     let window_info = WINDOW_INFO.clone();
     let window_last_moved = WINDOW_LAST_MOVED.clone();
-    let aimbot_toggled = AIMBOT_TOGGLED.clone();
+    let ui_functions = UI_FUNCTIONS.clone();
 
     event_loop.run(move | event, _, control_flow | {
         let toggled_value = *toggled.lock().unwrap();
@@ -232,10 +457,6 @@ pub fn init_gui() {
             *control_flow = ControlFlow::Exit;
         }
 
-        if !is_window_focused(window_hwnd) {
-            (*aimbot_toggled.lock().unwrap()) = false;
-        }
-
         match event {
             Event::NewEvents(_) => {
                 let now = Instant::now();
@@ -248,210 +469,11 @@ pub fn init_gui() {
             },
             Event::RedrawRequested(_) => {
                 let ui = imgui_context.frame();
-                let matrix_address = GAME.lock().unwrap().address.matrix;
-                let controller_address = GAME.lock().unwrap().address.local_controller;
-                let pawn_address = GAME.lock().unwrap().address.local_pawn;
-                let mut skip = false;
-                let mut no_pawn = false;
 
-                if !skip {
-                    if !read_memory(matrix_address, &mut (*GAME.lock().unwrap()).view.matrix, 64) {
-                        skip = true;
-                    }
+                for (_, function) in (*ui_functions.lock().unwrap()).iter() {
+                    function(ui);
                 }
 
-                if !skip {
-                    update_entity_list_entry();
-                }
-
-                let mut local_controller_address = 0;
-                let mut local_pawn_address = 0;
-
-                if !skip {
-                    if !read_memory_auto(controller_address, &mut local_controller_address) {
-                        skip = true;
-                    }
-                }
-
-                if !skip {
-                    if !read_memory_auto(pawn_address, &mut local_pawn_address) {
-                        skip = true;
-                    }
-                }
-
-                let mut local_entity = Entity::default();
-                let mut local_player_controller_index = 1;
-
-                if !skip {
-                    if !local_entity.update_controller(local_controller_address) {
-                        skip = true;
-                    }
-                }
-
-                if !skip {
-                    if !local_entity.update_pawn(local_pawn_address) {
-                        if !(*CONFIG.lock().unwrap()).show_when_spec {
-                            skip = true;
-                        };
-
-                        no_pawn = true;
-                    }
-                }
-
-                // Aimbot Data
-                let mut max_aim_distance: f32 = 100000.0;
-                let mut aim_pos = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
-
-                if !skip {
-                    // Entities
-                    for i in 0 .. 64 {
-                        let mut entity = Entity::default();
-                        let mut entity_address: u64 = 0;
-
-                        if !read_memory_auto((*GAME.lock().unwrap()).address.entity_list_entry + (i + 1) * 0x78, &mut entity_address) {
-                            continue;
-                        }
-
-                        if entity_address == local_entity.controller.address {
-                            local_player_controller_index = i;
-                            continue;
-                        }
-
-                        if !entity.update_controller(entity_address) {
-                            continue;
-                        }
-
-                        if !entity.update_pawn(entity.pawn.address) {
-                            continue;
-                        }
-
-                        if (*CONFIG.lock().unwrap()).team_check && entity.controller.team_id == local_entity.controller.team_id {
-                            continue;
-                        }
-
-                        if !entity.is_alive() {
-                            continue;
-                        }
-
-                        // [TODO] Does nothing until world_to_screen() is fixed.
-                        if !entity.is_in_screen() {
-                            continue;
-                        }
-
-                        if let Some(((_, _), (width, height))) = window_info_value {
-                            if let Some(bone) = entity.get_bone() {
-                                let pos = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
-                                let distance_to_sight = distance_to_vec(bone.bone_pos_list[BoneIndex::Head as usize].screen_pos, pos);
-
-                                if distance_to_sight < max_aim_distance {
-                                    max_aim_distance = distance_to_sight;
-
-                                    if !(*CONFIG.lock().unwrap()).visible_check || entity.pawn.b_spotted_by_mask & (1 << local_player_controller_index) != 0 || local_entity.pawn.b_spotted_by_mask & (1 << i) != 0 {
-                                        if let Some(bone) = entity.get_bone() {
-                                            let bone_index = aim_position_to_bone_index((*CONFIG.lock().unwrap()).aim_position);
-                                            aim_pos = bone.bone_pos_list[bone_index].pos;
-
-                                            if bone_index as usize == BoneIndex::Head as usize {
-                                                aim_pos.z -= -1.0;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // FOV Circle
-                    if !no_pawn && (*CONFIG.lock().unwrap()).show_aim_fov_range {
-                        if let Some(((_, _), (width, height))) = window_info_value {
-                            let center_point: Vector2<f32> = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
-                            let radius = ((*CONFIG.lock().unwrap()).aim_fov / 180.0 * PI / 2.0).tan() / (local_entity.pawn.fov as f32 / 180.0 * PI / 2.0).tan() * width as f32;
-                            ui.get_background_draw_list().add_circle(center_point, radius, color_u32_to_f32((*CONFIG.lock().unwrap()).aim_fov_range_color)).build();
-                        }
-                    }
-
-                    // FOV
-                    if !no_pawn && (*CONFIG.lock().unwrap()).show_fov_line {
-                        if let Some(((_, _), (width, height))) = window_info_value {
-                            let mut line_end_point: [Vector2<f32>; 2] = [Vector2 { x: 0.0, y: 0.0 }, Vector2 { x: 0.0, y: 0.0 }];
-                            let pos: Vector2<f32> = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
-                            let radian = (local_entity.pawn.fov as f32 / 2.0).to_radians();
-                            let color = color_u32_to_f32((*CONFIG.lock().unwrap()).fov_line_color);
-
-                            line_end_point[0].y = pos.y - (*CONFIG.lock().unwrap()).fov_line_size;
-                            line_end_point[1].y = line_end_point[0].y;
-                            
-                            let length = (*CONFIG.lock().unwrap()).fov_line_size * radian.tan();
-
-                            line_end_point[0].x = pos.x - length;
-                            line_end_point[1].x = pos.x + length;
-
-                            ui.get_background_draw_list().add_line(pos, line_end_point[0], color).build();
-                            ui.get_background_draw_list().add_line(pos, line_end_point[1], color).build();
-                        }
-                    }
-
-                    // Crosshair
-                    if (*CONFIG.lock().unwrap()).show_crosshair {
-                        if let Some(((_, _), (width, height))) = window_info_value {
-                            let sight_pos: Vector2<f32> = Vector2 { x: width as f32 / 2.0, y: height as f32 / 2.0 };
-                            let color = color_u32_to_f32((*CONFIG.lock().unwrap()).crosshair_color);
-
-                            let line1_first = Vector2 { x: sight_pos.x - (*CONFIG.lock().unwrap()).crosshair_size, y: sight_pos.y };
-                            let line1_second = Vector2 { x: sight_pos.x + (*CONFIG.lock().unwrap()).crosshair_size, y: sight_pos.y };
-
-                            let line2_first = Vector2 { x: sight_pos.x, y: sight_pos.y - (*CONFIG.lock().unwrap()).crosshair_size };
-                            let line2_second = Vector2 { x: sight_pos.x, y: sight_pos.y + (*CONFIG.lock().unwrap()).crosshair_size };
-
-                            ui.get_background_draw_list().add_line(line1_first, line1_second, color).build();
-                            ui.get_background_draw_list().add_line(line2_first, line2_second, color).build();
-                        }
-                    }
-
-                    // Aimbot
-                    if *aimbot_toggled.lock().unwrap() {
-                        let local_pos = local_entity.pawn.camera_pos;
-                        let opp_pos = Vector3 { x: aim_pos.x - local_pos.x, y: aim_pos.y - local_pos.y, z: aim_pos.z - local_pos.z };
-                        let distance = f32::sqrt(f32::powf(opp_pos.x, 2.0) + f32::powf(opp_pos.y, 2.0));
-                        let mut yaw = f32::atan2(opp_pos.y, opp_pos.x) * 57.295779513 - local_entity.pawn.view_angle.y;
-                        let mut pitch = -f32::atan(opp_pos.z / distance) * 57.295779513 - local_entity.pawn.view_angle.x;
-                        let norm = f32::sqrt(f32::powf(yaw, 2.0) + f32::powf(pitch, 2.0));
-                        let mut ret = false;
-
-                        if norm < (*CONFIG.lock().unwrap()).aim_fov {
-                            yaw = yaw * (1.0 - (*CONFIG.lock().unwrap()).smooth) + local_entity.pawn.view_angle.y;
-                            pitch = pitch * (1.0 - (*CONFIG.lock().unwrap()).smooth) + local_entity.pawn.view_angle.x;
-
-                            if local_entity.pawn.shots_fired > (*CONFIG.lock().unwrap()).rcs_bullet as u64 {
-                                let mut punch_angle = Vector2 { x: 0.0, y: 0.0 };
-
-                                if local_entity.pawn.aim_punch_cache.count <= 0 && local_entity.pawn.aim_punch_cache.count > 0xFFFF {
-                                    ret = true;
-                                }
-
-                                if !ret {
-                                    if !read_memory_auto(local_entity.pawn.aim_punch_cache.data + (local_entity.pawn.aim_punch_cache.count - 1) * std::mem::size_of::<Vector3<f32>>() as u64, &mut punch_angle) {
-                                        ret = true;
-                                    }
-                                }
-
-                                if !ret {
-                                    yaw = yaw - punch_angle.y * (*CONFIG.lock().unwrap()).rcs_scale.0;
-                                    pitch = pitch - punch_angle.x * (*CONFIG.lock().unwrap()).rcs_scale.1;
-                                }
-                            }
-
-                            if !ret {
-                                set_view_angle(yaw, pitch);
-                            }
-                        }
-                    }
-                }
-
-                if !skip {
-                    render_radar(ui);
-                }
-                
                 render_menu(ui);
 
                 let mut target = display.draw();
