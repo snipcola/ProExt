@@ -187,7 +187,7 @@ pub fn update_offsets() -> Option<String> {
     match search_offsets(signatures.view_angles.clone(), client_dll) {
         Some(mut address) => {
             if !read_memory_auto(address, &mut address) { return Some("ViewAnglesMemory".to_string()); };
-            *view_angle = (address + 0x4510 + 0x8 - client_dll) as u32;
+            *view_angle = (address + 0x4518 - client_dll) as u32;
         },
         _ => { return Some("ViewAngles".to_string()) }
     };

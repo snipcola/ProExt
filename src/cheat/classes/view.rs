@@ -10,7 +10,7 @@ impl View {
         let window_info = WINDOW_INFO.lock().unwrap();
         let view = self.matrix[3][0] * pos.x + self.matrix[3][2] * pos.z + self.matrix[3][3]; 
         
-        // [TODO] Figure out why this breaks aimbot at certain positions.
+        // [TODO] Figure out why this returns false even if entity on screen at certain positions.
         // if view <= 0.01 {
         //     return false;
         // }
