@@ -5,6 +5,7 @@ use crate::cheat::classes::bone::Bone;
 use crate::cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS};
 use crate::cheat::classes::game::GAME;
 use crate::cheat::classes::bone::BoneJointPos;
+use crate::cheat::classes::view::View;
 
 #[derive(Clone)]
 pub struct CUtlVector {
@@ -95,7 +96,7 @@ impl Entity {
         return true;
     }
 
-    pub fn update_pawn(&mut self, player_pawn_address: u64) -> bool {
+    pub fn update_pawn(&mut self, player_pawn_address: u64, window_info: ((i32, i32), (i32, i32)), view: View) -> bool {
         if player_pawn_address == 0 {
             return false;
         }
@@ -150,7 +151,7 @@ impl Entity {
             return false;
         }
 
-        if !self.pawn.bone_data.update_bone_data(player_pawn_address) {
+        if !self.pawn.bone_data.update_bone_data(player_pawn_address, window_info, view) {
             return false;
         }
 
@@ -161,8 +162,8 @@ impl Entity {
         return self.controller.alive_status == 1 && self.pawn.health > 0;
     }
 
-    pub fn is_in_screen(&mut self) -> bool {
-        return (*GAME.lock().unwrap()).view.world_to_screen(self.pawn.pos, &mut self.pawn.screen_pos);
+    pub fn is_in_screen(&mut self, window_info: ((i32, i32), (i32, i32)), view: View) -> bool {
+        return view.world_to_screen(self.pawn.pos, &mut self.pawn.screen_pos, window_info);
     }
 
     pub fn get_bone(&mut self) -> Option<Bone> {

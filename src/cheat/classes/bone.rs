@@ -2,7 +2,7 @@ use mint::{Vector3, Vector2};
 
 use crate::utils::process_manager::read_memory_auto;
 use crate::cheat::classes::offsets::PAWN_OFFSETS;
-use crate::cheat::classes::game::GAME;
+use crate::cheat::classes::view::View;
 
 #[derive(Clone, Copy)]
 pub enum BoneIndex {
@@ -55,7 +55,7 @@ pub struct Bone {
 }
 
 impl Bone {
-    pub fn update_bone_data(&mut self, entity_pawn_address: u64) -> bool {
+    pub fn update_bone_data(&mut self, entity_pawn_address: u64, window_info: ((i32, i32), (i32, i32)), view: View) -> bool {
         if entity_pawn_address == 0 {
             return false;
         }
@@ -83,7 +83,7 @@ impl Bone {
             let mut screen_pos = Vector2 { x: 0.0, y: 0.0 };
             let mut is_visible = false;
 
-            if GAME.lock().unwrap().view.world_to_screen(bone_array[i].pos, &mut screen_pos) {
+            if view.world_to_screen(bone_array[i].pos, &mut screen_pos, window_info) {
                 is_visible = true;
             }
 
