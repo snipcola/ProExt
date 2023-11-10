@@ -1,5 +1,5 @@
 use mint::{Vector3, Vector2};
-use crate::{utils::{config::Config, process_manager::read_memory_auto}, cheat::classes::{game::set_view_angle, entity::CUtlVector, bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}}, ui::main::distance_to_vec};
+use crate::{utils::{config::Config, process_manager::read_memory_auto}, cheat::classes::{game::set_view_angle, entity::CUtlVector, bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}}, ui::main::distance_between_vec2};
 
 pub fn run_aimbot(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32>, view_angle: Vector2<f32>, shots_fired: u64, aim_punch_cache: CUtlVector) {
     let pos = Vector3 { x: aim_pos.x - camera_pos.x, y: aim_pos.y - camera_pos.y, z: aim_pos.z - camera_pos.z };
@@ -36,7 +36,7 @@ pub fn run_aimbot(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32
 pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, config: Config) {
     let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
     let bone_index = aim_position_to_bone_index(config.aim_position);
-    let distance_to_sight = distance_to_vec(bone_pos_list[bone_index].screen_pos, pos);
+    let distance_to_sight = distance_between_vec2(bone_pos_list[bone_index].screen_pos, pos);
 
     if distance_to_sight < *max_aim_distance {
         *max_aim_distance = distance_to_sight;

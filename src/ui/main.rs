@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_line_to_enemy, render_box}}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_line_to_enemy, render_box, render_weapon_name, render_distance, render_player_name}}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -53,10 +53,19 @@ pub fn color_with_alpha_mask((red, green, blue, _): (u32, u32, u32, u32), alpha_
     return (red as f32 / 255.0, green as f32 / 255.0, blue as f32 / 255.0);
 }
 
-pub fn distance_to_vec(pos1: Vector2<f32>, pos2: Vector2<f32>) -> f32 {
+pub fn distance_between_vec2(pos1: Vector2<f32>, pos2: Vector2<f32>) -> f32 {
     let x_diff = pos2.x - pos1.x;
     let y_diff = pos2.y - pos1.y;
     let distance = (x_diff.powi(2) + y_diff.powi(2)).sqrt();
+
+    return distance;
+}
+
+pub fn distance_between_vec3(pos1: Vector3<f32>, pos2: Vector3<f32>) -> f32 {
+    let x_diff = pos2.x - pos1.x;
+    let y_diff = pos2.y - pos1.y;
+    let z_diff = pos2.z - pos1.z;
+    let distance = (x_diff.powi(2) + y_diff.powi(2) + z_diff.powi(2)).sqrt();
 
     return distance;
 }
@@ -70,6 +79,24 @@ pub fn rectangle_filled(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, colo
 
 pub fn rectangle(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, color: ImColor32, thickness: f32) {
     ui.get_background_draw_list().add_rect(pos, Vector2 { x: pos.x + size.x, y: pos.y + size.y }, color).thickness(thickness).build();
+}
+
+pub fn text(ui: &mut Ui, text: String, pos: Vector2<f32>, color: ImColor32, keep_center: bool) {
+    if !keep_center {
+        ui.get_background_draw_list().add_text(pos, color, text);
+    } else {
+        let text_width = ui.calc_text_size_with_opts(text.clone(), false, 0.0)[0];
+        ui.get_background_draw_list().add_text(Vector2 { x: pos.x - text_width / 2.0, y: pos.y }, color, text);
+    }
+}
+
+pub fn stroke_text(ui: &mut Ui, _text: String, pos: Vector2<f32>, color: ImColor32, keep_center: bool) {
+    text(ui, _text.clone(), Vector2 { x: pos.x - 1.0, y: pos.y + 1.0 }, ImColor32::from_rgb(0, 0, 0), keep_center);
+    text(ui, _text.clone(), Vector2 { x: pos.x - 1.0, y: pos.y - 1.0 }, ImColor32::from_rgb(0, 0, 0), keep_center);
+    text(ui, _text.clone(), Vector2 { x: pos.x - 1.0, y: pos.y - 1.0 }, ImColor32::from_rgb(0, 0, 0), keep_center);
+    text(ui, _text.clone(), Vector2 { x: pos.x + 1.0, y: pos.y + 1.0 }, ImColor32::from_rgb(0, 0, 0), keep_center);
+    text(ui, _text.clone(), Vector2 { x: pos.x + 1.0, y: pos.y - 1.0 }, ImColor32::from_rgb(0, 0, 0), keep_center);
+    text(ui, _text, pos, color, keep_center);
 }
 
 pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<rdev::Button, rdev::Key> {
@@ -272,6 +299,9 @@ pub fn init_gui() {
                 (*ui_functions.lock().unwrap()).remove(&format!("eye_ray_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("line_to_enemy_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("box_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("weapon_name_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("distance_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", entity));
             };
 
             let remove_ui_elements = || {
@@ -383,7 +413,9 @@ pub fn init_gui() {
                 };
 
                 // Aimbot Check
-                aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, config);
+                if !no_pawn {
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, config);
+                }
 
                 // Bones
                 if config.show_bone_esp {
@@ -428,6 +460,33 @@ pub fn init_gui() {
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("box_{}", i));
+                }
+
+                // Weapon Name
+                if config.show_weapon_esp {
+                    (*ui_functions.lock().unwrap()).insert(format!("weapon_name_{}", i), Box::new(move |ui| {
+                        render_weapon_name(ui, &entity.pawn.weapon_name, Vector2 { x: rect.x, y: rect.y + rect.w });
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("weapon_name_{}", i));
+                }
+
+                // Distance
+                if config.show_distance {
+                    (*ui_functions.lock().unwrap()).insert(format!("distance_{}", i), Box::new(move |ui| {
+                        render_distance(ui, entity.pawn.pos, local_entity.pawn.pos, rect);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("distance_{}", i));
+                }
+
+                // Player Name
+                if config.show_player_name {
+                    (*ui_functions.lock().unwrap()).insert(format!("player_name_{}", i), Box::new(move |ui| {
+                        render_player_name(ui, &entity.controller.player_name, rect, config);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", i));
                 }
             }
 
