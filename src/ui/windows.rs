@@ -2,7 +2,7 @@ use glium::{glutin::{ContextBuilder, window::WindowBuilder, platform::windows::W
 use imgui::{Context, FontSource};
 use imgui_winit_support::{WinitPlatform, HiDpiMode};
 
-use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::IsWindow}, core::HSTRING};
+use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY}}, core::HSTRING};
 use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetForegroundWindow, SetForegroundWindow, FindWindowW};
 use windows::Win32::Graphics::Gdi::ClientToScreen;
 use windows::core::PCWSTR;
@@ -49,6 +49,21 @@ pub fn get_window_info(hwnd: HWND) -> Option<((i32, i32), (i32, i32))> {
             }
         }
     }
+}
+
+pub fn hide_window_from_capture(hwnd: HWND, toggle: bool) -> bool {
+    let mut affinity = WINDOW_DISPLAY_AFFINITY(0x00000000);
+
+    if toggle {
+        affinity = WINDOW_DISPLAY_AFFINITY(0x00000011);
+    }
+
+    return unsafe {
+        match SetWindowDisplayAffinity(hwnd, affinity) {
+            Ok(_) => true,
+            Err(_) => false
+        }
+    };
 }
 
 pub fn is_window_focused(window: HWND) -> bool {
