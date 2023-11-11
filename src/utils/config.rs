@@ -221,7 +221,7 @@ impl Default for Config {
             show_health_bar: true,
             show_weapon_esp: true,
             show_distance: true,
-            smooth: 0.7,
+            smooth: 0.6,
             show_eye_ray: true,
             show_player_name: true,
             aim_bot: true,
