@@ -83,14 +83,14 @@ pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vect
 }
 
 pub fn render_player_name(ui: &mut Ui, player_name: &str, rect: Vector4<f32>, config: Config) {
-    if config.health_bar_type == 0 {
+    if config.show_health_bar && config.health_bar_type == 0 {
         stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, ImColor32::from_rgba(0, 255, 255, 255), true);
     } else {
         stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, ImColor32::from_rgba(0, 255, 255, 255), true);
     }
 }
 
-pub fn render_health_bar(ui: &mut Ui, sign: u64, current_health: f32, rect_pos: Vector2<f32>, rect_size: Vector2<f32>, config: Config) {
+pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect_pos: Vector2<f32>, rect_size: Vector2<f32>, config: Config) {
     let max_health = 100.0;
 
     let background_color = ImColor32::from_rgba(90, 90, 90, 220);

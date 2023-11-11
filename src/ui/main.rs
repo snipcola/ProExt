@@ -480,7 +480,7 @@ pub fn init_gui() {
                     };
 
                     (*ui_functions.lock().unwrap()).insert(format!("health_bar_{}", i), Box::new(move |ui| {
-                        render_health_bar(ui, entity_address, entity.pawn.health as f32, health_bar_pos, health_bar_size, config);
+                        render_health_bar(ui, entity.pawn.health as f32, health_bar_pos, health_bar_size, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("health_bar_{}", i));
