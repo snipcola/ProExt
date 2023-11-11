@@ -7,7 +7,7 @@ use crate::cheat::classes::game::GAME;
 use crate::cheat::classes::bone::BoneJointPos;
 use crate::cheat::classes::view::View;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct CUtlVector {
     pub count: u64,
     pub data: u64

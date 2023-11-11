@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_line_to_enemy, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar}}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_line_to_enemy, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar}, triggerbot::run_triggerbot}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -19,6 +19,10 @@ lazy_static! {
 
     pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref BUNNYHOP_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+
+    pub static ref TRIGGERBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    pub static ref TRIGGERBOT_HOLD_START: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+    
     pub static ref TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(true));
     pub static ref EXIT: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
 }
@@ -162,18 +166,30 @@ pub fn init_gui() {
 
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();
+    let config = CONFIG.clone();
+
     let window_info = WINDOW_INFO.clone();
     let window_last_moved = WINDOW_LAST_MOVED.clone();
     let window_focused = WINDOW_FOCUSED.clone();
+
     let aimbot_toggled = AIMBOT_TOGGLED.clone();
     let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
+
+    let triggerbot_hold_start = TRIGGERBOT_HOLD_START.clone();
+    let triggerbot_toggled = TRIGGERBOT_TOGGLED.clone();
     
     let key_events_thread = thread::spawn(move || {
         let _ = rdev::listen(move | event | {
+            let is_game_window_focused = is_window_focused(window_hwnd);
+            let is_aimbot_toggled = aimbot_toggled.lock().unwrap().clone();
+            let is_triggerbot_toggled = triggerbot_toggled.lock().unwrap().clone();
+            let is_bunnyhop_toggled = bunnyhop_toggled.lock().unwrap().clone();
+            let config = config.lock().unwrap().clone();
+
             match event.event_type {
                 rdev::EventType::KeyRelease(key) => {
                     let window_focused = *window_focused.lock().unwrap();
-
+                    
                     if format!("{:?}", key) == format!("{:?}", toggle_key) && window_focused {
                         let toggled_value = *toggled.lock().unwrap();
                         *toggled.lock().unwrap() = !toggled_value;
@@ -184,16 +200,31 @@ pub fn init_gui() {
                             focus_window(self_hwnd);
                         }
                     } else {
-                        match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
+                        match hotkey_index_to_io(config.aim_bot_hot_key) {
                             Ok(_) => {},
                             Err(aimbot_key) => {
-                                if (*aimbot_toggled.lock().unwrap()) && key == aimbot_key && is_window_focused(window_hwnd) {
+                                if is_aimbot_toggled && key == aimbot_key && is_game_window_focused {
                                     (*aimbot_toggled.lock().unwrap()) = false;
                                 }
                             }
                         }
 
-                        if (*bunnyhop_toggled.lock().unwrap()) && key == rdev::Key::Space && is_window_focused(window_hwnd) {
+                        match hotkey_index_to_io((*CONFIG.lock().unwrap()).trigger_hot_key) {
+                            Ok(_) => {},
+                            Err(triggerbot_key) => {
+                                if config.trigger_mode == 1 && key == triggerbot_key && is_game_window_focused {
+                                    (*triggerbot_toggled.lock().unwrap()) = !is_triggerbot_toggled;
+
+                                    if !is_triggerbot_toggled {
+                                        (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
+                                    }
+                                } else if is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
+                                    (*triggerbot_toggled.lock().unwrap()) = false;
+                                }
+                            }
+                        }
+
+                        if is_bunnyhop_toggled && key == rdev::Key::Space && is_game_window_focused {
                             (*bunnyhop_toggled.lock().unwrap()) = false;
                         }
                     }
@@ -202,13 +233,23 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                         Ok(_) => {},
                         Err(aimbot_key) => {
-                            if !(*aimbot_toggled.lock().unwrap()) && key == aimbot_key && is_window_focused(window_hwnd) {
+                            if !is_aimbot_toggled && key == aimbot_key && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = true;
                             }
                         }
                     }
 
-                    if !(*bunnyhop_toggled.lock().unwrap()) && key == rdev::Key::Space && is_window_focused(window_hwnd) {
+                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).trigger_hot_key) {
+                        Ok(_) => {},
+                        Err(triggerbot_key) => {
+                            if config.trigger_mode == 0 && !is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
+                                (*triggerbot_toggled.lock().unwrap()) = true;
+                                (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
+                            }
+                        }
+                    }
+
+                    if !is_bunnyhop_toggled && key == rdev::Key::Space && is_game_window_focused {
                         (*bunnyhop_toggled.lock().unwrap()) = true;
                     }
                 },
@@ -216,8 +257,18 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                         Err(_) => {},
                         Ok(aimbot_button) => {
-                            if !(*aimbot_toggled.lock().unwrap()) && button == aimbot_button && is_window_focused(window_hwnd) {
+                            if !is_aimbot_toggled && button == aimbot_button && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = true;
+                            }
+                        }
+                    }
+
+                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).trigger_hot_key) {
+                        Err(_) => {},
+                        Ok(triggerbot_button) => {
+                            if config.trigger_mode == 0 && !is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
+                                (*triggerbot_toggled.lock().unwrap()) = true;
+                                (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
                             }
                         }
                     }
@@ -226,8 +277,23 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                         Err(_) => {},
                         Ok(aimbot_button) => {
-                            if (*aimbot_toggled.lock().unwrap()) && button == aimbot_button && is_window_focused(window_hwnd) {
+                            if is_aimbot_toggled && button == aimbot_button && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = false;
+                            }
+                        }
+                    }
+
+                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).trigger_hot_key) {
+                        Err(_) => {},
+                        Ok(triggerbot_button) => {
+                            if config.trigger_mode == 1 && button == triggerbot_button && is_game_window_focused {
+                                (*triggerbot_toggled.lock().unwrap()) = !is_triggerbot_toggled;
+                                
+                                if !is_triggerbot_toggled {
+                                    (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
+                                }
+                            } else if is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
+                                (*triggerbot_toggled.lock().unwrap()) = false;
                             }
                         }
                     }
@@ -265,33 +331,44 @@ pub fn init_gui() {
 
     let aimbot_toggled = AIMBOT_TOGGLED.clone();
     let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
+
+    let triggerbot_toggled = TRIGGERBOT_TOGGLED.clone();
+    let triggerbot_hold_start = TRIGGERBOT_HOLD_START.clone();
+
     let ui_functions = UI_FUNCTIONS.clone();
     let window_info = WINDOW_INFO.clone();
     let mut window_hidden_from_capture = false;
+
     let cheat_tasks_thread = thread::spawn(move || {
         loop {
-            if (*aimbot_toggled.lock().unwrap()) && !is_window_focused(window_hwnd) {
-                (*aimbot_toggled.lock().unwrap()) = false;
-            }
-
-            if (*bunnyhop_toggled.lock().unwrap()) && !is_window_focused(window_hwnd) {
-                (*bunnyhop_toggled.lock().unwrap()) = false;
-            }
-
-            if !window_hidden_from_capture && (*CONFIG.lock().unwrap()).obs_bypass {
-                hide_window_from_capture(self_hwnd, true);
-                window_hidden_from_capture = true;
-            } else if window_hidden_from_capture && !(*CONFIG.lock().unwrap()).obs_bypass {
-                hide_window_from_capture(self_hwnd, false);
-                window_hidden_from_capture = false;
-            }
-
             let game = GAME.lock().unwrap().clone();
             let config = CONFIG.lock().unwrap().clone();
             let window_info = match window_info.lock().unwrap().clone() {
                 Some(window_info) => window_info,
                 _ => { continue; }
             };
+
+            let is_game_window_focused = is_window_focused(window_hwnd);
+
+            if (*aimbot_toggled.lock().unwrap()) && !is_game_window_focused {
+                (*aimbot_toggled.lock().unwrap()) = false;
+            }
+
+            if (*triggerbot_toggled.lock().unwrap()) && !is_game_window_focused {
+                (*triggerbot_toggled.lock().unwrap()) = false;
+            }
+
+            if (*bunnyhop_toggled.lock().unwrap()) && !is_game_window_focused {
+                (*bunnyhop_toggled.lock().unwrap()) = false;
+            }
+
+            if !window_hidden_from_capture && config.obs_bypass {
+                hide_window_from_capture(self_hwnd, true);
+                window_hidden_from_capture = true;
+            } else if window_hidden_from_capture && !config.obs_bypass {
+                hide_window_from_capture(self_hwnd, false);
+                window_hidden_from_capture = false;
+            }
 
             let mut no_pawn = false;
             let matrix_address = game.address.matrix;
@@ -418,7 +495,7 @@ pub fn init_gui() {
                 };
 
                 // Aimbot Check
-                if !no_pawn {
+                if !no_pawn && config.aim_bot {
                     aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, config);
                 }
 
@@ -515,7 +592,7 @@ pub fn init_gui() {
             }
 
             // FOV Circle
-            if !no_pawn && config.show_aim_fov_range {
+            if !no_pawn && config.aim_bot && config.show_aim_fov_range {
                 (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
                     render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, config);
                 }));
@@ -570,9 +647,16 @@ pub fn init_gui() {
             }
 
             // Aimbot
-            if !no_pawn && *aimbot_toggled.lock().unwrap() {
+            if !no_pawn && config.aim_bot && *aimbot_toggled.lock().unwrap() {
                 if let Some(aim_pos) = aim_pos {
                     run_aimbot(config, aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
+                }
+            }
+
+            // Triggerbot
+            if !no_pawn && config.trigger_bot && *triggerbot_toggled.lock().unwrap() {
+                if run_triggerbot(local_entity, game, config, window_info, triggerbot_hold_start.lock().unwrap().clone()) {
+                    *triggerbot_hold_start.lock().unwrap() = Instant::now();
                 }
             }
         }
@@ -582,9 +666,10 @@ pub fn init_gui() {
 
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();
+
+    let ui_functions = UI_FUNCTIONS.clone();
     let window_info = WINDOW_INFO.clone();
     let window_last_moved = WINDOW_LAST_MOVED.clone();
-    let ui_functions = UI_FUNCTIONS.clone();
 
     event_loop.run(move | event, _, control_flow | {
         let toggled_value = *toggled.lock().unwrap();
