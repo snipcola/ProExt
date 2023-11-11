@@ -134,7 +134,7 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.separator();
 
                         // Delay
-                        ui.slider_config("Delay", 15, 170).display_format("%d").build(&mut (*config).trigger_delay);
+                        ui.slider_config("Delay", 15, 500).display_format("%d").build(&mut (*config).trigger_delay);
                     });
 
                     TabItem::new("Radar").build(&ui, || {
