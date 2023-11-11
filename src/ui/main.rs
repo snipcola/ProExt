@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_line_to_enemy, render_box, render_weapon_name, render_distance, render_player_name}}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_line_to_enemy, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar}}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -51,6 +51,10 @@ pub fn color_with_alpha_mask((red, green, blue, _): (u32, u32, u32, u32), alpha_
     let blue = (blue & alpha_mask) >> 24;
 
     return (red as f32 / 255.0, green as f32 / 255.0, blue as f32 / 255.0);
+}
+
+pub fn mix_colors(color_1: ImColor32, color_2: ImColor32, t: f32) -> ImColor32 {
+    return ImColor32::from_rgba_f32s(t * color_1.r as f32 / 255.0 + (1.0 - t) * color_2.r as f32 / 255.0, t * color_1.g as f32 / 255.0 + (1.0 - t) * color_2.g as f32 / 255.0, t * color_1.b as f32 / 255.0 + (1.0 - t) * color_2.b as f32 / 255.0, color_1.a as f32 / 255.0);
 }
 
 pub fn distance_between_vec2(pos1: Vector2<f32>, pos2: Vector2<f32>) -> f32 {
@@ -164,7 +168,7 @@ pub fn init_gui() {
     let aimbot_toggled = AIMBOT_TOGGLED.clone();
     let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
     
-    let key_event_thread = thread::spawn(move || {
+    let key_events_thread = thread::spawn(move || {
         let _ = rdev::listen(move | event | {
             match event.event_type {
                 rdev::EventType::KeyRelease(key) => {
@@ -233,7 +237,7 @@ pub fn init_gui() {
         });
     });
 
-    if *DEBUG { println!("{} KeyEvents Thread ID: {}", "[ INFO ]".blue().bold(), format!("{:?}", key_event_thread.thread().id()).bold()); }
+    if *DEBUG { println!("{} KeyEvents Thread ID: {}", "[ INFO ]".blue().bold(), format!("{:?}", key_events_thread.thread().id()).bold()); }
 
     let window_focused = WINDOW_FOCUSED.clone();
     let window_tasks_thread = thread::spawn(move || {
@@ -302,6 +306,7 @@ pub fn init_gui() {
                 (*ui_functions.lock().unwrap()).remove(&format!("weapon_name_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("distance_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("health_bar_{}", entity));
             };
 
             let remove_ui_elements = || {
@@ -462,6 +467,25 @@ pub fn init_gui() {
                     (*ui_functions.lock().unwrap()).remove(&format!("box_{}", i));
                 }
 
+                // Health Bar
+                if config.show_health_bar {
+                    let (health_bar_pos, health_bar_size) = {
+                        if config.health_bar_type == 0 {
+                            // Vertical
+                            (Vector2 { x: rect.x - 7.0, y: rect.y }, Vector2 { x: 7.0, y: rect.w })
+                        } else {
+                            // Horizontal
+                            (Vector2 { x: rect.x + rect.z / 2.0 - 70.0 / 2.0, y: rect.y - 13.0 }, Vector2 { x: 70.0, y: 8.0 })
+                        }
+                    };
+
+                    (*ui_functions.lock().unwrap()).insert(format!("health_bar_{}", i), Box::new(move |ui| {
+                        render_health_bar(ui, entity_address, entity.pawn.health as f32, health_bar_pos, health_bar_size, config);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("health_bar_{}", i));
+                }
+
                 // Weapon Name
                 if config.show_weapon_esp {
                     (*ui_functions.lock().unwrap()).insert(format!("weapon_name_{}", i), Box::new(move |ui| {
@@ -472,7 +496,7 @@ pub fn init_gui() {
                 }
 
                 // Distance
-                if config.show_distance {
+                if !no_pawn && config.show_distance {
                     (*ui_functions.lock().unwrap()).insert(format!("distance_{}", i), Box::new(move |ui| {
                         render_distance(ui, entity.pawn.pos, local_entity.pawn.pos, rect);
                     }));
@@ -518,7 +542,7 @@ pub fn init_gui() {
             }
 
             // Head Shoot Line
-            if config.show_head_shoot_line {
+            if !no_pawn && config.show_head_shoot_line {
                 (*ui_functions.lock().unwrap()).insert("head_shoot_line".to_string(), Box::new(move |ui| {
                     render_head_shoot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
                 }));

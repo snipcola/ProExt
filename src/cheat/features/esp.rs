@@ -1,8 +1,7 @@
 use std::f32::consts::PI;
-
 use imgui::{Ui, ImColor32};
 use mint::{Vector3, Vector2, Vector4};
-use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::main::{color_u32_to_f32, rectangle, stroke_text, distance_between_vec3}};
+use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::main::{color_u32_to_f32, rectangle, stroke_text, distance_between_vec3, mix_colors}};
 
 pub fn render_bones(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Config) {
     let mut previous: BoneJointPos = BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false };
@@ -88,5 +87,42 @@ pub fn render_player_name(ui: &mut Ui, player_name: &str, rect: Vector4<f32>, co
         stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, ImColor32::from_rgba(0, 255, 255, 255), true);
     } else {
         stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, ImColor32::from_rgba(0, 255, 255, 255), true);
+    }
+}
+
+pub fn render_health_bar(ui: &mut Ui, sign: u64, current_health: f32, rect_pos: Vector2<f32>, rect_size: Vector2<f32>, config: Config) {
+    let max_health = 100.0;
+
+    let background_color = ImColor32::from_rgba(90, 90, 90, 220);
+    let frame_color = ImColor32::from_rgba(45, 45, 45, 220);
+
+    let first_stage_color = ImColor32::from_rgba(96, 246, 113, 220);
+    let second_stage_color = ImColor32::from_rgba(247, 214, 103, 220);
+    let third_stage_color = ImColor32::from_rgba(255, 95, 95, 220);
+
+    let in_range = |value: f32, min: f32, max: f32| -> bool {
+        value > min && value <= max
+    };
+
+    let proportion = current_health / max_health;
+    let (height, width) = ((rect_size.y * proportion), (rect_size.x * proportion));
+    let color = {
+        if in_range(proportion, 0.5, 1.0) {
+            mix_colors(first_stage_color, second_stage_color, f32::powf(proportion, 2.5) * 3.0 - 1.0)
+        } else {
+            mix_colors(second_stage_color, third_stage_color, f32::powf(proportion, 2.5) * 4.0)
+        }
+    };
+    
+    ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, background_color).filled(true).build();
+    
+    if config.health_bar_type == 0 {
+        // Vertical
+        ui.get_background_draw_list().add_rect(Vector2 { x: rect_pos.x, y: rect_pos.y + rect_size.y - height }, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, color).filled(true).build();
+        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, frame_color).thickness(1.0).build();
+    } else {
+        // Horizontal
+        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + width, y: rect_pos.y + rect_size.y }, color).filled(true).build();
+        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, frame_color).thickness(1.0).build();   
     }
 }
