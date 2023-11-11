@@ -83,10 +83,10 @@ pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vect
 }
 
 pub fn render_player_name(ui: &mut Ui, player_name: &str, rect: Vector4<f32>, config: Config) {
-    if config.show_health_bar && config.health_bar_type == 0 {
-        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, ImColor32::from_rgba(0, 255, 255, 255), true);
-    } else {
+    if config.show_health_bar && config.health_bar_type == 1 {
         stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, ImColor32::from_rgba(0, 255, 255, 255), true);
+    } else {
+        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, ImColor32::from_rgba(0, 255, 255, 255), true);
     }
 }
 
