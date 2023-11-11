@@ -1,5 +1,5 @@
 use std::time::{Instant, Duration};
-use winapi::um::winuser::{mouse_event, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP};
+use mouse_rs::{Mouse, types::keys::Keys};
 
 use crate::{utils::{process_manager::{read_memory_auto, trace_address}, config::Config}, cheat::classes::{entity::Entity, offsets::PAWN_OFFSETS, game::Game}};
 
@@ -41,10 +41,10 @@ pub fn run_triggerbot(local_entity: Entity, game: Game, config: Config, window_i
     }
 
     if started.elapsed() >= Duration::from_millis(config.trigger_delay as u64) {
-        unsafe {
-            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-        };
+        let mouse = Mouse::new();
+        
+        let _ = mouse.press(&Keys::LEFT);
+        let _ = mouse.release(&Keys::LEFT);
 
         return true;
     }
