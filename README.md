@@ -15,4 +15,4 @@
 
 - **Misc**: Anti Flashbang (Risky), Bunny Hop (Risky), Team Check, Show UI when Spectating, disable cheat capture by OBS, etc.
 
-- **Config**: Create, store, and share configuration files with ease - config must be valid or the application will reject it.
+- **Config**: Create, store, and share configuration files with ease - the config must be valid to load.
