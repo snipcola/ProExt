@@ -184,20 +184,30 @@ pub fn render_menu(ui: &mut Ui) {
                     });
 
                     TabItem::new("Radar").build(&ui, || {
-                        // Radar & RadarType
+                        // Radar
                         ui.checkbox("Radar", &mut (*config).show_radar);
-                        ui.combo_simple_string("RadarType", &mut (*config).radar_type, &["Circle", "Arrow", "CircleWithArrow"]);
-                        ui.separator();
+                        
+                        if (*config).show_radar {
+                            // Radar Type
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##RadarColor", &mut (*config).radar_color);
+                            ui.same_line();
+                            ui.combo_simple_string("##RadarType", &mut (*config).radar_type, &["Circle", "Arrow", "Both"]);
 
-                        // CrossLine
-                        ui.checkbox("CrossLine", &mut (*config).show_radar_cross_line);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##CrossLineColor", &mut (*config).radar_cross_line_color);
+                            // Radar Alpha
+                            ui.slider_config("Radar Alpha", 0.0, 1.0).display_format("%.1f").build(&mut (*config).radar_alpha);
+                            ui.separator();
 
-                        // PointSize, Proportion, & RadarRange
-                        ui.slider_config("PointSize", 1.0, 2.0).display_format("%.1f").build(&mut (*config).radar_point_size_proportion);
-                        ui.slider_config("Proportion", 500.0, 3500.0).display_format("%.1f").build(&mut (*config).proportion);
-                        ui.slider_config("RadarRange", 100.0, 300.0).display_format("%.1f").build(&mut (*config).radar_range);
+                            // Cross Line
+                            ui.checkbox("CrossLine", &mut (*config).show_radar_cross_line);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##CrossLineColor", &mut (*config).radar_cross_line_color);
+
+                            // Point Size, Proportion, & Radar Range
+                            ui.slider_config("Point Size", 1.0, 2.0).display_format("%.1f").build(&mut (*config).radar_point_size_proportion);
+                            ui.slider_config("Proportion", 500.0, 3500.0).display_format("%.1f").build(&mut (*config).proportion);
+                            ui.slider_config("Radar Range", 100.0, 300.0).display_format("%.1f").build(&mut (*config).radar_range);
+                        }
                     });
 
                     TabItem::new("Misc").build(&ui, || {
