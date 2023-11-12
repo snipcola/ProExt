@@ -5,7 +5,7 @@ mod cheat;
 mod ui;
 
 use std::thread::{self, sleep};
-use colored::Colorize;
+use colored::{Colorize, control::set_virtual_terminal};
 
 use crate::utils::process_manager::{AttachStatus, attach_process_manager};
 use crate::cheat::classes::offsets::update_offsets;
@@ -15,6 +15,7 @@ use crate::utils::pause::pause;
 use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, DEBUG, PROCESS_EXECUTABLE, THREAD_DELAYS};
 
 fn main() {
+    set_virtual_terminal(true).unwrap();
     println!("{} {} | {} | {}", "[ INFO ]".bold().cyan(), (*PACKAGE_NAME).to_uppercase().bold(), (*PACKAGE_VERSION).bold(), (*PACKAGE_AUTHORS).bold());
 
     match setup_config() {
