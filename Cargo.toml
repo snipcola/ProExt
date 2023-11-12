@@ -1,7 +1,7 @@
 [package]
 name = "cs2external"
 version = "0.0.1"
-authors = ["Vytrol", "TKazer"]
+authors = ["Vytrol"]
 edition = "2021"
 
 [dependencies]
