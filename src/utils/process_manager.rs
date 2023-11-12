@@ -5,10 +5,10 @@ use std::sync::{Arc, Mutex};
 use colored::Colorize;
 use lazy_static::lazy_static;
 
-use windows::Win32::Foundation::{HANDLE, BOOL, CloseHandle, STILL_ACTIVE};
+use windows::Win32::Foundation::{HANDLE, BOOL, CloseHandle};
 use windows::Win32::System::Diagnostics::Debug::{ReadProcessMemory, WriteProcessMemory};
 use windows::Win32::System::Diagnostics::ToolHelp::{CreateToolhelp32Snapshot, CREATE_TOOLHELP_SNAPSHOT_FLAGS, PROCESSENTRY32W, Process32NextW, MODULEENTRY32W, TH32CS_SNAPMODULE, Module32NextW};
-use windows::Win32::System::Threading::{OpenProcess, GetExitCodeProcess, PROCESS_ALL_ACCESS, PROCESS_CREATE_THREAD};
+use windows::Win32::System::Threading::{OpenProcess, PROCESS_ALL_ACCESS, PROCESS_CREATE_THREAD};
 use windows::Win32::System::Memory::{VirtualQueryEx, MEMORY_BASIC_INFORMATION};
 
 use crate::utils::config::{DEBUG, PROCESS_EXECUTABLE};
@@ -82,20 +82,6 @@ pub fn detach_process_manager(process_manager: &mut ProcessManager) {
     process_manager.process_id = 0;
     process_manager.module_address = 0;
     process_manager.attached = false;
-}
-
-pub fn is_active() -> bool {
-    let process_manager = PROCESS_MANAGER.clone();
-    let process_manager = process_manager.lock().unwrap();
-
-    if !(*process_manager).attached {
-        return false;
-    }
-
-    let mut exit_code: u32 = 0;
-    
-    unsafe { let _ = GetExitCodeProcess((*process_manager).h_process, &mut exit_code); };
-    return exit_code == STILL_ACTIVE.0 as u32;
 }
 
 pub fn read_memory<ReadType: ?Sized>(address: u64, value: &mut ReadType, size: usize) -> bool {

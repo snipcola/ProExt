@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 mod utils;
 mod cheat;
 mod ui;
