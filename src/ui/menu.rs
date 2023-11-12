@@ -39,7 +39,7 @@ pub fn render_menu(ui: &mut Ui) {
                     // ESP
                     TabItem::new("ESP").build(&ui, || {
                         // Enabled
-                        ui.checkbox("ESP Enabled", &mut (*config).esp_enabled);
+                        ui.checkbox("ESP", &mut (*config).esp_enabled);
                         
                         if (*config).esp_enabled {
                             ui.separator();
@@ -58,9 +58,7 @@ pub fn render_menu(ui: &mut Ui) {
                                 color_edit_u32_tuple(ui, "##BoxVisibleColor", &mut (*config).box_visible_color);
                                 
                                 // Box Rounding
-                                ui.text("Box Rounding");
-                                ui.same_line();
-                                ui.slider_config("##BoxRounding", 0, 25).display_format("%d").build(&mut (*config).box_rounding);
+                                ui.slider_config("Box Rounding", 0, 25).display_format("%d").build(&mut (*config).box_rounding);
                                 ui.separator();
                             }
 
@@ -71,9 +69,7 @@ pub fn render_menu(ui: &mut Ui) {
 
                             if (*config).show_filled_box_esp {
                                 // Filled Box Alpha
-                                ui.text("Filled Box Alpha");
-                                ui.same_line();
-                                ui.slider_config("##FilledBoxAlpha", 0.1, 1.0).display_format("%.1f").build(&mut (*config).filled_box_alpha);
+                                ui.slider_config("Filled Box Alpha", 0.1, 1.0).display_format("%.1f").build(&mut (*config).filled_box_alpha);
                                 ui.separator();
                             }
 
@@ -102,9 +98,7 @@ pub fn render_menu(ui: &mut Ui) {
 
                             if (*config).show_health_bar {
                                 // Health Bar Rounding
-                                ui.text("Health Bar Rounding");
-                                ui.same_line();
-                                ui.slider_config("##HealthBarRounding", 0, 25).display_format("%d").build(&mut (*config).health_bar_rounding);
+                                ui.slider_config("Health Bar Rounding", 0, 25).display_format("%d").build(&mut (*config).health_bar_rounding);
                             }
 
                             ui.separator();
@@ -133,43 +127,50 @@ pub fn render_menu(ui: &mut Ui) {
                     });
 
                     // AimBot
-                    TabItem::new("AimBot").build(&ui, || {
-                        // AimBot & AimKey
-                        ui.checkbox("AimBot", &mut (*config).aim_bot);
-                        ui.combo_simple_string("AimKey", &mut (*config).aim_bot_hot_key, &["ALT", "LBUTTON", "MBUTTON", "RBUTTON", "SHIFT", "CONTROL"]);
-                        ui.separator();
+                    TabItem::new("Aimbot").build(&ui, || {
+                        // Aimbot
+                        ui.checkbox("Aimbot", &mut (*config).aim_bot);
 
-                        // AimFov & FovCircle
-                        ui.slider_config("AimFov", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aim_fov);
-                        ui.checkbox("FovCircle", &mut (*config).show_aim_fov_range);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##FovCircleColor", &mut (*config).aim_fov_range_color);
-                        ui.separator();
+                        if (*config).aim_bot {
+                            // Aim Key
+                            ui.same_line();
+                            ui.combo_simple_string("##AimKey", &mut (*config).aim_bot_hot_key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
+                            ui.combo_simple_string("Aimbot Mode", &mut (*config).aimbot_mode, &["Hold", "Toggle"]);
+                            ui.separator();
 
-                        // Smooth
-                        ui.slider_config("Smooth", 0.0, 0.9).display_format("%.1f").build(&mut (*config).smooth);
-                        ui.separator();
+                            // Fov & Fov Circle
+                            ui.slider_config("Fov", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aim_fov);
+                            ui.checkbox("Fov Circle", &mut (*config).show_aim_fov_range);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##FovCircleColor", &mut (*config).aim_fov_range_color);
+                            ui.separator();
 
-                        // AimPos, & VisibleCheck
-                        ui.combo_simple_string("AimPos", &mut (*config).aim_position, &["Head", "Neck", "Spine"]);
-                        ui.checkbox("VisibleCheck", &mut (*config).visible_check);
-                        ui.separator();
+                            // Only Visible & Only Grounded
+                            ui.checkbox("Only Visible", &mut (*config).visible_check);
+                            ui.checkbox("Only Grounded", &mut (*config).ground_check);
+                            ui.separator();
 
-                        // Start Bullet, RCS Yaw, & RCS Pitch
-                        ui.slider_config("Start Bullet", 1, 6).display_format("%d").build(&mut (*config).rcs_bullet);
-                        ui.slider_config("RCS Yaw", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs_scale.0);
-                        ui.slider_config("RCS Pitch", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs_scale.1);
+                            // Fov, Smooth, Bone
+                            ui.combo_simple_string("Bone", &mut (*config).aim_position, &["Head", "Neck", "Spine"]);
+                            ui.slider_config("Smooth", 0.0, 0.9).display_format("%.1f").build(&mut (*config).smooth);
+                            ui.separator();
+
+                            // Start Bullet, RCS Yaw, & RCS Pitch
+                            ui.slider_config("Start Bullet", 1, 6).display_format("%d").build(&mut (*config).rcs_bullet);
+                            ui.slider_config("RCS Yaw", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs_scale.0);
+                            ui.slider_config("RCS Pitch", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs_scale.1);
+                        }
                     });
 
                     // TriggerBot
                     TabItem::new("TriggerBot").build(&ui, || {
                         // TriggerBot, TriggerKey,
                         ui.checkbox("TriggerBot", &mut (*config).trigger_bot);
-                        ui.combo_simple_string("TriggerKey", &mut (*config).trigger_hot_key, &["ALT", "LBUTTON", "MBUTTON", "RBUTTON", "SHIFT", "CONTROL"]);
+                        ui.combo_simple_string("TriggerKey", &mut (*config).triggerbot_hot_key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
                         ui.separator();
 
                         // TriggerMode
-                        ui.combo_simple_string("TriggerMode", &mut (*config).trigger_mode, &["Hold", "Toggle"]);
+                        ui.combo_simple_string("TriggerMode", &mut (*config).triggerbot_mode, &["Hold", "Toggle"]);
                         ui.separator();
 
                         // Delay
