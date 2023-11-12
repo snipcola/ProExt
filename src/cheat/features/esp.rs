@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 use imgui::{Ui, ImColor32};
 use mint::{Vector3, Vector2, Vector4};
-use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::main::{color_u32_to_f32, rectangle, stroke_text, distance_between_vec3, mix_colors, color_with_alpha_mask, rectangle_filled}};
+use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::main::{color_u32_to_f32, rectangle, stroke_text, distance_between_vec3, mix_colors, color_with_alpha, color_with_masked_alpha}};
 
 pub fn render_bones(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Config) {
     let mut previous: BoneJointPos = BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false };
@@ -36,6 +36,7 @@ pub fn render_head(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Confi
     if config.head_type == 0 {
         ui.get_background_draw_list().add_circle(center_pos, radius, color_u32_to_f32(config.head_color)).thickness(1.2).build();
     } else {
+        ui.get_background_draw_list().add_circle(center_pos, radius + 1.0, color_with_masked_alpha(config.head_color, 0xFF000000)).filled(true).build();
         ui.get_background_draw_list().add_circle(center_pos, radius, color_u32_to_f32(config.head_color)).filled(true).build();
     }
 }
@@ -83,11 +84,17 @@ pub fn render_snap_line(ui: &mut Ui, rect: Vector4<f32>, config: Config, window_
     ui.get_background_draw_list().add_line(Vector2 { x: rect.x + rect.z / 2.0, y: rect.y }, Vector2 { x: window_width as f32 / 2.0, y: 0.0 }, color_u32_to_f32(config.snap_line_color)).thickness(1.2).build();
 }
 
-pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, config: Config) {
-    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.box_color).into(), 1.3, config.box_rounding);
+pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, config: Config) {
+    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_masked_alpha(config.box_color, 0xFF000000).into(), 3.0, config.box_rounding, false);
+    
+    if config.box_visible && (b_spotted_by_mask & (1 << local_player_controller_index) != 0 || local_b_spotted_by_mask & (1 << i) != 0) {
+        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.box_visible_color).into(), 1.3, config.box_rounding, false);
+    } else {
+        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.box_color).into(), 1.3, config.box_rounding, false);
+    }
 
     if config.show_filled_box_esp {
-        rectangle_filled(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_alpha_mask(config.filled_box_color, config.filled_box_alpha).into(), 0.0, config.box_rounding);
+        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_alpha(config.filled_box_color, config.filled_box_alpha).into(), 1.0, config.box_rounding, true);
     }
 }
 
@@ -132,15 +139,15 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect_pos: Vector2<f32
         }
     };
     
-    ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, background_color).filled(true).build();
+    rectangle(ui, rect_pos, rect_size, background_color, 1.0, config.health_bar_rounding, true);
     
     if config.health_bar_type == 0 {
         // Vertical
         ui.get_background_draw_list().add_rect(Vector2 { x: rect_pos.x, y: rect_pos.y + rect_size.y - height }, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, color).filled(true).rounding(config.health_bar_rounding as f32).build();
-        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, frame_color).thickness(1.0).rounding(config.health_bar_rounding as f32).build();
     } else {
         // Horizontal
         ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + width, y: rect_pos.y + rect_size.y }, color).filled(true).rounding(config.health_bar_rounding as f32).build();
-        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, frame_color).rounding(config.health_bar_rounding as f32).thickness(1.0).build();   
     }
+
+    rectangle(ui, rect_pos, rect_size, frame_color, 1.0, config.health_bar_rounding, false);
 }
