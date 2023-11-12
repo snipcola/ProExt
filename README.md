@@ -1,7 +1,7 @@
 ## 🎮 External Cheat for Counter-Strike 2, written in Rust. 🦀
 #### 📖 This repository is for educational purposes.
 #### 📥 Want to get in touch? I'm on discord, **@Vytrol**.
-#### ©️ This is a fork of **TKazer's** CS2_External, which was coded in C++.
+#### ©️ This is a rust implementation of **TKazer's** CS2_External.
 ## 🎬 Showcase:
 ![showcase](./Showcase.jpg)
 ## 📋 Features:
