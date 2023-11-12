@@ -163,18 +163,24 @@ pub fn render_menu(ui: &mut Ui) {
                     });
 
                     // TriggerBot
-                    TabItem::new("TriggerBot").build(&ui, || {
-                        // TriggerBot, TriggerKey,
-                        ui.checkbox("TriggerBot", &mut (*config).trigger_bot);
-                        ui.combo_simple_string("TriggerKey", &mut (*config).triggerbot_hot_key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
-                        ui.separator();
+                    TabItem::new("Triggerbot").build(&ui, || {
+                        // Triggerbot
+                        ui.checkbox("Triggerbot", &mut (*config).trigger_bot);
+                        
+                        if (*config).trigger_bot {
+                            // Trigger Key
+                            ui.same_line();
+                            ui.combo_simple_string("##TriggerKey", &mut (*config).triggerbot_hot_key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
+                            ui.separator();
 
-                        // TriggerMode
-                        ui.combo_simple_string("TriggerMode", &mut (*config).triggerbot_mode, &["Hold", "Toggle"]);
-                        ui.separator();
+                            // Always Activated
+                            ui.checkbox("Always Activated", &mut (*config).triggerbot_always);
+                            ui.separator();
 
-                        // Delay
-                        ui.slider_config("Delay", 15, 500).display_format("%d").build(&mut (*config).trigger_delay);
+                            // Delay & Interval
+                            ui.slider_config("Delay", 15, 500).display_format("%d").build(&mut (*config).trigger_delay);
+                            ui.slider_config("Interval", 10, 250).display_format("%d").build(&mut (*config).trigger_interval);
+                        }
                     });
 
                     TabItem::new("Radar").build(&ui, || {

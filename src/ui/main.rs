@@ -21,7 +21,9 @@ lazy_static! {
     pub static ref BUNNYHOP_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
 
     pub static ref TRIGGERBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-    pub static ref TRIGGERBOT_HOLD_START: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+    pub static ref TRIGGERBOT_ON_ENTITY: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None));
+    pub static ref TRIGGERBOT_SHOT_ENTITY: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+    pub static ref TRIGGERBOT_ENTITY_TRIES: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
     
     pub static ref TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(true));
     pub static ref EXIT: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
@@ -167,8 +169,6 @@ pub fn init_gui() {
 
     let aimbot_toggled = AIMBOT_TOGGLED.clone();
     let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
-
-    let triggerbot_hold_start = TRIGGERBOT_HOLD_START.clone();
     let triggerbot_toggled = TRIGGERBOT_TOGGLED.clone();
     
     let key_events_thread = thread::spawn(move || {
@@ -207,13 +207,7 @@ pub fn init_gui() {
                         match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
                             Ok(_) => {},
                             Err(triggerbot_key) => {
-                                if config.triggerbot_mode == 1 && key == triggerbot_key && is_game_window_focused {
-                                    (*triggerbot_toggled.lock().unwrap()) = !is_triggerbot_toggled;
-
-                                    if !is_triggerbot_toggled {
-                                        (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
-                                    }
-                                } else if is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
+                                if is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
                                     (*triggerbot_toggled.lock().unwrap()) = false;
                                 }
                             }
@@ -237,9 +231,8 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
                         Ok(_) => {},
                         Err(triggerbot_key) => {
-                            if config.triggerbot_mode == 0 && !is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
+                            if !is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
                                 (*triggerbot_toggled.lock().unwrap()) = true;
-                                (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
                             }
                         }
                     }
@@ -261,9 +254,8 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
                         Err(_) => {},
                         Ok(triggerbot_button) => {
-                            if config.triggerbot_mode == 0 && !is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
+                            if !is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
                                 (*triggerbot_toggled.lock().unwrap()) = true;
-                                (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
                             }
                         }
                     }
@@ -283,13 +275,7 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
                         Err(_) => {},
                         Ok(triggerbot_button) => {
-                            if config.triggerbot_mode == 1 && button == triggerbot_button && is_game_window_focused {
-                                (*triggerbot_toggled.lock().unwrap()) = !is_triggerbot_toggled;
-                                
-                                if !is_triggerbot_toggled {
-                                    (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
-                                }
-                            } else if is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
+                            if is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
                                 (*triggerbot_toggled.lock().unwrap()) = false;
                             }
                         }
@@ -329,8 +315,10 @@ pub fn init_gui() {
     let aimbot_toggled = AIMBOT_TOGGLED.clone();
     let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
 
+    let triggerbot_on_entity = TRIGGERBOT_ON_ENTITY.clone();
+    let triggerbot_shot_entity = TRIGGERBOT_SHOT_ENTITY.clone();
+    let triggerbot_entity_tries = TRIGGERBOT_ENTITY_TRIES.clone();
     let triggerbot_toggled = TRIGGERBOT_TOGGLED.clone();
-    let triggerbot_hold_start = TRIGGERBOT_HOLD_START.clone();
 
     let ui_functions = UI_FUNCTIONS.clone();
     let window_info = WINDOW_INFO.clone();
@@ -531,7 +519,7 @@ pub fn init_gui() {
                     }
                 };
 
-                if rect.z > 1000.0 || rect.w > 1000.0 {
+                if rect.z > 2500.0 || rect.w > 2500.0 {
                     remove_esp(i);
                     continue;
                 }
@@ -634,22 +622,20 @@ pub fn init_gui() {
             }
 
             // Bunnyhop
-            if !no_pawn && config.bunny_hop {
+            if !no_pawn && config.bunny_hop && is_game_window_focused {
                 run_bunny_hop(bunnyhop_toggled.lock().unwrap().clone(), local_entity.pawn.has_flag(Flags::InAir));
             }
 
             // Aimbot
-            if !no_pawn && config.aim_bot && *aimbot_toggled.lock().unwrap() {
+            if !no_pawn && config.aim_bot && *aimbot_toggled.lock().unwrap() && is_game_window_focused {
                 if let Some(aim_pos) = aim_pos {
                     run_aimbot(config, aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
                 }
             }
 
             // Triggerbot
-            if !no_pawn && config.trigger_bot && *triggerbot_toggled.lock().unwrap() {
-                if run_triggerbot(local_entity, game, config, window_info, triggerbot_hold_start.lock().unwrap().clone()) {
-                    *triggerbot_hold_start.lock().unwrap() = Instant::now();
-                }
+            if !no_pawn && config.trigger_bot && (config.triggerbot_always || *triggerbot_toggled.lock().unwrap()) && is_game_window_focused {
+                run_triggerbot(local_entity, game, config, window_info, &mut *triggerbot_on_entity.lock().unwrap(), &mut *triggerbot_shot_entity.lock().unwrap(), &mut triggerbot_entity_tries.lock().unwrap());
             }
         }
     });
