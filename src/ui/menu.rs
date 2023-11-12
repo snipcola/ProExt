@@ -124,7 +124,6 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.checkbox("Snap Line", &mut (*config).show_snap_line);
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##LineToEnemyColor", &mut (*config).snap_line_color);
-                            ui.separator();
                         }
                     });
 
@@ -202,8 +201,12 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.checkbox("ShowWhenSpec", &mut (*config).show_when_spec);
                         ui.separator();
 
-                        // OBSBypass
+                        // OBSBypass & Headshot Line
                         ui.checkbox("OBSBypass", &mut (*config).obs_bypass);
+                        ui.same_line();
+                        ui.checkbox("Headshot Line", &mut (*config).show_head_shot_line);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "##HeadshotLineColor", &mut (*config).head_shot_line_color);
                     });
 
                     TabItem::new("Config").build(&ui, || {
@@ -214,8 +217,8 @@ pub fn render_menu(ui: &mut Ui) {
                             
                             if let Some(config_path) = directory_pathbuf.join(format!("{}.conf.json", *new_config_name)).to_str() {
                                 match (*config).save_config(config_path) {
-                                    Ok(_) => { println!("{} Created new config: {}", "[ OKAY ]".bold().green(), format!("{}.conf.json", *new_config_name).bold()); },
-                                    Err(str) => { println!("{} Failed to create new config: {} {}", "[ FAIL ]".bold().red(), format!("{}.conf.json", *new_config_name).bold(), format!("({})", str).bold()); }
+                                    Err(str) => { println!("{} Failed to create new config: {} {}", "[ FAIL ]".bold().red(), format!("{}.conf.json", *new_config_name).bold(), format!("({})", str).bold()); },
+                                    _ => {}
                                 }
                             }
                         };
@@ -241,10 +244,7 @@ pub fn render_menu(ui: &mut Ui) {
                             
                                 if let Some(config_path) = directory_pathbuf.join(config_name).to_str() {
                                     match load_config(config_path) {
-                                        Ok(new_config) => {
-                                            *config = new_config;
-                                            println!("{} Loaded config: {}", "[ OKAY ]".bold().green(), format!("{}", config_name).bold());
-                                        },
+                                        Ok(new_config) => { *config = new_config; },
                                         Err(str) => { println!("{} Failed to load config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); }
                                     }
                                 }
@@ -257,8 +257,8 @@ pub fn render_menu(ui: &mut Ui) {
                             
                                 if let Some(config_path) = directory_pathbuf.join(config_name).to_str() {
                                     match (*config).save_config(config_path) {
-                                        Ok(_) => { println!("{} Saved config: {}", "[ OKAY ]".bold().green(), format!("{}", config_name).bold()); },
-                                        Err(str) => { println!("{} Failed to save config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); }
+                                        Err(str) => { println!("{} Failed to save config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
+                                        _ => {}
                                     }
                                 }
                             };
@@ -275,8 +275,8 @@ pub fn render_menu(ui: &mut Ui) {
                             
                                 if let Some(config_path) = directory_pathbuf.join(config_name).to_str() {
                                     match delete_config(config_path) {
-                                        Ok(_) => { println!("{} Deleted config: {}", "[ OKAY ]".bold().green(), format!("{}", config_name).bold());},
-                                        Err(str) => { println!("{} Failed to delete config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); }
+                                        Err(str) => { println!("{} Failed to delete config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
+                                        _ => {}
                                     }
                                 }
                             };
@@ -285,9 +285,7 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.separator();
                         
                         if ui.button("Reset to Default") {
-                            let new_config = Config::default();
-                            *config = new_config;
-                            println!("{} Reset config to default", "[ OKAY ]".bold().green());
+                            *config = Config::default();
                         };
                     });
                 });
