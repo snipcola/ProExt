@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::render_fov_circle, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_head_shot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -386,6 +386,7 @@ pub fn init_gui() {
             let remove_ui_elements = || {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
                 (*ui_functions.lock().unwrap()).remove("radar");
+                (*ui_functions.lock().unwrap()).remove("head_shot_line");
                 
                 for i in 0 .. 64 {
                     remove_esp(i);
@@ -592,6 +593,15 @@ pub fn init_gui() {
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", i));
                 }
+            }
+
+            // Headshot Line
+            if !no_pawn && config.show_head_shot_line {
+                (*ui_functions.lock().unwrap()).insert("head_shot_line".to_string(), Box::new(move |ui| {
+                    render_head_shot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
+                }));
+            } else {
+                (*ui_functions.lock().unwrap()).remove("head_shot_line");
             }
 
             // FOV Circle
