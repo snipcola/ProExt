@@ -527,6 +527,11 @@ pub fn init_gui() {
                     }
                 };
 
+                if rect.z > 1000.0 || rect.w > 1000.0 {
+                    remove_esp(i);
+                    continue;
+                }
+
                 // Line to Enemy
                 if config.esp_enabled && config.show_snap_line {
                     (*ui_functions.lock().unwrap()).insert(format!("snap_line_{}", i), Box::new(move |ui| {
