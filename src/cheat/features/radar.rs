@@ -24,9 +24,12 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
         .resizable(false)
         .collapsible(false)
         .scroll_bar(false)
+        .title_bar(false)
+        .movable(false)
+        .draw_background(false)
+        .bring_to_front_on_focus(false)
         .size([config.radar_range * 2.0, config.radar_range * 2.0], imgui::Condition::Always)
         .position([0.0, 0.0], imgui::Condition::FirstUseEver)
-        .bg_alpha(0.1)
         .build(|| {
             let window_pos = Vector2 { x: ui.window_pos()[0] + config.radar_range, y: ui.window_pos()[1] + config.radar_range };
             

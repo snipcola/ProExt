@@ -31,7 +31,8 @@ pub fn render_menu(ui: &mut Ui) {
     };
 
     if toggled {
-        ui.window("Menu")
+        ui.window("CS2External")
+            .collapsible(false)
             .always_auto_resize(true)
             .build(|| {
                 TabBar::new("Cheat").build(&ui, || {
@@ -54,11 +55,19 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.text("Box Rounding");
                             ui.same_line();
                             ui.slider_config("##BoxRounding", 0, 25).display_format("%d").build(&mut (*config).box_rounding);
+                            ui.separator();
 
                             // Skeleton
                             ui.checkbox("Skeleton", &mut (*config).show_skeleton_esp);
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##BoneColor", &mut (*config).skeleton_color);
+
+                            // Head
+                            ui.checkbox("Head", &mut (*config).show_head_esp);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##HeadColor", &mut (*config).head_color);
+                            ui.same_line();
+                            ui.combo_simple_string("##HeadType", &mut (*config).head_type, &["Outline", "Filled"]);
 
                             // Eye Ray
                             ui.checkbox("Eye Ray", &mut (*config).show_eye_ray);

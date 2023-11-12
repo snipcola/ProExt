@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::render_fov_circle, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar}, triggerbot::run_triggerbot}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
+use crate::{cheat::{features::{radar::render_radar, visuals::render_fov_circle, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -376,7 +376,8 @@ pub fn init_gui() {
             let pawn_address = game.address.local_pawn;
             
             let remove_esp = |entity: u64| {
-                (*ui_functions.lock().unwrap()).remove(&format!("bones_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("skeleton_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("head_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("eye_ray_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("snap_line_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("box_{}", entity));
@@ -496,13 +497,22 @@ pub fn init_gui() {
                     aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, config);
                 }
 
-                // Bones
+                // Skeleton
                 if config.esp_enabled && config.show_skeleton_esp {
-                    (*ui_functions.lock().unwrap()).insert(format!("bones_{}", i), Box::new(move |ui| {
+                    (*ui_functions.lock().unwrap()).insert(format!("skeleton_{}", i), Box::new(move |ui| {
                         render_bones(ui, bone.bone_pos_list, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("bones_{}", i));
+                    (*ui_functions.lock().unwrap()).remove(&format!("skeleton_{}", i));
+                }
+
+                // Head
+                if config.esp_enabled && config.show_head_esp {
+                    (*ui_functions.lock().unwrap()).insert(format!("head_{}", i), Box::new(move |ui| {
+                        render_head(ui, bone.bone_pos_list, config);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("head_{}", i));
                 }
 
                 // Eye Ray
