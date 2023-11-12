@@ -4,7 +4,7 @@ use imgui::{Ui, ImColor32};
 use mint::{Vector2, Vector3};
 
 use crate::utils::config::Config;
-use crate::ui::main::color_u32_to_f32;
+use crate::ui::main::{color_u32_to_f32, color_with_masked_alpha};
 
 pub fn revolve_coordinates_system(revolve_angle: f32, origin_pos: Vector2<f32>, dest_pos: Vector2<f32>) -> Vector2<f32> {
     let mut result_pos: Vector2<f32> = Vector2 { x: 0.0, y: 0.0 };
@@ -26,8 +26,8 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
         .scroll_bar(false)
         .title_bar(false)
         .movable(false)
-        .draw_background(false)
         .bring_to_front_on_focus(false)
+        .bg_alpha(config.radar_alpha)
         .size([config.radar_range * 2.0, config.radar_range * 2.0], imgui::Condition::Always)
         .position([0.0, 0.0], imgui::Condition::FirstUseEver)
         .build(|| {
@@ -48,10 +48,9 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
             }
 
             // Points
-            let circle_size = 4.0 * config.radar_point_size_proportion;
+            let circle_size = 7.0 * config.radar_point_size_proportion;
             let arrow_size = 11.0 * config.radar_point_size_proportion;
             let arc_arrow_size = 7.0 * config.radar_point_size_proportion;
-            let point_color = ImColor32::from_rgba(255, 0, 0, 255);
 
             for (pos, yaw) in points {
                 let distance = f32::sqrt(f32::powf(local_pos.x - pos.x, 2.0) + f32::powf(local_pos.y - pos.y, 2.0)) / config.proportion * config.radar_range * 2.0;
@@ -63,8 +62,8 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
                 }
 
                 if config.radar_type == 0 {
-                    ui.get_window_draw_list().add_circle(point_pos, circle_size, point_color).build();
-                    ui.get_window_draw_list().add_circle(point_pos, circle_size, ImColor32::from_rgb(0, 0, 0)).filled(true).build();
+                    ui.get_window_draw_list().add_circle(point_pos, circle_size, color_u32_to_f32(config.radar_color)).filled(true).build();
+                    ui.get_window_draw_list().add_circle(point_pos, circle_size, color_with_masked_alpha(config.radar_color, 0xFF000000)).thickness(0.1).build();
                 } else if config.radar_type == 1 {
                     let angle2 = (local_yaw - yaw) + 180.0;
                     let re_point = revolve_coordinates_system(angle2, window_pos, point_pos);
@@ -73,16 +72,16 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
                     let b = revolve_coordinates_system(-angle2, window_pos, Vector2 { x: re_point.x - arrow_size / 1.5, y: re_point.y - arrow_size / 2.0 });
                     let c = revolve_coordinates_system(-angle2, window_pos, Vector2 { x: re_point.x + arrow_size / 1.5, y: re_point.y - arrow_size / 2.0 });
 
-                    ui.get_window_draw_list().add_polyline(vec![a, b, point_pos, c], point_color).filled(true).build();
-                    ui.get_window_draw_list().add_polyline(vec![a, b, point_pos, c], ImColor32::from_rgba(0, 0, 0, 255)).thickness(0.1).build();
+                    ui.get_window_draw_list().add_polyline(vec![a, b, point_pos, c], color_u32_to_f32(config.radar_color)).filled(true).build();
+                    ui.get_window_draw_list().add_polyline(vec![a, b, point_pos, c], color_with_masked_alpha(config.radar_color, 0xFF000000)).thickness(0.1).build();
                 } else {
                     let angle2 = (local_yaw - yaw) - 90.0;
                     let triangle_point = Vector2 { x: point_pos.x + (arc_arrow_size + arc_arrow_size / 3.0) * f32::cos(-angle2 * PI / 180.0), y: point_pos.y - (arc_arrow_size + arc_arrow_size / 3.0) * f32::sin(-angle2 * PI / 180.0) };
                     let triangle_point_2 = Vector2 { x: point_pos.x + arc_arrow_size * f32::cos(-(angle2 - 30.0) * PI / 180.0), y: point_pos.y - arc_arrow_size * f32::sin(-(angle2 - 30.0) * PI / 180.0) };
                     let triangle_point_3 = Vector2 { x: point_pos.x + arc_arrow_size * f32::cos(-(angle2 + 30.0) * PI / 180.0), y: point_pos.y - arc_arrow_size * f32::sin(-(angle2 + 30.0) * PI / 180.0) };
 
-                    ui.get_window_draw_list().add_circle(point_pos, 0.85 * arc_arrow_size, point_color).thickness(30.0).filled(true).build();
-                    ui.get_window_draw_list().add_circle(point_pos, 0.95 * arc_arrow_size, ImColor32::from_rgba(0, 0, 0, 255)).thickness(0.1).build();
+                    ui.get_window_draw_list().add_circle(point_pos, 0.85 * arc_arrow_size, color_u32_to_f32(config.radar_color)).thickness(30.0).filled(true).build();
+                    ui.get_window_draw_list().add_circle(point_pos, 0.95 * arc_arrow_size, color_with_masked_alpha(config.radar_color, 0xFF000000)).thickness(0.1).build();
                     ui.get_window_draw_list().add_polyline(vec![triangle_point, triangle_point_2, triangle_point_3], ImColor32::from_rgba(220, 220, 220, 255)).filled(true).build();
                 }
             }
