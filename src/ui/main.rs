@@ -196,16 +196,18 @@ pub fn init_gui() {
                         match hotkey_index_to_io(config.aim_bot_hot_key) {
                             Ok(_) => {},
                             Err(aimbot_key) => {
-                                if is_aimbot_toggled && key == aimbot_key && is_game_window_focused {
+                                if config.aimbot_mode == 1 && key == aimbot_key && is_game_window_focused {
+                                    (*aimbot_toggled.lock().unwrap()) = !is_aimbot_toggled;
+                                } else if is_aimbot_toggled && key == aimbot_key && is_game_window_focused {
                                     (*aimbot_toggled.lock().unwrap()) = false;
                                 }
                             }
                         }
 
-                        match hotkey_index_to_io((*CONFIG.lock().unwrap()).trigger_hot_key) {
+                        match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
                             Ok(_) => {},
                             Err(triggerbot_key) => {
-                                if config.trigger_mode == 1 && key == triggerbot_key && is_game_window_focused {
+                                if config.triggerbot_mode == 1 && key == triggerbot_key && is_game_window_focused {
                                     (*triggerbot_toggled.lock().unwrap()) = !is_triggerbot_toggled;
 
                                     if !is_triggerbot_toggled {
@@ -226,16 +228,16 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                         Ok(_) => {},
                         Err(aimbot_key) => {
-                            if !is_aimbot_toggled && key == aimbot_key && is_game_window_focused {
+                            if config.aimbot_mode == 0 && !is_aimbot_toggled && key == aimbot_key && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = true;
                             }
                         }
                     }
 
-                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).trigger_hot_key) {
+                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
                         Ok(_) => {},
                         Err(triggerbot_key) => {
-                            if config.trigger_mode == 0 && !is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
+                            if config.triggerbot_mode == 0 && !is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
                                 (*triggerbot_toggled.lock().unwrap()) = true;
                                 (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
                             }
@@ -250,16 +252,16 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                         Err(_) => {},
                         Ok(aimbot_button) => {
-                            if !is_aimbot_toggled && button == aimbot_button && is_game_window_focused {
+                            if config.aimbot_mode == 0 && !is_aimbot_toggled && button == aimbot_button && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = true;
                             }
                         }
                     }
 
-                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).trigger_hot_key) {
+                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
                         Err(_) => {},
                         Ok(triggerbot_button) => {
-                            if config.trigger_mode == 0 && !is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
+                            if config.triggerbot_mode == 0 && !is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
                                 (*triggerbot_toggled.lock().unwrap()) = true;
                                 (*triggerbot_hold_start.lock().unwrap()) = Instant::now();
                             }
@@ -270,16 +272,18 @@ pub fn init_gui() {
                     match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
                         Err(_) => {},
                         Ok(aimbot_button) => {
-                            if is_aimbot_toggled && button == aimbot_button && is_game_window_focused {
+                            if config.aimbot_mode == 1 && button == aimbot_button && is_game_window_focused {
+                                (*aimbot_toggled.lock().unwrap()) = !is_aimbot_toggled;
+                            } else if is_aimbot_toggled && button == aimbot_button && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = false;
                             }
                         }
                     }
 
-                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).trigger_hot_key) {
+                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
                         Err(_) => {},
                         Ok(triggerbot_button) => {
-                            if config.trigger_mode == 1 && button == triggerbot_button && is_game_window_focused {
+                            if config.triggerbot_mode == 1 && button == triggerbot_button && is_game_window_focused {
                                 (*triggerbot_toggled.lock().unwrap()) = !is_triggerbot_toggled;
                                 
                                 if !is_triggerbot_toggled {
@@ -488,7 +492,7 @@ pub fn init_gui() {
 
                 // Aimbot Check
                 if !no_pawn && config.aim_bot {
-                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, config);
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, !entity.pawn.has_flag(Flags::InAir), config);
                 }
 
                 // Skeleton

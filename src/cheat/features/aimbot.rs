@@ -33,10 +33,14 @@ pub fn run_aimbot(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32
     set_view_angle(yaw, pitch);
 }
 
-pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, config: Config) {
+pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, in_air: bool, config: Config) {
     let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
     let bone_index = aim_position_to_bone_index(config.aim_position);
     let distance_to_sight = distance_between_vec2(bone_pos_list[bone_index].screen_pos, pos);
+
+    if config.ground_check && in_air {
+        return;
+    }
 
     if distance_to_sight < *max_aim_distance {
         *max_aim_distance = distance_to_sight;
