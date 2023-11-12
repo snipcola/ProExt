@@ -37,60 +37,58 @@ pub fn render_menu(ui: &mut Ui) {
                 TabBar::new("Cheat").build(&ui, || {
                     // ESP
                     TabItem::new("ESP").build(&ui, || {
-                        // BoxESP
-                        ui.checkbox("BoxESP", &mut (*config).show_box_esp);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##BoxColor", &mut (*config).box_color);
-                        ui.combo_simple_string("BoxType", &mut (*config).box_type, &["Normal", "Dynamic"]);
-                        ui.separator();
+                        // Enabled
+                        ui.checkbox("ESP Enabled", &mut (*config).esp_enabled);
+                        
+                        if (*config).esp_enabled {
+                            ui.separator();
 
-                        // BoneESP
-                        ui.checkbox("BoneESP", &mut (*config).show_bone_esp);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##BoneColor", &mut (*config).bone_color);
-                        ui.separator();
+                            // Box
+                            ui.checkbox("Box", &mut (*config).show_box_esp);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##BoxColor", &mut (*config).box_color);
+                            ui.same_line();
+                            ui.combo_simple_string("##BoxType", &mut (*config).box_type, &["Normal", "Dynamic"]);
 
-                        // EyeRay
-                        ui.checkbox("EyeRay", &mut (*config).show_eye_ray);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##EyeRay", &mut (*config).eye_ray_color);
-                        ui.separator();
+                            // Skeleton
+                            ui.checkbox("Skeleton", &mut (*config).show_skeleton_esp);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##BoneColor", &mut (*config).skeleton_color);
 
-                        // HealthBar
-                        ui.checkbox("HealthBar", &mut (*config).show_health_bar);
-                        ui.combo_simple_string("HealthBarType", &mut (*config).health_bar_type, &["Vertical", "Horizontal"]);
-                        ui.separator();
+                            // Eye Ray
+                            ui.checkbox("Eye Ray", &mut (*config).show_eye_ray);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##EyeRay", &mut (*config).eye_ray_color);
+                            ui.separator();
 
-                        // WeaponText, Distance, & PlayerName
-                        ui.checkbox("WeaponText", &mut (*config).show_weapon_esp);
-                        ui.checkbox("Distance", &mut (*config).show_distance);
-                        ui.checkbox("PlayerName", &mut (*config).show_player_name);
-                        ui.separator();
+                            // Health Bar
+                            ui.checkbox("Health Bar", &mut (*config).show_health_bar);
+                            ui.same_line();
+                            ui.combo_simple_string("##HealthBarType", &mut (*config).health_bar_type, &["Vertical", "Horizontal"]);
+                            ui.separator();
 
-                        // HeadShootLine
-                        ui.checkbox("HeadShootLine", &mut (*config).show_head_shoot_line);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##HeadShootLineColor", &mut (*config).head_shoot_line_color);
-                        ui.separator();
+                            // Player Name
+                            ui.checkbox("Player Name", &mut (*config).show_player_name);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##PlayerNameColor", &mut (*config).player_name_color);
 
-                        // FovLine
-                        ui.checkbox("FovLine", &mut (*config).show_fov_line);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##FovLineColor", &mut (*config).fov_line_color);
-                        ui.slider_config("FovLineSize", 20.0, 120.0).display_format("%.1f") .build(&mut (*config).fov_line_size);
-                        ui.separator();
+                            // Weapon Name
+                            ui.checkbox("Weapon Name", &mut (*config).show_weapon_esp);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##WeaponNameColor", &mut (*config).weapon_name_color);
+                            
+                            // Distance
+                            ui.checkbox("Distance", &mut (*config).show_distance);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##DistanceColor", &mut (*config).distance_color);
+                            ui.separator();
 
-                        // LineToEnemy
-                        ui.checkbox("LineToEnemy", &mut (*config).show_line_to_enemy);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##LineToEnemyColor", &mut (*config).line_to_enemy_color);
-                        ui.separator();
-
-                        // CrossHair
-                        ui.checkbox("CrossHair", &mut (*config).show_crosshair);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##CrossHairColor", &mut (*config).crosshair_color);
-                        ui.slider_config("CrossHairSize", 15.0, 200.0).display_format("%.1f").build(&mut (*config).crosshair_size);
+                            // Snap Line
+                            ui.checkbox("Snap Line", &mut (*config).show_snap_line);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##LineToEnemyColor", &mut (*config).snap_line_color);
+                            ui.separator();
+                        }
                     });
 
                     // AimBot

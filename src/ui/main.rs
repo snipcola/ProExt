@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_fov, render_crosshair, render_head_shoot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_line_to_enemy, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar}, triggerbot::run_triggerbot}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
+use crate::{cheat::{features::{radar::render_radar, visuals::render_fov_circle, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar}, triggerbot::run_triggerbot}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -378,7 +378,7 @@ pub fn init_gui() {
             let remove_esp = |entity: u64| {
                 (*ui_functions.lock().unwrap()).remove(&format!("bones_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("eye_ray_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("line_to_enemy_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("snap_line_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("box_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("weapon_name_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("distance_{}", entity));
@@ -388,9 +388,6 @@ pub fn init_gui() {
 
             let remove_ui_elements = || {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
-                (*ui_functions.lock().unwrap()).remove("fov");
-                (*ui_functions.lock().unwrap()).remove("crosshair");
-                (*ui_functions.lock().unwrap()).remove("head_shoot_line");
                 (*ui_functions.lock().unwrap()).remove("radar");
                 
                 for i in 0 .. 64 {
@@ -500,7 +497,7 @@ pub fn init_gui() {
                 }
 
                 // Bones
-                if config.show_bone_esp {
+                if config.esp_enabled && config.show_skeleton_esp {
                     (*ui_functions.lock().unwrap()).insert(format!("bones_{}", i), Box::new(move |ui| {
                         render_bones(ui, bone.bone_pos_list, config);
                     }));
@@ -509,7 +506,7 @@ pub fn init_gui() {
                 }
 
                 // Eye Ray
-                if config.show_eye_ray {
+                if config.esp_enabled && config.show_eye_ray {
                     (*ui_functions.lock().unwrap()).insert(format!("eye_ray_{}", i), Box::new(move |ui| {
                         render_eye_ray(ui, bone.bone_pos_list, entity.pawn.view_angle, config, game.view, window_info);
                     }));
@@ -527,16 +524,16 @@ pub fn init_gui() {
                 };
 
                 // Line to Enemy
-                if config.show_line_to_enemy {
-                    (*ui_functions.lock().unwrap()).insert(format!("line_to_enemy_{}", i), Box::new(move |ui| {
-                        render_line_to_enemy(ui, rect, config, window_info.1.0);
+                if config.esp_enabled && config.show_snap_line {
+                    (*ui_functions.lock().unwrap()).insert(format!("snap_line_{}", i), Box::new(move |ui| {
+                        render_snap_line(ui, rect, config, window_info.1.0);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("line_to_enemy_{}", i));
+                    (*ui_functions.lock().unwrap()).remove(&format!("snap_line_{}", i));
                 }
 
                 // Box
-                if config.show_box_esp {
+                if config.esp_enabled && config.show_box_esp {
                     (*ui_functions.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
                         render_box(ui, rect, config);
                     }));
@@ -545,7 +542,7 @@ pub fn init_gui() {
                 }
 
                 // Health Bar
-                if config.show_health_bar {
+                if config.esp_enabled && config.show_health_bar {
                     let (health_bar_pos, health_bar_size) = {
                         if config.health_bar_type == 0 {
                             // Vertical
@@ -564,25 +561,25 @@ pub fn init_gui() {
                 }
 
                 // Weapon Name
-                if config.show_weapon_esp {
+                if config.esp_enabled && config.show_weapon_esp {
                     (*ui_functions.lock().unwrap()).insert(format!("weapon_name_{}", i), Box::new(move |ui| {
-                        render_weapon_name(ui, &entity.pawn.weapon_name, Vector2 { x: rect.x, y: rect.y + rect.w });
+                        render_weapon_name(ui, &entity.pawn.weapon_name, Vector2 { x: rect.x, y: rect.y + rect.w }, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("weapon_name_{}", i));
                 }
 
                 // Distance
-                if !no_pawn && config.show_distance {
+                if !no_pawn && config.esp_enabled && config.show_distance {
                     (*ui_functions.lock().unwrap()).insert(format!("distance_{}", i), Box::new(move |ui| {
-                        render_distance(ui, entity.pawn.pos, local_entity.pawn.pos, rect);
+                        render_distance(ui, entity.pawn.pos, local_entity.pawn.pos, rect, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("distance_{}", i));
                 }
 
                 // Player Name
-                if config.show_player_name {
+                if config.esp_enabled && config.show_player_name {
                     (*ui_functions.lock().unwrap()).insert(format!("player_name_{}", i), Box::new(move |ui| {
                         render_player_name(ui, &entity.controller.player_name, rect, config);
                     }));
@@ -598,33 +595,6 @@ pub fn init_gui() {
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
-            }
-
-            // FOV
-            if !no_pawn && config.show_fov_line {
-                (*ui_functions.lock().unwrap()).insert("fov".to_string(), Box::new(move |ui| {
-                    render_fov(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, config);
-                }));
-            } else {
-                (*ui_functions.lock().unwrap()).remove("fov");
-            }
-
-            // Crosshair
-            if config.show_crosshair {
-                (*ui_functions.lock().unwrap()).insert("crosshair".to_string(), Box::new(move |ui| {
-                    render_crosshair(ui, window_info.1.0, window_info.1.1, config);
-                }));
-            } else {
-                (*ui_functions.lock().unwrap()).remove("crosshair");
-            }
-
-            // Head Shoot Line
-            if !no_pawn && config.show_head_shoot_line {
-                (*ui_functions.lock().unwrap()).insert("head_shoot_line".to_string(), Box::new(move |ui| {
-                    render_head_shoot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
-                }));
-            } else {
-                (*ui_functions.lock().unwrap()).remove("head_shoot_line");
             }
 
             // Radar

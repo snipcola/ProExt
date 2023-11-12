@@ -99,7 +99,14 @@ pub fn setup_config() -> Option<String> {
         if (*CONFIGS.lock().unwrap()).contains(&String::from("default.conf.json")) {
             match load_config(default_config_path) {
                 Ok(new_config) => { *CONFIG.lock().unwrap() = new_config; }
-                Err(_) => { return Some("ParseDefaultConfig".to_string()); }
+                Err(_) => {
+                    match (*CONFIG.lock().unwrap()).save_config(default_config_path) {
+                        Err(_) => { return Some("SaveDefaultConfig".to_string()); },
+                        _ => {}
+                    };
+        
+                    if *DEBUG { println!("{} {} config saved", "[ INFO ]".blue().bold(), default_config_path.bold()); }
+                }
             };
 
             if *DEBUG { println!("{} {} config loaded", "[ INFO ]".blue().bold(), default_config_path.bold()); }
@@ -140,7 +147,8 @@ pub fn delete_config(file_path: &str) -> Result<bool, &str> {
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Config {
-    pub show_bone_esp: bool,
+    pub esp_enabled: bool,
+    pub show_skeleton_esp: bool,
     pub show_box_esp: bool,
     pub show_health_bar: bool,
     pub show_weapon_esp: bool,
@@ -153,7 +161,7 @@ pub struct Config {
     pub aim_position: usize,
     pub box_type: usize,
     pub health_bar_type: usize,
-    pub bone_color: (u32, u32, u32, u32),
+    pub skeleton_color: (u32, u32, u32, u32),
     pub box_color: (u32, u32, u32, u32),
     pub eye_ray_color: (u32, u32, u32, u32),
     pub show_radar: bool,
@@ -166,28 +174,23 @@ pub struct Config {
     pub trigger_bot: bool,
     pub team_check: bool,
     pub visible_check: bool,
-    pub show_head_shoot_line: bool,
-    pub head_shoot_line_color: (u32, u32, u32, u32),
     pub aim_bot_hot_key: usize,
-    pub show_line_to_enemy: bool,
-    pub show_fov_line: bool,
-    pub fov_line_size: f32,
+    pub show_snap_line: bool,
     pub trigger_delay: u32,
     pub rcs_bullet: u32,
     pub trigger_hot_key: usize,
     pub trigger_mode: usize,
     pub rcs_scale: (f32, f32),
-    pub fov_line_color: (u32, u32, u32, u32),
-    pub line_to_enemy_color: (u32, u32, u32, u32),
-    pub show_crosshair: bool,
-    pub crosshair_color: (u32, u32, u32, u32),
-    pub crosshair_size: f32,
+    pub snap_line_color: (u32, u32, u32, u32),
     pub show_aim_fov_range: bool,
     pub aim_fov_range_color: (u32, u32, u32, u32),
     pub obs_bypass: bool,
     pub bunny_hop: bool,
     pub show_when_spec: bool,
-    pub anti_flashbang: bool
+    pub anti_flashbang: bool,
+    pub player_name_color: (u32, u32, u32, u32),
+    pub weapon_name_color: (u32, u32, u32, u32),
+    pub distance_color: (u32, u32, u32, u32)
 }
 
 impl Config {
@@ -209,7 +212,8 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         return Config {
-            show_bone_esp: true,
+            esp_enabled: true,
+            show_skeleton_esp: true,
             show_box_esp: true,
             show_health_bar: true,
             show_weapon_esp: true,
@@ -222,7 +226,7 @@ impl Default for Config {
             aim_position: 1,
             box_type: 1,
             health_bar_type: 0,
-            bone_color: (255, 255, 255, 255),
+            skeleton_color: (255, 255, 255, 255),
             box_color: (0, 255, 255, 255),
             eye_ray_color: (255, 0, 0, 255),
             show_radar: true,
@@ -235,28 +239,23 @@ impl Default for Config {
             trigger_bot: false,
             team_check: true,
             visible_check: true,
-            show_head_shoot_line: false,
-            head_shoot_line_color: (255, 255, 255, 255),
             aim_bot_hot_key: 0,
-            show_line_to_enemy: false,
-            show_fov_line: false,
-            fov_line_size: 60.0,
+            show_snap_line: false,
             trigger_delay: 250,
             rcs_bullet: 1,
             trigger_hot_key: 0,
             trigger_mode: 0,
             rcs_scale: (1.0, 1.0),
-            fov_line_color: (255, 255, 255, 255),
-            line_to_enemy_color: (255, 255, 255, 255),
-            show_crosshair: false,
-            crosshair_color: (45, 45, 45, 255),
-            crosshair_size: 150.0,
+            snap_line_color: (255, 255, 255, 255),
             show_aim_fov_range: true,
             aim_fov_range_color: (230, 230, 230, 255),
             obs_bypass: false,
             bunny_hop: false,
             show_when_spec: true,
-            anti_flashbang: false
+            anti_flashbang: false,
+            player_name_color: (0, 255, 255, 255),
+            weapon_name_color: (255, 255, 255, 255),
+            distance_color: (255, 255, 0, 255)
         };
     }
 }

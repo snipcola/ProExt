@@ -18,7 +18,7 @@ pub fn render_bones(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Conf
             }
 
             if previous.is_visible && current.is_visible {
-                ui.get_background_draw_list().add_line(previous.screen_pos, current.screen_pos, color_u32_to_f32(config.bone_color)).thickness(1.3).build();
+                ui.get_background_draw_list().add_line(previous.screen_pos, current.screen_pos, color_u32_to_f32(config.skeleton_color)).thickness(1.3).build();
             }
 
             previous = current;
@@ -65,28 +65,28 @@ pub fn get_2d_bone_rect(bone_pos_list: [BoneJointPos; 30]) -> Vector4<f32> {
     return Vector4 { x: min.x, y: min.y, z: (max.x - min.x), w: (max.y - min.y) };
 }
 
-pub fn render_line_to_enemy(ui: &mut Ui, rect: Vector4<f32>, config: Config, window_width: i32) {
-    ui.get_background_draw_list().add_line(Vector2 { x: rect.x + rect.z / 2.0, y: rect.y }, Vector2 { x: window_width as f32 / 2.0, y: 0.0 }, color_u32_to_f32(config.line_to_enemy_color)).thickness(1.2).build();
+pub fn render_snap_line(ui: &mut Ui, rect: Vector4<f32>, config: Config, window_width: i32) {
+    ui.get_background_draw_list().add_line(Vector2 { x: rect.x + rect.z / 2.0, y: rect.y }, Vector2 { x: window_width as f32 / 2.0, y: 0.0 }, color_u32_to_f32(config.snap_line_color)).thickness(1.2).build();
 }
 
 pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, config: Config) {
     rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.box_color).into(), 1.3);
 }
 
-pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, pos: Vector2<f32>) {
-    stroke_text(ui, weapon_name.to_string(), pos, ImColor32::from_rgba(255, 255, 255, 255), false);
+pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, pos: Vector2<f32>, config: Config) {
+    stroke_text(ui, weapon_name.to_string(), pos, color_u32_to_f32(config.weapon_name_color).into(), false);
 }
 
-pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, rect: Vector4<f32>) {
+pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, rect: Vector4<f32>, config: Config) {
     let distance = distance_between_vec3(pawn_pos, local_pawn_pos) as u32 / 100;
-    stroke_text(ui, format!("{}m", distance), Vector2 { x: rect.x + rect.z + 4.0, y: rect.y }, ImColor32::from_rgba(255, 255, 0, 255), false);
+    stroke_text(ui, format!("{}m", distance), Vector2 { x: rect.x + rect.z + 4.0, y: rect.y }, color_u32_to_f32(config.distance_color).into(), false);
 }
 
 pub fn render_player_name(ui: &mut Ui, player_name: &str, rect: Vector4<f32>, config: Config) {
     if config.show_health_bar && config.health_bar_type == 1 {
-        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, ImColor32::from_rgba(0, 255, 255, 255), true);
+        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.player_name_color).into(), true);
     } else {
-        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, ImColor32::from_rgba(0, 255, 255, 255), true);
+        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, color_u32_to_f32(config.player_name_color).into(), true);
     }
 }
 
