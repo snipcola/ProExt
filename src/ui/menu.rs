@@ -52,6 +52,11 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.combo_simple_string("##BoxType", &mut (*config).box_type, &["Normal", "Dynamic"]);
                             
                             if (*config).show_box_esp {
+                                // Box Visible
+                                ui.checkbox("Box Visible", &mut (*config).box_visible);
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##BoxVisibleColor", &mut (*config).box_visible_color);
+                                
                                 // Box Rounding
                                 ui.text("Box Rounding");
                                 ui.same_line();
