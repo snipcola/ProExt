@@ -43,7 +43,6 @@ pub struct PlayerPawn {
 }
 
 pub enum Flags {
-    None,
     InAir = 1 << 0
 }
 

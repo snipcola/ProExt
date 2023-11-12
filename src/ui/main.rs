@@ -49,12 +49,8 @@ pub fn color_u32_to_f32(color: (u32, u32, u32, u32)) -> (f32, f32, f32, f32) {
     return (color.0 as f32 / 255.0, color.1 as f32 / 255.0, color.2 as f32 / 255.0, color.3 as f32 / 255.0);
 }
 
-pub fn color_with_alpha_mask((red, green, blue, _): (u32, u32, u32, u32), alpha_mask: u32) -> (f32, f32, f32) {
-    let red = (red & alpha_mask) >> 24;
-    let green = (green & alpha_mask) >> 24;
-    let blue = (blue & alpha_mask) >> 24;
-
-    return (red as f32 / 255.0, green as f32 / 255.0, blue as f32 / 255.0);
+pub fn color_with_alpha_mask((red, green, blue, _): (u32, u32, u32, u32), alpha: f32) -> (f32, f32, f32, f32) {
+    return (red as f32 / 255.0, green as f32 / 255.0, blue as f32 / 255.0, alpha);
 }
 
 pub fn mix_colors(color_1: ImColor32, color_2: ImColor32, t: f32) -> ImColor32 {
@@ -78,11 +74,11 @@ pub fn distance_between_vec3(pos1: Vector3<f32>, pos2: Vector3<f32>) -> f32 {
     return distance;
 }
 
-pub fn rectangle_filled(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, color: ImColor32) {
+pub fn rectangle_filled(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, color: ImColor32, thickness: f32, rounding: u32) {
     let a = pos;
     let b = Vector2 { x: pos.x + size.x, y: pos.y + size.y };
-
-    ui.get_background_draw_list().add_polyline(vec![a, Vector2 { x: b.x, y: a.y }, b, Vector2 { x: a.x, y: b.y }], color).filled(true).build();
+    
+    ui.get_background_draw_list().add_rect(a, b, color).filled(true).rounding(rounding as f32).thickness(thickness).build();
 }
 
 pub fn rectangle(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, color: ImColor32, thickness: f32, rounding: u32) {

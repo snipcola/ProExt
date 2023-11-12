@@ -51,11 +51,26 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.same_line();
                             ui.combo_simple_string("##BoxType", &mut (*config).box_type, &["Normal", "Dynamic"]);
                             
-                            // Box Rounding
-                            ui.text("Box Rounding");
+                            if (*config).show_box_esp {
+                                // Box Rounding
+                                ui.text("Box Rounding");
+                                ui.same_line();
+                                ui.slider_config("##BoxRounding", 0, 25).display_format("%d").build(&mut (*config).box_rounding);
+                                ui.separator();
+                            }
+
+                            // Filled Box
+                            ui.checkbox("Filled Box", &mut (*config).show_filled_box_esp);
                             ui.same_line();
-                            ui.slider_config("##BoxRounding", 0, 25).display_format("%d").build(&mut (*config).box_rounding);
-                            ui.separator();
+                            color_edit_u32_tuple(ui, "##FilledBoxColor", &mut (*config).filled_box_color);
+
+                            if (*config).show_filled_box_esp {
+                                // Filled Box Alpha
+                                ui.text("Filled Box Alpha");
+                                ui.same_line();
+                                ui.slider_config("##FilledBoxAlpha", 0.1, 1.0).display_format("%.1f").build(&mut (*config).filled_box_alpha);
+                                ui.separator();
+                            }
 
                             // Skeleton
                             ui.checkbox("Skeleton", &mut (*config).show_skeleton_esp);
@@ -80,10 +95,13 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.same_line();
                             ui.combo_simple_string("##HealthBarType", &mut (*config).health_bar_type, &["Vertical", "Horizontal"]);
 
-                            // Health Bar Rounding
-                            ui.text("Health Bar Rounding");
-                            ui.same_line();
-                            ui.slider_config("##HealthBarRounding", 0, 25).display_format("%d").build(&mut (*config).health_bar_rounding);
+                            if (*config).show_health_bar {
+                                // Health Bar Rounding
+                                ui.text("Health Bar Rounding");
+                                ui.same_line();
+                                ui.slider_config("##HealthBarRounding", 0, 25).display_format("%d").build(&mut (*config).health_bar_rounding);
+                            }
+
                             ui.separator();
 
                             // Player Name
@@ -118,7 +136,7 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.separator();
 
                         // AimFov & FovCircle
-                        ui.slider_config("AimFov", 0.1, 89.0).display_format("%.1f").build(&mut (*config).aim_fov);
+                        ui.slider_config("AimFov", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aim_fov);
                         ui.checkbox("FovCircle", &mut (*config).show_aim_fov_range);
                         ui.same_line();
                         color_edit_u32_tuple(ui, "##FovCircleColor", &mut (*config).aim_fov_range_color);
@@ -166,7 +184,7 @@ pub fn render_menu(ui: &mut Ui) {
                         color_edit_u32_tuple(ui, "##CrossLineColor", &mut (*config).radar_cross_line_color);
 
                         // PointSize, Proportion, & RadarRange
-                        ui.slider_config("PointSize", 0.8, 2.0).display_format("%.1f").build(&mut (*config).radar_point_size_proportion);
+                        ui.slider_config("PointSize", 1.0, 2.0).display_format("%.1f").build(&mut (*config).radar_point_size_proportion);
                         ui.slider_config("Proportion", 500.0, 3500.0).display_format("%.1f").build(&mut (*config).proportion);
                         ui.slider_config("RadarRange", 100.0, 300.0).display_format("%.1f").build(&mut (*config).radar_range);
                     });

@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 use imgui::{Ui, ImColor32};
 use mint::{Vector3, Vector2, Vector4};
-use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::main::{color_u32_to_f32, rectangle, stroke_text, distance_between_vec3, mix_colors, color_with_alpha_mask}};
+use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::main::{color_u32_to_f32, rectangle, stroke_text, distance_between_vec3, mix_colors, color_with_alpha_mask, rectangle_filled}};
 
 pub fn render_bones(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Config) {
     let mut previous: BoneJointPos = BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false };
@@ -36,7 +36,6 @@ pub fn render_head(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Confi
     if config.head_type == 0 {
         ui.get_background_draw_list().add_circle(center_pos, radius, color_u32_to_f32(config.head_color)).thickness(1.2).build();
     } else {
-        ui.get_background_draw_list().add_circle(center_pos, radius, color_with_alpha_mask(config.head_color, 0xFF000000)).filled(true).build();
         ui.get_background_draw_list().add_circle(center_pos, radius, color_u32_to_f32(config.head_color)).filled(true).build();
     }
 }
@@ -86,6 +85,10 @@ pub fn render_snap_line(ui: &mut Ui, rect: Vector4<f32>, config: Config, window_
 
 pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, config: Config) {
     rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.box_color).into(), 1.3, config.box_rounding);
+
+    if config.show_filled_box_esp {
+        rectangle_filled(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_alpha_mask(config.filled_box_color, config.filled_box_alpha).into(), 0.0, config.box_rounding);
+    }
 }
 
 pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, pos: Vector2<f32>, config: Config) {
