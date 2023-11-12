@@ -85,8 +85,8 @@ pub fn rectangle_filled(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, colo
     ui.get_background_draw_list().add_polyline(vec![a, Vector2 { x: b.x, y: a.y }, b, Vector2 { x: a.x, y: b.y }], color).filled(true).build();
 }
 
-pub fn rectangle(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, color: ImColor32, thickness: f32) {
-    ui.get_background_draw_list().add_rect(pos, Vector2 { x: pos.x + size.x, y: pos.y + size.y }, color).thickness(thickness).build();
+pub fn rectangle(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, color: ImColor32, thickness: f32, rounding: u32) {
+    ui.get_background_draw_list().add_rect(pos, Vector2 { x: pos.x + size.x, y: pos.y + size.y }, color).thickness(thickness).rounding(rounding as f32).build();
 }
 
 pub fn text(ui: &mut Ui, text: String, pos: Vector2<f32>, color: ImColor32, keep_center: bool) {

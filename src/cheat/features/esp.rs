@@ -70,7 +70,7 @@ pub fn render_snap_line(ui: &mut Ui, rect: Vector4<f32>, config: Config, window_
 }
 
 pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, config: Config) {
-    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.box_color).into(), 1.3);
+    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.box_color).into(), 1.3, config.box_rounding);
 }
 
 pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, pos: Vector2<f32>, config: Config) {
@@ -118,11 +118,11 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect_pos: Vector2<f32
     
     if config.health_bar_type == 0 {
         // Vertical
-        ui.get_background_draw_list().add_rect(Vector2 { x: rect_pos.x, y: rect_pos.y + rect_size.y - height }, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, color).filled(true).build();
-        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, frame_color).thickness(1.0).build();
+        ui.get_background_draw_list().add_rect(Vector2 { x: rect_pos.x, y: rect_pos.y + rect_size.y - height }, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, color).filled(true).rounding(config.health_bar_rounding as f32).build();
+        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, frame_color).thickness(1.0).rounding(config.health_bar_rounding as f32).build();
     } else {
         // Horizontal
-        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + width, y: rect_pos.y + rect_size.y }, color).filled(true).build();
-        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, frame_color).thickness(1.0).build();   
+        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + width, y: rect_pos.y + rect_size.y }, color).filled(true).rounding(config.health_bar_rounding as f32).build();
+        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, frame_color).rounding(config.health_bar_rounding as f32).thickness(1.0).build();   
     }
 }
