@@ -139,13 +139,6 @@ pub fn delete_config(file_path: &str) -> Result<bool, &str> {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
-pub enum Bone {
-    Head,
-    Neck,
-    Spine
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Config {
     pub show_bone_esp: bool,
     pub show_box_esp: bool,
