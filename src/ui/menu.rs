@@ -49,6 +49,11 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##BoxColor", &mut (*config).box_color);
                             ui.same_line();
                             ui.combo_simple_string("##BoxType", &mut (*config).box_type, &["Normal", "Dynamic"]);
+                            
+                            // Box Rounding
+                            ui.text("Box Rounding");
+                            ui.same_line();
+                            ui.slider_config("##BoxRounding", 0, 25).display_format("%d").build(&mut (*config).box_rounding);
 
                             // Skeleton
                             ui.checkbox("Skeleton", &mut (*config).show_skeleton_esp);
@@ -65,6 +70,11 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.checkbox("Health Bar", &mut (*config).show_health_bar);
                             ui.same_line();
                             ui.combo_simple_string("##HealthBarType", &mut (*config).health_bar_type, &["Vertical", "Horizontal"]);
+
+                            // Health Bar Rounding
+                            ui.text("Health Bar Rounding");
+                            ui.same_line();
+                            ui.slider_config("##HealthBarRounding", 0, 25).display_format("%d").build(&mut (*config).health_bar_rounding);
                             ui.separator();
 
                             // Player Name
