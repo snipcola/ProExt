@@ -34,7 +34,7 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
             let (full_window_pos, full_window_size) = (ui.window_pos(), ui.window_size());
             let window_pos = Vector2 { x: full_window_pos[0] + config.radar_range, y: full_window_pos[1] + config.radar_range };
 
-            // Circle
+            // Window Mask
             ui.get_window_draw_list().add_rect(Vector2 { x: full_window_pos[0], y: full_window_pos[1] }, Vector2 { x: full_window_pos[0] + full_window_size[0], y: full_window_pos[1] + full_window_size[1] }, ImColor32::from_rgba_f32s(0.0, 0.0, 0.0, config.radar_alpha)).filled(true).build();
             
             // Cross Line
