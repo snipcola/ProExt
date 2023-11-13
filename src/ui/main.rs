@@ -8,7 +8,7 @@ use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
 use crate::{cheat::{features::{radar::render_radar, visuals::{render_headshot_line, render_crosshair}, aimbot::{run_aimbot, aimbot_check, render_fov_circle}, no_flash::run_no_flash, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot, watermark::render_watermark, cheat_list::render_cheat_list}, classes::{entity::Flags, offsets::PAWN_OFFSETS, view::View}}, ui::windows::hide_window_from_capture, utils::{config::Config, process_manager::trace_address}};
-use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
+use crate::{ui::menu::render_menu, utils::{config::{PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
 lazy_static! {
@@ -191,8 +191,6 @@ pub fn init_gui() {
         }
     };
 
-    if *DEBUG { println!("{} {} Window HWND: {}", "[ INFO ]".blue().bold(), window_title.bold(), format!("{:?}", window_hwnd).bold()); }
-
     let (event_loop, display) = create_window(title, window_hwnd);
     let (mut winit_platform, mut imgui_context) = init_imgui(&display);
 
@@ -204,14 +202,10 @@ pub fn init_gui() {
         }
     };
 
-    if *DEBUG { println!("{} Self Window HWND: {}", "[ INFO ]".blue().bold(), format!("{:?}", self_hwnd).bold()); }
-
     focus_window(self_hwnd);
 
     let mut renderer = Renderer::init(&mut imgui_context, &display).unwrap();
     let mut last_frame = Instant::now();
-
-    println!("{} Rendering GUI (toggle: {})", "[ OKAY ]".bold().green(), format!("{:?}", toggle_key).bold());
 
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();
@@ -225,7 +219,7 @@ pub fn init_gui() {
     let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
     let triggerbot_toggled = TRIGGERBOT_TOGGLED.clone();
     
-    let key_events_thread = thread::spawn(move || {
+    thread::spawn(move || {
         let _ = rdev::listen(move | event | {
             let is_game_window_focused = is_window_focused(window_hwnd);
             let is_aimbot_toggled = aimbot_toggled.lock().unwrap().clone();
@@ -340,10 +334,9 @@ pub fn init_gui() {
         });
     });
 
-    if *DEBUG { println!("{} KeyEvents Thread ID: {}", "[ INFO ]".blue().bold(), format!("{:?}", key_events_thread.thread().id()).bold()); }
-
     let window_focused = WINDOW_FOCUSED.clone();
-    let window_tasks_thread = thread::spawn(move || {
+
+    thread::spawn(move || {
         let mut stored_window_info: ((i32, i32), (i32, i32)) = ((0, 0), (0, 0));
 
         loop {
@@ -364,8 +357,6 @@ pub fn init_gui() {
         }
     });
 
-    if *DEBUG { println!("{} WindowTasks Thread ID: {} (delay: {})", "[ INFO ]".blue().bold(), format!("{:?}", window_tasks_thread.thread().id()).bold(), format!("{:?}", THREAD_DELAYS.window_tasks).bold()); }
-
     let aimbot_toggled = AIMBOT_TOGGLED.clone();
     let bunnyhop_toggled = BUNNYHOP_TOGGLED.clone();
 
@@ -378,7 +369,7 @@ pub fn init_gui() {
     let window_info = WINDOW_INFO.clone();
     let mut window_hidden_from_capture = false;
 
-    let cheat_tasks_thread = thread::spawn(move || {
+    thread::spawn(move || {
         let mut no_pawn = false;
 
         loop {
@@ -755,8 +746,6 @@ pub fn init_gui() {
             }
         }
     });
-
-    if *DEBUG { println!("{} CheatTasks Thread ID: {}", "[ INFO ]".blue().bold(), format!("{:?}", cheat_tasks_thread.thread().id()).bold()); }
 
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();

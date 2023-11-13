@@ -10,7 +10,7 @@ use crate::cheat::classes::offsets::update_offsets;
 use crate::cheat::classes::game::init_game_address;
 use crate::ui::main::init_gui;
 use crate::utils::pause::pause;
-use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, DEBUG, PROCESS_EXECUTABLE, THREAD_DELAYS};
+use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_EXECUTABLE, THREAD_DELAYS};
 
 fn main() {
     set_virtual_terminal(true).unwrap();
@@ -18,14 +18,13 @@ fn main() {
 
     match setup_config() {
         None => {
-            let update_configs_thread = thread::spawn(|| {
+            thread::spawn(|| {
                 loop {
                     update_configs();
                     sleep(THREAD_DELAYS.update_configs);
                 }
             });
             
-            if *DEBUG { println!("{} UpdateConfigs Thread ID: {} (delay: {})", "[ INFO ]".blue().bold(), format!("{:?}", update_configs_thread.thread().id()).bold(), format!("{:?}", THREAD_DELAYS.update_configs).bold()); }
             println!("{} Set-up config", "[ OKAY ]".bold().green());
         },
         Some(string) => {
