@@ -5,7 +5,7 @@ use imgui::{Ui, TabBar, TabItem};
 use lazy_static::lazy_static;
 use mint::Vector4;
 
-use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, TOGGLE_KEY, PACKAGE_NAME};
+use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, TOGGLE_KEY, PACKAGE_NAME, WindowPosition};
 use crate::ui::main::TOGGLED;
 use crate::ui::main::color_edit_u32_tuple;
 
@@ -19,11 +19,13 @@ pub fn render_menu(ui: &mut Ui) {
     let toggled = *TOGGLED.lock().unwrap();
 
     let mut config = CONFIG.lock().unwrap();
-    let configs = CONFIGS.lock().unwrap();
-    let config_dir = CONFIG_DIR.lock().unwrap();
+    let configs = CONFIGS.lock().unwrap().clone();
+    let config_dir = CONFIG_DIR.lock().unwrap().clone();
 
     let mut new_config_name = NEW_CONFIG_NAME.lock().unwrap();
     let mut selected_config = SELECTED_CONFIG.lock().unwrap();
+
+    let window_position = config.window_positions.menu;
 
     if let Some(config_name) = &*selected_config {
         if !(*configs).contains(config_name) {
@@ -35,7 +37,11 @@ pub fn render_menu(ui: &mut Ui) {
         ui.window(&*PACKAGE_NAME)
             .collapsible(false)
             .always_auto_resize(true)
+            .position([window_position.x, window_position.y], imgui::Condition::FirstUseEver)
             .build(|| {
+                let window_pos = ui.window_pos();
+                (*config).window_positions.menu = WindowPosition { x: window_pos[0], y: window_pos[1] };
+
                 TabBar::new("Cheat").build(&ui, || {
                     // ESP
                     TabItem::new("ESP").build(&ui, || {
@@ -317,32 +323,45 @@ pub fn render_menu(ui: &mut Ui) {
                     });
 
                     TabItem::new("Misc").build(&ui, || {
-                        // Exclude Team & Show When Spectating
-                        ui.checkbox("Exclude Team##Misc", &mut (*config).misc.exclude_team);
-                        ui.same_line();
-                        ui.checkbox("Show When Spectating##Misc", &mut (*config).misc.show_when_spectating);
-                        ui.separator();
+                        // Misc
+                        ui.checkbox("Misc", &mut (*config).misc.enabled);
 
-                        // Bypass Capture & Headshot Line
-                        ui.checkbox("Bypass Capture##Misc", &mut (*config).misc.bypass_capture);
-                        ui.same_line();
-                        ui.checkbox("Headshot Line##Misc", &mut (*config).misc.headshot_line_enabled);
-                        
-                        if (*config).misc.headshot_line_enabled {
+                        if (*config).misc.enabled {
+                            ui.separator();
+
+                            // Watermark
+                            ui.checkbox("Watermark##Misc", &mut (*config).misc.watermark_enabled);
                             ui.same_line();
-                            color_edit_u32_tuple(ui, "##ColorMiscHeadshotLine", &mut (*config).misc.headshot_line_color);
+                            ui.checkbox("Cheat List##Misc", &mut (*config).misc.cheat_list_enabled);
+                            ui.separator();
+
+                            // Exclude Team & Show on Spectate
+                            ui.checkbox("Exclude Team##Misc", &mut (*config).misc.exclude_team);
+                            ui.same_line();
+                            ui.checkbox("Show On Spectate##Misc", &mut (*config).misc.show_on_spectate);
+                            ui.separator();
+
+                            // Bypass Capture & Headshot Line
+                            ui.checkbox("Bypass Capture##Misc", &mut (*config).misc.bypass_capture);
+                            ui.same_line();
+                            ui.checkbox("Headshot Line##Misc", &mut (*config).misc.headshot_line_enabled);
+                            
+                            if (*config).misc.headshot_line_enabled {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##ColorMiscHeadshotLine", &mut (*config).misc.headshot_line_color);
+                            }
+
+                            ui.separator();
+
+                            // Risky
+                            ui.text_colored(Vector4 { x: 255.0, y: 0.0, z: 0.0, w: 255.0 }, "Risky");
+                            ui.separator();
+
+                            // No Flash & Bunny Hop
+                            ui.checkbox("No Flash##Misc", &mut (*config).misc.no_flash_enabled);
+                            ui.same_line();
+                            ui.checkbox("Bunny Hop##Misc", &mut (*config).misc.bunny_hop_enabled);
                         }
-
-                        ui.separator();
-
-                        // Risky
-                        ui.text_colored(Vector4 { x: 255.0, y: 0.0, z: 0.0, w: 255.0 }, "Risky");
-                        ui.separator();
-
-                        // No Flash & Bunny Hop
-                        ui.checkbox("No Flash##Misc", &mut (*config).misc.no_flash_enabled);
-                        ui.same_line();
-                        ui.checkbox("Bunny Hop##Misc", &mut (*config).misc.bunny_hop_enabled);
                     });
 
                     TabItem::new("Config").build(&ui, || {

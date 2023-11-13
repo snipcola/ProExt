@@ -5,3 +5,5 @@ pub mod no_flash;
 pub mod bunnyhop;
 pub mod esp;
 pub mod triggerbot;
+pub mod watermark;
+pub mod cheat_list;
