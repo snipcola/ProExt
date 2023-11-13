@@ -33,6 +33,10 @@ pub fn render_head(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Confi
     let center_pos = head.screen_pos;
     let radius = f32::abs(head.screen_pos.y - neck.screen_pos.y) + 2.0;
 
+    if radius > 200.0 {
+        return;
+    }
+
     if config.head_type == 0 {
         ui.get_background_draw_list().add_circle(center_pos, radius, color_u32_to_f32(config.head_color)).thickness(1.2).build();
     } else {
