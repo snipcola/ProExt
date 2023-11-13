@@ -527,7 +527,7 @@ pub fn init_gui() {
                 // Line to Enemy
                 if config.esp_enabled && config.show_snap_line {
                     (*ui_functions.lock().unwrap()).insert(format!("snap_line_{}", i), Box::new(move |ui| {
-                        render_snap_line(ui, rect, config, window_info.1.0);
+                        render_snap_line(ui, rect, config, window_info.1.0, window_info.1.1);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("snap_line_{}", i));

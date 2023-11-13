@@ -84,8 +84,19 @@ pub fn get_2d_bone_rect(bone_pos_list: [BoneJointPos; 30]) -> Vector4<f32> {
     return Vector4 { x: min.x, y: min.y, z: (max.x - min.x), w: (max.y - min.y) };
 }
 
-pub fn render_snap_line(ui: &mut Ui, rect: Vector4<f32>, config: Config, window_width: i32) {
-    ui.get_background_draw_list().add_line(Vector2 { x: rect.x + rect.z / 2.0, y: rect.y }, Vector2 { x: window_width as f32 / 2.0, y: 0.0 }, color_u32_to_f32(config.snap_line_color)).thickness(1.2).build();
+pub fn render_snap_line(ui: &mut Ui, rect: Vector4<f32>, config: Config, window_width: i32, window_height: i32) {
+    let from_line = Vector2 { x: rect.x + rect.z / 2.0, y: rect.y };
+    let to_line = {
+        if config.snap_line_type == 0 {
+            Vector2 { x: window_width as f32 / 2.0, y: 0.0 }
+        } else if config.snap_line_type == 1 {
+            Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 }
+        } else {
+            Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 }
+        }
+    };
+
+    ui.get_background_draw_list().add_line(from_line, to_line, color_u32_to_f32(config.snap_line_color)).thickness(1.2).build();
 }
 
 pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, config: Config) {
