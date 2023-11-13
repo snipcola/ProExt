@@ -13,7 +13,7 @@ pub fn render_watermark(ui: &mut Ui, config: Config) {
         .scroll_bar(false)
         .title_bar(false)
         .always_auto_resize(true)
-        .position([window_position.x, window_position.y], imgui::Condition::FirstUseEver)
+        .position([window_position.x, window_position.y], imgui::Condition::Appearing)
         .build(|| {
             let window_pos = ui.window_pos();
             let mut config_mut = CONFIG.lock().unwrap();

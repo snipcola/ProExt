@@ -29,7 +29,7 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
         .bring_to_front_on_focus(false)
         .draw_background(false)
         .size([config.radar.range * 2.0, config.radar.range * 2.0], imgui::Condition::Always)
-        .position([0.0, 0.0], imgui::Condition::FirstUseEver)
+        .position([0.0, 0.0], imgui::Condition::Always)
         .build(|| {
             let (full_window_pos, full_window_size) = (ui.window_pos(), ui.window_size());
             let window_pos = Vector2 { x: full_window_pos[0] + config.radar.range, y: full_window_pos[1] + config.radar.range };
