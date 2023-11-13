@@ -1,11 +1,9 @@
 use std::time::{Instant, Duration};
 use mouse_rs::{Mouse, types::keys::Keys};
 
-use crate::{utils::config::Config, cheat::classes::view::View, ui::main::is_enemy_at_crosshair};
+use crate::utils::config::Config;
 
-pub fn run_triggerbot(local_entity_pawn_address: u64, local_entity_pawn_team_id: i32, game_address_entity_list: u64, game_view: View, window_info: ((i32, i32), (i32, i32)), config: Config, on_entity: &mut Option<Instant>, shot_entity: &mut Instant, tries: &mut u32) {
-    let (aiming_at_enemy, allow_shoot) = is_enemy_at_crosshair(window_info, local_entity_pawn_address, local_entity_pawn_team_id, game_address_entity_list, game_view, config);
-
+pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Config, on_entity: &mut Option<Instant>, shot_entity: &mut Instant, tries: &mut u32) {
     if !aiming_at_enemy {
         if *tries > 500 {
             *on_entity = None;
