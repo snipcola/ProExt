@@ -345,6 +345,14 @@ pub fn render_menu(ui: &mut Ui) {
                                 color_edit_u32_tuple(ui, "##ColorMiscBombTimerEnabled", &mut (*config).misc.bomb_timer_color_enabled);
                             }
 
+                            // Spectator List
+                            ui.checkbox("Spectator List##Misc", &mut (*config).misc.spectator_list_enabled);
+
+                            if (*config).misc.spectator_list_enabled {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##ColorMiscSpectatorList", &mut (*config).misc.spectator_list_color);
+                            }
+
                             ui.separator();
 
                             // Exclude Team & Show on Spectate

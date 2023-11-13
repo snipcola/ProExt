@@ -31,6 +31,7 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
             let red = Vector4 { x: 255.0, y: 0.0, z: 0.0, w: 255.0 };
 
             ui.text("Cheat List");
+            ui.separator();
 
             if config.esp.enabled {
                 ui.text_colored(blue, "ESP");
@@ -67,6 +68,10 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
 
                 if config.misc.bypass_capture {
                     ui.text_colored(green, "- Bypass Capture");
+                }
+
+                if config.misc.exclude_team {
+                    ui.text_colored(green, "- Exclude Team");
                 }
 
                 if pawn && config.misc.no_flash_enabled {
