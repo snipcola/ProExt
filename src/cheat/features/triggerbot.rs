@@ -22,7 +22,7 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
     }
 
     if let Some(on_entity) = on_entity {
-        if on_entity.elapsed() >= Duration::from_millis(config.trigger_delay as u64) && shot_entity.elapsed() >= Duration::from_millis(config.trigger_interval as u64) {
+        if on_entity.elapsed() >= Duration::from_millis(config.triggerbot.delay as u64) && shot_entity.elapsed() >= Duration::from_millis(config.triggerbot.interval as u64) {
             let mouse = Mouse::new();
             let _ = mouse.click(&Keys::LEFT);
 

@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_head_shot_line, render_crosshair}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot}, classes::{entity::Flags, offsets::PAWN_OFFSETS, view::View}}, ui::windows::hide_window_from_capture, utils::{config::Config, process_manager::trace_address}};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_headshot_line, render_crosshair}, aimbot::{run_aimbot, aimbot_check, render_fov_circle}, no_flash::run_no_flash, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot}, classes::{entity::Flags, offsets::PAWN_OFFSETS, view::View}}, ui::windows::hide_window_from_capture, utils::{config::Config, process_manager::trace_address}};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -132,7 +132,7 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
     }
 
     let allow_shoot = {
-        if config.team_check {
+        if config.misc.exclude_team {
             local_entity_pawn_team_id != entity.pawn.team_id && entity.pawn.health > 0
         } else {
             entity.pawn.health > 0
@@ -140,6 +140,20 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
     };
 
     return (true, allow_shoot);
+}
+
+pub fn is_enemy_in_fov(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32>, view_angle: Vector2<f32>) -> Option<(f32, f32)> {
+    let pos = Vector3 { x: aim_pos.x - camera_pos.x, y: aim_pos.y - camera_pos.y, z: aim_pos.z - camera_pos.z };
+    let distance = f32::sqrt(f32::powf(pos.x, 2.0) + f32::powf(pos.y, 2.0));
+    let yaw = f32::atan2(pos.y, pos.x) * 57.295779513 - view_angle.y;
+    let pitch = -f32::atan(pos.z / distance) * 57.295779513 - view_angle.x;
+    let norm = f32::sqrt(f32::powf(yaw, 2.0) + f32::powf(pitch, 2.0));
+
+    if norm > config.aimbot.fov {
+        return None;
+    }
+
+    return Some((yaw, pitch));
 }
 
 pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<rdev::Button, rdev::Key> {
@@ -233,10 +247,10 @@ pub fn init_gui() {
                             focus_window(self_hwnd);
                         }
                     } else {
-                        match hotkey_index_to_io(config.aim_bot_hot_key) {
+                        match hotkey_index_to_io(config.aimbot.key) {
                             Ok(_) => {},
                             Err(aimbot_key) => {
-                                if config.aimbot_mode == 1 && key == aimbot_key && is_game_window_focused {
+                                if config.aimbot.mode == 1 && key == aimbot_key && is_game_window_focused {
                                     (*aimbot_toggled.lock().unwrap()) = !is_aimbot_toggled;
                                 } else if is_aimbot_toggled && key == aimbot_key && is_game_window_focused {
                                     (*aimbot_toggled.lock().unwrap()) = false;
@@ -244,7 +258,7 @@ pub fn init_gui() {
                             }
                         }
 
-                        match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
+                        match hotkey_index_to_io(config.triggerbot.key) {
                             Ok(_) => {},
                             Err(triggerbot_key) => {
                                 if is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
@@ -259,16 +273,16 @@ pub fn init_gui() {
                     }
                 },
                 rdev::EventType::KeyPress(key) => {
-                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
+                    match hotkey_index_to_io(config.aimbot.key) {
                         Ok(_) => {},
                         Err(aimbot_key) => {
-                            if config.aimbot_mode == 0 && !is_aimbot_toggled && key == aimbot_key && is_game_window_focused {
+                            if config.aimbot.mode == 0 && !is_aimbot_toggled && key == aimbot_key && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = true;
                             }
                         }
                     }
 
-                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
+                    match hotkey_index_to_io(config.triggerbot.key) {
                         Ok(_) => {},
                         Err(triggerbot_key) => {
                             if !is_triggerbot_toggled && key == triggerbot_key && is_game_window_focused {
@@ -282,16 +296,16 @@ pub fn init_gui() {
                     }
                 },
                 rdev::EventType::ButtonPress(button) => {
-                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
+                    match hotkey_index_to_io(config.aimbot.key) {
                         Err(_) => {},
                         Ok(aimbot_button) => {
-                            if config.aimbot_mode == 0 && !is_aimbot_toggled && button == aimbot_button && is_game_window_focused {
+                            if config.aimbot.mode == 0 && !is_aimbot_toggled && button == aimbot_button && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = true;
                             }
                         }
                     }
 
-                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
+                    match hotkey_index_to_io(config.triggerbot.key) {
                         Err(_) => {},
                         Ok(triggerbot_button) => {
                             if !is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
@@ -301,10 +315,10 @@ pub fn init_gui() {
                     }
                 },
                 rdev::EventType::ButtonRelease(button) => {
-                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).aim_bot_hot_key) {
+                    match hotkey_index_to_io(config.aimbot.key) {
                         Err(_) => {},
                         Ok(aimbot_button) => {
-                            if config.aimbot_mode == 1 && button == aimbot_button && is_game_window_focused {
+                            if config.aimbot.mode == 1 && button == aimbot_button && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = !is_aimbot_toggled;
                             } else if is_aimbot_toggled && button == aimbot_button && is_game_window_focused {
                                 (*aimbot_toggled.lock().unwrap()) = false;
@@ -312,7 +326,7 @@ pub fn init_gui() {
                         }
                     }
 
-                    match hotkey_index_to_io((*CONFIG.lock().unwrap()).triggerbot_hot_key) {
+                    match hotkey_index_to_io(config.triggerbot.key) {
                         Err(_) => {},
                         Ok(triggerbot_button) => {
                             if is_triggerbot_toggled && button == triggerbot_button && is_game_window_focused {
@@ -387,10 +401,10 @@ pub fn init_gui() {
                 (*bunnyhop_toggled.lock().unwrap()) = false;
             }
 
-            if !window_hidden_from_capture && config.obs_bypass {
+            if !window_hidden_from_capture && config.misc.bypass_capture {
                 hide_window_from_capture(self_hwnd, true);
                 window_hidden_from_capture = true;
-            } else if window_hidden_from_capture && !config.obs_bypass {
+            } else if window_hidden_from_capture && !config.misc.bypass_capture {
                 hide_window_from_capture(self_hwnd, false);
                 window_hidden_from_capture = false;
             }
@@ -415,7 +429,7 @@ pub fn init_gui() {
             let remove_ui_elements = || {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
                 (*ui_functions.lock().unwrap()).remove("radar");
-                (*ui_functions.lock().unwrap()).remove("head_shot_line");
+                (*ui_functions.lock().unwrap()).remove("headshot_line");
                 
                 for i in 0 .. 64 {
                     remove_esp(i);
@@ -451,7 +465,7 @@ pub fn init_gui() {
             }
 
             if !local_entity.update_pawn(local_pawn_address, window_info, game.view) {
-                if !config.show_when_spec {
+                if !config.misc.show_when_spectating {
                     remove_ui_elements();
                     continue;
                 };
@@ -492,7 +506,7 @@ pub fn init_gui() {
                     continue;
                 }
 
-                if config.team_check && entity.controller.team_id == local_entity.controller.team_id {
+                if config.misc.exclude_team && entity.controller.team_id == local_entity.controller.team_id {
                     remove_esp(i);
                     continue;
                 }
@@ -503,7 +517,7 @@ pub fn init_gui() {
                 }
 
                 // Radar Point
-                if config.show_radar {
+                if config.radar.enabled {
                     radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y));
                 }
 
@@ -519,12 +533,12 @@ pub fn init_gui() {
                 };
 
                 // Aimbot Check
-                if !no_pawn && config.aim_bot {
+                if !no_pawn && config.aimbot.enabled {
                     aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, !entity.pawn.has_flag(Flags::InAir), config);
                 }
 
                 // Skeleton
-                if config.esp_enabled && config.show_skeleton_esp {
+                if config.esp.enabled && config.esp.skeleton_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("skeleton_{}", i), Box::new(move |ui| {
                         render_bones(ui, bone.bone_pos_list, config);
                     }));
@@ -533,7 +547,7 @@ pub fn init_gui() {
                 }
 
                 // Head
-                if config.esp_enabled && config.show_head_esp {
+                if config.esp.enabled && config.esp.head_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("head_{}", i), Box::new(move |ui| {
                         render_head(ui, bone.bone_pos_list, config);
                     }));
@@ -542,7 +556,7 @@ pub fn init_gui() {
                 }
 
                 // Eye Ray
-                if config.esp_enabled && config.show_eye_ray {
+                if config.esp.enabled && config.esp.eye_ray_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("eye_ray_{}", i), Box::new(move |ui| {
                         render_eye_ray(ui, bone.bone_pos_list, entity.pawn.view_angle, config, game.view, window_info);
                     }));
@@ -552,7 +566,7 @@ pub fn init_gui() {
 
                 // Box Rect
                 let rect = {
-                    if config.box_type == 0 {
+                    if config.esp.box_mode == 0 {
                         get_2d_box(bone.bone_pos_list, entity.pawn.screen_pos)
                     } else {
                         get_2d_bone_rect(bone.bone_pos_list)
@@ -565,7 +579,7 @@ pub fn init_gui() {
                 }
 
                 // Line to Enemy
-                if config.esp_enabled && config.show_snap_line {
+                if config.esp.enabled && config.esp.snap_line_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("snap_line_{}", i), Box::new(move |ui| {
                         render_snap_line(ui, rect, config, window_info.1.0, window_info.1.1);
                     }));
@@ -574,7 +588,7 @@ pub fn init_gui() {
                 }
 
                 // Box
-                if config.esp_enabled && config.show_box_esp {
+                if config.esp.enabled && config.esp.box_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
                         render_box(ui, rect, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, config);
                     }));
@@ -583,9 +597,9 @@ pub fn init_gui() {
                 }
 
                 // Health Bar
-                if config.esp_enabled && config.show_health_bar {
+                if config.esp.enabled && config.esp.health_bar_enabled {
                     let (health_bar_pos, health_bar_size) = {
-                        if config.health_bar_type == 0 {
+                        if config.esp.health_bar_mode == 0 {
                             // Vertical
                             (Vector2 { x: rect.x - 7.0, y: rect.y }, Vector2 { x: 7.0, y: rect.w })
                         } else {
@@ -602,7 +616,7 @@ pub fn init_gui() {
                 }
 
                 // Weapon Name
-                if config.esp_enabled && config.show_weapon_esp {
+                if config.esp.enabled && config.esp.weapon_name_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("weapon_name_{}", i), Box::new(move |ui| {
                         render_weapon_name(ui, &entity.pawn.weapon_name, rect, config);
                     }));
@@ -611,7 +625,7 @@ pub fn init_gui() {
                 }
 
                 // Distance
-                if !no_pawn && config.esp_enabled && config.show_distance {
+                if !no_pawn && config.esp.enabled && config.esp.distance_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("distance_{}", i), Box::new(move |ui| {
                         render_distance(ui, entity.pawn.pos, local_entity.pawn.pos, rect, config);
                     }));
@@ -620,7 +634,7 @@ pub fn init_gui() {
                 }
 
                 // Player Name
-                if config.esp_enabled && config.show_player_name {
+                if config.esp.enabled && config.esp.player_name_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("player_name_{}", i), Box::new(move |ui| {
                         render_player_name(ui, &entity.controller.player_name, rect, config);
                     }));
@@ -637,8 +651,19 @@ pub fn init_gui() {
                 }
             };
 
+            let aimbot_info = {
+                if let Some(aim_pos) = aim_pos {
+                    match is_enemy_in_fov(config, aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle) {
+                        Some(v) => Some(v),
+                        None => None
+                    }
+                } else {
+                    None
+                }
+            };
+
             // Crosshair
-            if config.cross_hair {
+            if config.crosshair.enabled {
                 (*ui_functions.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
                     render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, aiming_at_enemy && allow_shoot, config);
                 }));
@@ -647,25 +672,33 @@ pub fn init_gui() {
             }
 
             // Headshot Line
-            if !no_pawn && config.show_head_shot_line {
-                (*ui_functions.lock().unwrap()).insert("head_shot_line".to_string(), Box::new(move |ui| {
-                    render_head_shot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
+            if !no_pawn && config.misc.headshot_line_enabled {
+                (*ui_functions.lock().unwrap()).insert("headshot_line".to_string(), Box::new(move |ui| {
+                    render_headshot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
                 }));
             } else {
-                (*ui_functions.lock().unwrap()).remove("head_shot_line");
+                (*ui_functions.lock().unwrap()).remove("headshot_line");
             }
 
             // FOV Circle
-            if !no_pawn && config.aim_bot && config.show_aim_fov_range {
+            if !no_pawn && config.aimbot.enabled && config.aimbot.fov_circle_enabled {
                 (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
-                    render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, config);
+                    let color = {
+                        if config.aimbot.fov_circle_target_enabled && aimbot_info.is_some() {
+                            config.aimbot.fov_circle_target_color
+                        } else {
+                            config.aimbot.fov_circle_color
+                        }
+                    };
+
+                    render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, color, config);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
             }
 
             // Radar
-            if !no_pawn && config.show_radar {
+            if !no_pawn && config.radar.enabled {
                 (*ui_functions.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
                     render_radar(ui, config, local_entity.pawn.pos, local_entity.pawn.view_angle.y, radar_points.clone());
                 }));
@@ -674,24 +707,24 @@ pub fn init_gui() {
             }
 
             // Anti Flashbang
-            if !no_pawn && config.anti_flashbang {
-                run_anti_flashbang(local_entity.pawn.address);
+            if !no_pawn && config.misc.no_flash_enabled {
+                run_no_flash(local_entity.pawn.address);
             }
 
             // Bunnyhop
-            if !no_pawn && config.bunny_hop && is_game_window_focused {
+            if !no_pawn && config.misc.bunny_hop_enabled && is_game_window_focused {
                 run_bunny_hop(bunnyhop_toggled.lock().unwrap().clone(), local_entity.pawn.has_flag(Flags::InAir));
             }
 
             // Aimbot
-            if !no_pawn && config.aim_bot && *aimbot_toggled.lock().unwrap() && is_game_window_focused {
-                if let Some(aim_pos) = aim_pos {
-                    run_aimbot(config, aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
+            if !no_pawn && config.aimbot.enabled && *aimbot_toggled.lock().unwrap() && is_game_window_focused {
+                if let Some(aimbot_info) = aimbot_info {
+                    run_aimbot(config, aimbot_info, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
                 }
             }
 
             // Triggerbot
-            if !no_pawn && config.trigger_bot && (config.triggerbot_always || *triggerbot_toggled.lock().unwrap()) && is_game_window_focused {
+            if !no_pawn && config.triggerbot.enabled && (config.triggerbot.always_activated || *triggerbot_toggled.lock().unwrap()) && is_game_window_focused {
                 run_triggerbot((aiming_at_enemy, allow_shoot), config, &mut *triggerbot_on_entity.lock().unwrap(), &mut *triggerbot_shot_entity.lock().unwrap(), &mut triggerbot_entity_tries.lock().unwrap());
             }
         }
