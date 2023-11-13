@@ -46,62 +46,78 @@ pub fn render_menu(ui: &mut Ui) {
 
                             // Box
                             ui.checkbox("Box", &mut (*config).show_box_esp);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##BoxColor", &mut (*config).box_color);
-                            ui.same_line();
-                            ui.combo_simple_string("##BoxType", &mut (*config).box_type, &["Normal", "Dynamic"]);
                             
                             if (*config).show_box_esp {
-                                // Box Visible
-                                ui.checkbox("Box Visible", &mut (*config).box_visible);
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##BoxVisibleColor", &mut (*config).box_visible_color);
+                                color_edit_u32_tuple(ui, "##BoxColor", &mut (*config).box_color);
+                                ui.same_line();
+                                ui.combo_simple_string("##BoxType", &mut (*config).box_type, &["Normal", "Dynamic"]);
+
+                                // Box Visible
+                                ui.checkbox("Box Target", &mut (*config).box_visible);
+
+                                if (*config).box_visible {
+                                    ui.same_line();
+                                    color_edit_u32_tuple(ui, "##BoxVisibleColor", &mut (*config).box_visible_color);
+                                }
                                 
                                 // Box Rounding
                                 ui.slider_config("Box Rounding", 0, 25).display_format("%d").build(&mut (*config).box_rounding);
                                 ui.separator();
-                            }
 
-                            // Filled Box
-                            ui.checkbox("Filled Box", &mut (*config).show_filled_box_esp);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##FilledBoxColor", &mut (*config).filled_box_color);
+                                // Filled Box
+                                ui.checkbox("Filled Box", &mut (*config).show_filled_box_esp);
 
-                            if (*config).show_filled_box_esp {
-                                // Filled Box Alpha
-                                ui.slider_config("Filled Box Alpha", 0.1, 1.0).display_format("%.1f").build(&mut (*config).filled_box_alpha);
-                                ui.separator();
+                                if (*config).show_filled_box_esp {
+                                    ui.same_line();
+                                    color_edit_u32_tuple(ui, "##FilledBoxColor", &mut (*config).filled_box_color);
+
+                                    // Filled Box Alpha
+                                    ui.slider_config("Filled Box Alpha", 0.1, 1.0).display_format("%.1f").build(&mut (*config).filled_box_alpha);
+                                    ui.separator();
+                                }
                             }
 
                             // Skeleton
                             ui.checkbox("Skeleton", &mut (*config).show_skeleton_esp);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##BoneColor", &mut (*config).skeleton_color);
+                            
+                            if (*config).show_skeleton_esp {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##BoneColor", &mut (*config).skeleton_color);
+                            }
 
                             // Head
                             ui.checkbox("Head", &mut (*config).show_head_esp);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##HeadColor", &mut (*config).head_color);
-                            ui.same_line();
-                            ui.combo_simple_string("##HeadType", &mut (*config).head_type, &["Outline", "Filled"]);
+                            
+                            if (*config).show_head_esp {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##HeadColor", &mut (*config).head_color);
+                                ui.same_line();
+                                ui.combo_simple_string("##HeadType", &mut (*config).head_type, &["Outline", "Filled"]);
+                            }
 
                             // Eye Ray
                             ui.checkbox("Eye Ray", &mut (*config).show_eye_ray);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##EyeRay", &mut (*config).eye_ray_color);
+                            
+                            if (*config).show_eye_ray {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##EyeRay", &mut (*config).eye_ray_color);
+                            }
+
                             ui.separator();
 
                             // Health Bar
                             ui.checkbox("Health Bar", &mut (*config).show_health_bar);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##HealthBarFirstColor", &mut (*config).health_bar_first_color);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##HealthBarSecondColor", &mut (*config).health_bar_second_color);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##HealthBarThirdColor", &mut (*config).health_bar_third_color);
-                            ui.combo_simple_string("Health Bar Type", &mut (*config).health_bar_type, &["Vertical", "Horizontal"]);
-
+                            
                             if (*config).show_health_bar {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##HealthBarFirstColor", &mut (*config).health_bar_first_color);
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##HealthBarSecondColor", &mut (*config).health_bar_second_color);
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##HealthBarThirdColor", &mut (*config).health_bar_third_color);
+                                ui.combo_simple_string("Health Bar Type", &mut (*config).health_bar_type, &["Vertical", "Horizontal"]);
+
                                 // Health Bar Rounding
                                 ui.slider_config("Health Bar Rounding", 0, 25).display_format("%d").build(&mut (*config).health_bar_rounding);
                             }
@@ -110,26 +126,39 @@ pub fn render_menu(ui: &mut Ui) {
 
                             // Player Name
                             ui.checkbox("Player Name", &mut (*config).show_player_name);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##PlayerNameColor", &mut (*config).player_name_color);
+                            
+                            if (*config).show_player_name {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##PlayerNameColor", &mut (*config).player_name_color);
+                            }
 
                             // Weapon Name
                             ui.checkbox("Weapon Name", &mut (*config).show_weapon_esp);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##WeaponNameColor", &mut (*config).weapon_name_color);
+                            
+                            if (*config).show_weapon_esp {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##WeaponNameColor", &mut (*config).weapon_name_color);
+                            }
                             
                             // Distance
                             ui.checkbox("Distance", &mut (*config).show_distance);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##DistanceColor", &mut (*config).distance_color);
+                            
+                            if (*config).show_distance {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##DistanceColor", &mut (*config).distance_color);
+                            }
+
                             ui.separator();
 
                             // Snap Line
                             ui.checkbox("Snap Line", &mut (*config).show_snap_line);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##LineToEnemyColor", &mut (*config).snap_line_color);
-                            ui.same_line();
-                            ui.combo_simple_string("##SnapLineType", &mut (*config).snap_line_type, &["Top", "Center", "Bottom"]);
+                            
+                            if (*config).show_snap_line {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##LineToEnemyColor", &mut (*config).snap_line_color);
+                                ui.same_line();
+                                ui.combo_simple_string("##SnapLineType", &mut (*config).snap_line_type, &["Top", "Center", "Bottom"]);
+                            }
                         }
                     });
 
@@ -148,8 +177,12 @@ pub fn render_menu(ui: &mut Ui) {
                             // Fov & Fov Circle
                             ui.slider_config("Fov", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aim_fov);
                             ui.checkbox("Fov Circle", &mut (*config).show_aim_fov_range);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##FovCircleColor", &mut (*config).aim_fov_range_color);
+                            
+                            if (*config).show_aim_fov_range {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##FovCircleColor", &mut (*config).aim_fov_range_color);
+                            }
+                            
                             ui.separator();
 
                             // Only Visible & Only Grounded
@@ -190,6 +223,48 @@ pub fn render_menu(ui: &mut Ui) {
                         }
                     });
 
+                    // Crosshair
+                    TabItem::new("Crosshair").build(&ui, || {
+                        // Crosshair
+                        ui.checkbox("Crosshair", &mut (*config).cross_hair);
+                        
+                        if (*config).cross_hair {
+                            // Crosshair Color
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##CrosshairColor", &mut (*config).cross_hair_color);
+
+                            // Outline
+                            ui.checkbox("Outline", &mut (*config).cross_hair_outline);
+                            ui.separator();
+
+                            // Dot
+                            ui.checkbox("Dot", &mut (*config).cross_hair_dot);
+                            
+                            if (*config).cross_hair_dot {
+                                ui.same_line();
+                                ui.slider_config("##DotSize", 1, 10).display_format("%d").build(&mut (*config).cross_hair_dot_size);
+                            }
+
+                            // Circle
+                            ui.checkbox("Circle", &mut (*config).cross_hair_circle);
+
+                            if (*config).cross_hair_circle {
+                                ui.same_line();
+                                ui.slider_config("##CircleRadius", 1, 30).display_format("%d").build(&mut (*config).cross_hair_circle_radius);
+                            }
+
+                            // Lines
+                            ui.checkbox("Lines", &mut (*config).cross_hair_lines);
+                            
+                            if (*config).cross_hair_lines {
+                                ui.slider_config("Width", 1, 20).display_format("%d").build(&mut (*config).cross_hair_lines_width);
+                                ui.slider_config("Height", 1, 20).display_format("%d").build(&mut (*config).cross_hair_lines_height);
+                                ui.slider_config("Space", 1, 10).display_format("%d").build(&mut (*config).cross_hair_lines_space);
+                                ui.slider_config("Thickness", 1, 10).display_format("%d").build(&mut (*config).cross_hair_lines_thickness);
+                            }
+                        }
+                    });
+
                     TabItem::new("Radar").build(&ui, || {
                         // Radar
                         ui.checkbox("Radar", &mut (*config).show_radar);
@@ -206,9 +281,14 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.separator();
 
                             // Cross Line
-                            ui.checkbox("CrossLine", &mut (*config).show_radar_cross_line);
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##CrossLineColor", &mut (*config).radar_cross_line_color);
+                            ui.checkbox("Cross Line", &mut (*config).show_radar_cross_line);
+                            
+                            if (*config).show_radar_cross_line {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##CrossLineColor", &mut (*config).radar_cross_line_color);
+                            }
+
+                            ui.separator();
 
                             // Point Size, Proportion, & Radar Range
                             ui.slider_config("Point Size", 1.0, 2.0).display_format("%.1f").build(&mut (*config).radar_point_size_proportion);
@@ -219,23 +299,26 @@ pub fn render_menu(ui: &mut Ui) {
 
                     TabItem::new("Misc").build(&ui, || {
                         // AntiFlashbang & BunnyHop
-                        ui.checkbox("AntiFlashbang", &mut (*config).anti_flashbang);
+                        ui.checkbox("No Flash (Risky)", &mut (*config).anti_flashbang);
                         ui.same_line();
-                        ui.checkbox("BunnyHop", &mut (*config).bunny_hop);
+                        ui.checkbox("Bunny Hop (Risky)", &mut (*config).bunny_hop);
                         ui.separator();
 
                         // TeamCheck & ShowWhenSpec
-                        ui.checkbox("TeamCheck", &mut (*config).team_check);
+                        ui.checkbox("Team Check", &mut (*config).team_check);
                         ui.same_line();
-                        ui.checkbox("ShowWhenSpec", &mut (*config).show_when_spec);
+                        ui.checkbox("Show When Spectating", &mut (*config).show_when_spec);
                         ui.separator();
 
                         // OBSBypass & Headshot Line
-                        ui.checkbox("OBSBypass", &mut (*config).obs_bypass);
+                        ui.checkbox("Bypass Recorders", &mut (*config).obs_bypass);
                         ui.same_line();
                         ui.checkbox("Headshot Line", &mut (*config).show_head_shot_line);
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##HeadshotLineColor", &mut (*config).head_shot_line_color);
+                        
+                        if (*config).show_head_shot_line {
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##HeadshotLineColor", &mut (*config).head_shot_line_color);
+                        }
                     });
 
                     TabItem::new("Config").build(&ui, || {
