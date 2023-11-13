@@ -663,7 +663,7 @@ pub fn init_gui() {
             };
 
             // Crosshair
-            if config.crosshair.enabled {
+            if !no_pawn && config.crosshair.enabled {
                 (*ui_functions.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
                     render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, aiming_at_enemy && allow_shoot, config);
                 }));
