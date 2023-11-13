@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_head_shot_line}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot}, classes::entity::Flags}, ui::windows::hide_window_from_capture};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_fov_circle, render_head_shot_line, render_crosshair}, aimbot::{run_aimbot, aimbot_check}, anti_flashbang::run_anti_flashbang, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot}, classes::{entity::Flags, offsets::PAWN_OFFSETS, view::View}}, ui::windows::hide_window_from_capture, utils::{config::Config, process_manager::trace_address}};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -100,6 +100,50 @@ pub fn stroke_text(ui: &mut Ui, _text: String, pos: Vector2<f32>, color: ImColor
     text(ui, _text.clone(), Vector2 { x: pos.x + 1.0, y: pos.y + 1.0 }, ImColor32::from_rgb(0, 0, 0), keep_center);
     text(ui, _text.clone(), Vector2 { x: pos.x + 1.0, y: pos.y - 1.0 }, ImColor32::from_rgb(0, 0, 0), keep_center);
     text(ui, _text, pos, color, keep_center);
+}
+
+pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity_pawn_address: u64, local_entity_pawn_team_id: i32, game_address_entity_list: u64, game_view: View, config: Config) -> (bool, bool) {
+    let mut u_handle: u32 = 0;
+    
+    if !read_memory_auto(local_entity_pawn_address + (*PAWN_OFFSETS.lock().unwrap()).i_id_ent_index as u64, &mut u_handle) {
+        return (false, false);
+    }
+
+    if !read_memory_auto(local_entity_pawn_address + (*PAWN_OFFSETS.lock().unwrap()).i_id_ent_index as u64, &mut u_handle) {
+        return (false, false);
+    }
+
+    let list_entry: u64 = trace_address(game_address_entity_list, &[0x8 * (u_handle >> 9) + 0x10, 0x0]);
+
+    if list_entry == 0 {
+        return (false, false);
+    }
+
+    let mut pawn_address: u64 = 0;
+
+    if !read_memory_auto(list_entry + 0x78 * (u_handle & 0x1FF) as u64, &mut pawn_address) {
+        return (false, false);
+    }
+
+    let mut entity = Entity::default();
+
+    if !entity.update_pawn(pawn_address, window_info, game_view) {
+        return (false, false);
+    }
+
+    let allow_shoot = {
+        if config.team_check {
+            local_entity_pawn_team_id != entity.pawn.team_id && entity.pawn.health > 0
+        } else {
+            entity.pawn.health > 0
+        }
+    };
+
+    if !allow_shoot {
+        return (true, false);
+    }
+
+    return (true, true);
 }
 
 pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<rdev::Button, rdev::Key> {
@@ -589,6 +633,15 @@ pub fn init_gui() {
                 }
             }
 
+            // Crosshair
+            if !no_pawn && config.cross_hair {
+                (*ui_functions.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
+                    render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, window_info, local_entity.pawn.address, local_entity.pawn.team_id, game.address.entity_list, game.view, config);
+                }));
+            } else {
+                (*ui_functions.lock().unwrap()).remove("cross_hair");
+            }
+
             // Headshot Line
             if !no_pawn && config.show_head_shot_line {
                 (*ui_functions.lock().unwrap()).insert("head_shot_line".to_string(), Box::new(move |ui| {
@@ -635,7 +688,7 @@ pub fn init_gui() {
 
             // Triggerbot
             if !no_pawn && config.trigger_bot && (config.triggerbot_always || *triggerbot_toggled.lock().unwrap()) && is_game_window_focused {
-                run_triggerbot(local_entity, game, config, window_info, &mut *triggerbot_on_entity.lock().unwrap(), &mut *triggerbot_shot_entity.lock().unwrap(), &mut triggerbot_entity_tries.lock().unwrap());
+                run_triggerbot(local_entity.pawn.address, local_entity.pawn.team_id, game.address.entity_list, game.view, window_info, config, &mut *triggerbot_on_entity.lock().unwrap(), &mut *triggerbot_shot_entity.lock().unwrap(), &mut triggerbot_entity_tries.lock().unwrap());
             }
         }
     });
