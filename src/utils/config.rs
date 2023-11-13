@@ -387,7 +387,7 @@ impl Default for Config {
                 bomb_timer_enabled: true,
                 bomb_timer_color_disabled: (0, 255, 255, 255),
                 bomb_timer_color_enabled: (255, 0, 0, 255),
-                spectator_list_enabled: true,
+                spectator_list_enabled: false,
                 spectator_list_color: (0, 255, 255, 255),
                 exclude_team: true,
                 show_on_spectate: true,
