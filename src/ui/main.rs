@@ -438,14 +438,13 @@ pub fn init_gui() {
                 (*ui_functions.lock().unwrap()).remove("watermark");
             }
 
-            let is_bunnyhop_toggled = !no_pawn && bunnyhop_toggled.lock().unwrap().clone() && config.misc.bunny_hop_enabled && is_game_window_focused;
             let is_aimbot_toggled = !no_pawn && aimbot_toggled.lock().unwrap().clone() && config.aimbot.enabled && is_game_window_focused;
             let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always_activated || triggerbot_toggled.lock().unwrap().clone()) && config.triggerbot.enabled && is_game_window_focused;
 
             // Cheat List
             if config.misc.enabled && config.misc.cheat_list_enabled {
                 (*ui_functions.lock().unwrap()).insert("cheat_list".to_string(), Box::new(move |ui| {
-                    render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled, is_bunnyhop_toggled);
+                    render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("cheat_list");

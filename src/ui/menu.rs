@@ -37,7 +37,7 @@ pub fn render_menu(ui: &mut Ui) {
         ui.window(&*PACKAGE_NAME)
             .collapsible(false)
             .always_auto_resize(true)
-            .position([window_position.x, window_position.y], imgui::Condition::FirstUseEver)
+            .position([window_position.x, window_position.y], imgui::Condition::Appearing)
             .build(|| {
                 let window_pos = ui.window_pos();
                 (*config).window_positions.menu = WindowPosition { x: window_pos[0], y: window_pos[1] };
