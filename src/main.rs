@@ -14,7 +14,7 @@ use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_V
 
 fn main() {
     set_virtual_terminal(true).unwrap();
-    println!("{} {} | {} | {}", "[ INFO ]".bold().cyan(), (*PACKAGE_NAME).bold(), (*PACKAGE_VERSION).bold(), (*PACKAGE_AUTHORS).bold());
+    println!("{} {} | {} | {}", "[ INFO ]".bold().cyan(), (*PACKAGE_NAME).bold(), (*PACKAGE_AUTHORS).bold(), format!("v{}", (*PACKAGE_VERSION)).bold());
 
     match setup_config() {
         None => {

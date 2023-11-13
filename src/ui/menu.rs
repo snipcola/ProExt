@@ -39,125 +39,125 @@ pub fn render_menu(ui: &mut Ui) {
                     // ESP
                     TabItem::new("ESP").build(&ui, || {
                         // Enabled
-                        ui.checkbox("ESP", &mut (*config).esp_enabled);
+                        ui.checkbox("ESP", &mut (*config).esp.enabled);
                         
-                        if (*config).esp_enabled {
+                        if (*config).esp.enabled {
                             ui.separator();
 
                             // Box
-                            ui.checkbox("Box", &mut (*config).show_box_esp);
+                            ui.checkbox("Box##ESP", &mut (*config).esp.box_enabled);
                             
-                            if (*config).show_box_esp {
+                            if (*config).esp.box_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##BoxColor", &mut (*config).box_color);
+                                color_edit_u32_tuple(ui, "##ColorESPBox", &mut (*config).esp.box_color);
                                 ui.same_line();
-                                ui.combo_simple_string("##BoxType", &mut (*config).box_type, &["Normal", "Dynamic"]);
+                                ui.combo_simple_string("##ModeESPBox", &mut (*config).esp.box_mode, &["Normal", "Dynamic"]);
 
-                                // Box Visible
-                                ui.checkbox("Box Target", &mut (*config).box_visible);
+                                // Box Target
+                                ui.checkbox("Target##ESPBox", &mut (*config).esp.box_target_enabled);
 
-                                if (*config).box_visible {
+                                if (*config).esp.box_target_enabled {
                                     ui.same_line();
-                                    color_edit_u32_tuple(ui, "##BoxVisibleColor", &mut (*config).box_visible_color);
+                                    color_edit_u32_tuple(ui, "##TargetColorESPBox", &mut (*config).esp.box_target_color);
                                 }
                                 
                                 // Box Rounding
-                                ui.slider_config("Box Rounding", 0, 25).display_format("%d").build(&mut (*config).box_rounding);
+                                ui.slider_config("Rounding##ESPBox", 0, 25).display_format("%d").build(&mut (*config).esp.box_rounding);
                                 ui.separator();
 
                                 // Filled Box
-                                ui.checkbox("Filled Box", &mut (*config).show_filled_box_esp);
+                                ui.checkbox("Filled##ESPBox", &mut (*config).esp.filled_box_enabled);
 
-                                if (*config).show_filled_box_esp {
+                                if (*config).esp.filled_box_enabled {
                                     ui.same_line();
-                                    color_edit_u32_tuple(ui, "##FilledBoxColor", &mut (*config).filled_box_color);
+                                    color_edit_u32_tuple(ui, "##FilledColorESPBox", &mut (*config).esp.filled_box_color);
 
                                     // Filled Box Alpha
-                                    ui.slider_config("Filled Box Alpha", 0.1, 1.0).display_format("%.1f").build(&mut (*config).filled_box_alpha);
+                                    ui.slider_config("Alpha##ESPBoxFilled", 0.1, 1.0).display_format("%.1f").build(&mut (*config).esp.filled_box_alpha);
                                     ui.separator();
                                 }
                             }
 
                             // Skeleton
-                            ui.checkbox("Skeleton", &mut (*config).show_skeleton_esp);
+                            ui.checkbox("Skeleton##ESP", &mut (*config).esp.skeleton_enabled);
                             
-                            if (*config).show_skeleton_esp {
+                            if (*config).esp.skeleton_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##BoneColor", &mut (*config).skeleton_color);
+                                color_edit_u32_tuple(ui, "##ColorESPSkeleton", &mut (*config).esp.skeleton_color);
                             }
 
                             // Head
-                            ui.checkbox("Head", &mut (*config).show_head_esp);
+                            ui.checkbox("Head##ESP", &mut (*config).esp.head_enabled);
                             
-                            if (*config).show_head_esp {
+                            if (*config).esp.head_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##HeadColor", &mut (*config).head_color);
+                                color_edit_u32_tuple(ui, "##ColorESPHead", &mut (*config).esp.head_color);
                                 ui.same_line();
-                                ui.combo_simple_string("##HeadType", &mut (*config).head_type, &["Outline", "Filled"]);
+                                ui.combo_simple_string("##ModeESPMode", &mut (*config).esp.head_mode, &["Outline", "Filled"]);
                             }
 
-                            // Eye Ray
-                            ui.checkbox("Eye Ray", &mut (*config).show_eye_ray);
+                            // Eye
+                            ui.checkbox("Eye##ESP", &mut (*config).esp.eye_ray_enabled);
                             
-                            if (*config).show_eye_ray {
+                            if (*config).esp.eye_ray_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##EyeRay", &mut (*config).eye_ray_color);
+                                color_edit_u32_tuple(ui, "##ColorESPEyeRay", &mut (*config).esp.eye_ray_color);
                             }
 
                             ui.separator();
 
-                            // Health Bar
-                            ui.checkbox("Health Bar", &mut (*config).show_health_bar);
+                            // Health
+                            ui.checkbox("Health##ESP", &mut (*config).esp.health_bar_enabled);
                             
-                            if (*config).show_health_bar {
+                            if (*config).esp.health_bar_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##HealthBarFirstColor", &mut (*config).health_bar_first_color);
+                                color_edit_u32_tuple(ui, "##FirstColorESPHealth", &mut (*config).esp.health_bar_first_color);
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##HealthBarSecondColor", &mut (*config).health_bar_second_color);
+                                color_edit_u32_tuple(ui, "##SecondColorESPHealth", &mut (*config).esp.health_bar_second_color);
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##HealthBarThirdColor", &mut (*config).health_bar_third_color);
-                                ui.combo_simple_string("Health Bar Type", &mut (*config).health_bar_type, &["Vertical", "Horizontal"]);
+                                color_edit_u32_tuple(ui, "##BarThirdColorESPHealth", &mut (*config).esp.health_bar_third_color);
+                                ui.combo_simple_string("Mode##ESPHealth", &mut (*config).esp.health_bar_mode, &["Vertical", "Horizontal"]);
 
                                 // Health Bar Rounding
-                                ui.slider_config("Health Bar Rounding", 0, 25).display_format("%d").build(&mut (*config).health_bar_rounding);
+                                ui.slider_config("Rounding##ESPHealth", 0, 25).display_format("%d").build(&mut (*config).esp.health_bar_rounding);
                             }
 
                             ui.separator();
 
                             // Player Name
-                            ui.checkbox("Player Name", &mut (*config).show_player_name);
+                            ui.checkbox("Player##ESP", &mut (*config).esp.player_name_enabled);
                             
-                            if (*config).show_player_name {
+                            if (*config).esp.player_name_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##PlayerNameColor", &mut (*config).player_name_color);
+                                color_edit_u32_tuple(ui, "##ColorESPPlayer", &mut (*config).esp.player_name_color);
                             }
 
                             // Weapon Name
-                            ui.checkbox("Weapon Name", &mut (*config).show_weapon_esp);
+                            ui.checkbox("Weapon##ESP", &mut (*config).esp.weapon_name_enabled);
                             
-                            if (*config).show_weapon_esp {
+                            if (*config).esp.weapon_name_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##WeaponNameColor", &mut (*config).weapon_name_color);
+                                color_edit_u32_tuple(ui, "##ColorESPWeapon", &mut (*config).esp.weapon_name_color);
                             }
                             
                             // Distance
-                            ui.checkbox("Distance", &mut (*config).show_distance);
+                            ui.checkbox("Distance##ESP", &mut (*config).esp.distance_enabled);
                             
-                            if (*config).show_distance {
+                            if (*config).esp.distance_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##DistanceColor", &mut (*config).distance_color);
+                                color_edit_u32_tuple(ui, "##ColorESPDistance", &mut (*config).esp.distance_color);
                             }
 
                             ui.separator();
 
                             // Snap Line
-                            ui.checkbox("Snap Line", &mut (*config).show_snap_line);
+                            ui.checkbox("Snapline##ESP", &mut (*config).esp.snap_line_enabled);
                             
-                            if (*config).show_snap_line {
+                            if (*config).esp.snap_line_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##LineToEnemyColor", &mut (*config).snap_line_color);
+                                color_edit_u32_tuple(ui, "##ColorESPSnapline", &mut (*config).esp.snap_line_color);
                                 ui.same_line();
-                                ui.combo_simple_string("##SnapLineType", &mut (*config).snap_line_type, &["Top", "Center", "Bottom"]);
+                                ui.combo_simple_string("##ModeESPSnapline", &mut (*config).esp.snap_line_mode, &["Top", "Center", "Bottom"]);
                             }
                         }
                     });
@@ -165,166 +165,186 @@ pub fn render_menu(ui: &mut Ui) {
                     // AimBot
                     TabItem::new("Aimbot").build(&ui, || {
                         // Aimbot
-                        ui.checkbox("Aimbot", &mut (*config).aim_bot);
+                        ui.checkbox("Aimbot", &mut (*config).aimbot.enabled);
 
-                        if (*config).aim_bot {
+                        if (*config).aimbot.enabled {
                             // Aim Key
                             ui.same_line();
-                            ui.combo_simple_string("##AimKey", &mut (*config).aim_bot_hot_key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
-                            ui.combo_simple_string("Aimbot Mode", &mut (*config).aimbot_mode, &["Hold", "Toggle"]);
+                            ui.combo_simple_string("##KeyAimbot", &mut (*config).aimbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
+                            ui.combo_simple_string("Mode##Aimbot", &mut (*config).aimbot.mode, &["Hold", "Toggle"]);
                             ui.separator();
 
-                            // Fov & Fov Circle
-                            ui.slider_config("Fov", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aim_fov);
-                            ui.checkbox("Fov Circle", &mut (*config).show_aim_fov_range);
+                            // Circle
+                            ui.checkbox("Circle##Aimbot", &mut (*config).aimbot.fov_circle_enabled);
                             
-                            if (*config).show_aim_fov_range {
+                            if (*config).aimbot.fov_circle_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##FovCircleColor", &mut (*config).aim_fov_range_color);
+                                color_edit_u32_tuple(ui, "##ColorAimbotCircle", &mut (*config).aimbot.fov_circle_color);
+
+                                // Circle Target
+                                ui.checkbox("Target##AimbotCircle", &mut (*config).aimbot.fov_circle_target_enabled);
+
+                                if (*config).aimbot.fov_circle_target_enabled {
+                                    ui.same_line();
+                                    color_edit_u32_tuple(ui, "##ColorAimbotCircleTarget", &mut (*config).aimbot.fov_circle_target_color);
+                                }
+
+                                // Outline
+                                ui.checkbox("Outline##Crosshair", &mut (*config).aimbot.fov_circle_outline_enabled);
+                                ui.separator();
                             }
-                            
-                            ui.separator();
 
                             // Only Visible & Only Grounded
-                            ui.checkbox("Only Visible", &mut (*config).visible_check);
-                            ui.checkbox("Only Grounded", &mut (*config).ground_check);
+                            ui.checkbox("Only Visible##Aimbot", &mut (*config).aimbot.only_visible);
+                            ui.checkbox("Only Grounded##Aimbot", &mut (*config).aimbot.only_grounded);
                             ui.separator();
 
-                            // Fov, Smooth, Bone
-                            ui.combo_simple_string("Bone", &mut (*config).aim_position, &["Head", "Neck", "Spine"]);
-                            ui.slider_config("Smooth", 0.0, 0.9).display_format("%.1f").build(&mut (*config).smooth);
+                            // Bone, FOV, & Smooth
+                            ui.combo_simple_string("Bone##Aimbot", &mut (*config).aimbot.bone, &["Head", "Neck", "Spine"]);
+                            ui.slider_config("Fov##Aimbot", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aimbot.fov);
+                            ui.slider_config("Smooth##Aimbot", 0.0, 0.9).display_format("%.1f").build(&mut (*config).aimbot.smooth);
                             ui.separator();
 
-                            // Start Bullet, RCS Yaw, & RCS Pitch
-                            ui.slider_config("Start Bullet", 1, 6).display_format("%d").build(&mut (*config).rcs_bullet);
-                            ui.slider_config("RCS Yaw", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs_scale.0);
-                            ui.slider_config("RCS Pitch", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs_scale.1);
+                            // Start Bullet, Yaw, & Pitch
+                            ui.slider_config("Start Bullet##Aimbot", 1, 6).display_format("%d").build(&mut (*config).aimbot.start_bullet);
+                            ui.slider_config("Yaw##Aimbot", 0.0, 2.0).display_format("%.1f").build(&mut (*config).aimbot.rcs_yaw);
+                            ui.slider_config("Pitch##Aimbot", 0.0, 2.0).display_format("%.1f").build(&mut (*config).aimbot.rcs_pitch);
                         }
                     });
 
                     // TriggerBot
                     TabItem::new("Triggerbot").build(&ui, || {
                         // Triggerbot
-                        ui.checkbox("Triggerbot", &mut (*config).trigger_bot);
+                        ui.checkbox("Triggerbot", &mut (*config).triggerbot.enabled);
                         
-                        if (*config).trigger_bot {
+                        if (*config).triggerbot.enabled {
                             // Trigger Key
                             ui.same_line();
-                            ui.combo_simple_string("##TriggerKey", &mut (*config).triggerbot_hot_key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
+                            ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
                             ui.separator();
 
                             // Always Activated
-                            ui.checkbox("Always Activated", &mut (*config).triggerbot_always);
+                            ui.checkbox("Always##Triggerbot", &mut (*config).triggerbot.always_activated);
                             ui.separator();
 
                             // Delay & Interval
-                            ui.slider_config("Delay", 15, 500).display_format("%d").build(&mut (*config).trigger_delay);
-                            ui.slider_config("Interval", 10, 250).display_format("%d").build(&mut (*config).trigger_interval);
+                            ui.slider_config("Delay##Triggerbot", 15, 500).display_format("%d").build(&mut (*config).triggerbot.delay);
+                            ui.slider_config("Interval##Triggerbot", 10, 250).display_format("%d").build(&mut (*config).triggerbot.interval);
                         }
                     });
 
                     // Crosshair
                     TabItem::new("Crosshair").build(&ui, || {
                         // Crosshair
-                        ui.checkbox("Crosshair", &mut (*config).cross_hair);
+                        ui.checkbox("Crosshair", &mut (*config).crosshair.enabled);
                         
-                        if (*config).cross_hair {
+                        if (*config).crosshair.enabled {
                             // Crosshair Color
                             ui.same_line();
-                            color_edit_u32_tuple(ui, "##CrosshairColor", &mut (*config).cross_hair_color);
+                            color_edit_u32_tuple(ui, "##ColorCrosshair", &mut (*config).crosshair.color);
+
+                            // Target Crosshair
+                            ui.checkbox("Target##Crosshair", &mut (*config).crosshair.target_enabled);
+                            
+                            if (*config).crosshair.target_enabled {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##ColorCrosshairTarget", &mut (*config).crosshair.target_color);
+                            }
 
                             // Outline
-                            ui.checkbox("Outline", &mut (*config).cross_hair_outline);
+                            ui.checkbox("Outline##Crosshair", &mut (*config).crosshair.outline_enabled);
                             ui.separator();
 
                             // Dot
-                            ui.checkbox("Dot", &mut (*config).cross_hair_dot);
+                            ui.checkbox("Dot##Crosshair", &mut (*config).crosshair.dot_enabled);
                             
-                            if (*config).cross_hair_dot {
+                            if (*config).crosshair.dot_enabled {
                                 ui.same_line();
-                                ui.slider_config("##DotSize", 1, 10).display_format("%d").build(&mut (*config).cross_hair_dot_size);
+                                ui.slider_config("##SizeCrosshairDot", 1, 10).display_format("%d").build(&mut (*config).crosshair.dot_size);
                             }
 
                             // Circle
-                            ui.checkbox("Circle", &mut (*config).cross_hair_circle);
+                            ui.checkbox("Circle##Crosshair", &mut (*config).crosshair.circle_enabled);
 
-                            if (*config).cross_hair_circle {
+                            if (*config).crosshair.circle_enabled {
                                 ui.same_line();
-                                ui.slider_config("##CircleRadius", 1, 30).display_format("%d").build(&mut (*config).cross_hair_circle_radius);
+                                ui.slider_config("##RadiusCrosshairCircle", 1, 30).display_format("%d").build(&mut (*config).crosshair.circle_radius);
                             }
 
                             // Lines
-                            ui.checkbox("Lines", &mut (*config).cross_hair_lines);
+                            ui.checkbox("Lines##Crosshair", &mut (*config).crosshair.lines_enabled);
                             
-                            if (*config).cross_hair_lines {
-                                ui.slider_config("Width", 1, 20).display_format("%d").build(&mut (*config).cross_hair_lines_width);
-                                ui.slider_config("Height", 1, 20).display_format("%d").build(&mut (*config).cross_hair_lines_height);
-                                ui.slider_config("Space", 1, 10).display_format("%d").build(&mut (*config).cross_hair_lines_space);
-                                ui.slider_config("Thickness", 1, 10).display_format("%d").build(&mut (*config).cross_hair_lines_thickness);
+                            if (*config).crosshair.lines_enabled {
+                                ui.slider_config("Width##CrosshairLines", 1, 20).display_format("%d").build(&mut (*config).crosshair.lines_width);
+                                ui.slider_config("Height##CrosshairLines", 1, 20).display_format("%d").build(&mut (*config).crosshair.lines_height);
+                                ui.slider_config("Space##CrosshairLines", 1, 10).display_format("%d").build(&mut (*config).crosshair.lines_space);
+                                ui.slider_config("Thickness##CrosshairLines", 1, 10).display_format("%d").build(&mut (*config).crosshair.lines_thickness);
                             }
                         }
                     });
 
                     TabItem::new("Radar").build(&ui, || {
                         // Radar
-                        ui.checkbox("Radar", &mut (*config).show_radar);
+                        ui.checkbox("Radar", &mut (*config).radar.enabled);
                         
-                        if (*config).show_radar {
+                        if (*config).radar.enabled {
                             // Radar Type
                             ui.same_line();
-                            color_edit_u32_tuple(ui, "##RadarColor", &mut (*config).radar_color);
+                            color_edit_u32_tuple(ui, "##ColorRadar", &mut (*config).radar.color);
                             ui.same_line();
-                            ui.combo_simple_string("##RadarType", &mut (*config).radar_type, &["Circle", "Arrow", "Both"]);
+                            ui.combo_simple_string("##ModeRadar", &mut (*config).radar.mode, &["Circle", "Arrow", "Both"]);
 
                             // Radar Alpha
-                            ui.slider_config("Radar Alpha", 0.0, 1.0).display_format("%.1f").build(&mut (*config).radar_alpha);
+                            ui.slider_config("Alpha##Radar", 0.0, 1.0).display_format("%.1f").build(&mut (*config).radar.alpha);
                             ui.separator();
 
                             // Cross Line
-                            ui.checkbox("Cross Line", &mut (*config).show_radar_cross_line);
+                            ui.checkbox("Crossline##Radar", &mut (*config).radar.crossline_enabled);
                             
-                            if (*config).show_radar_cross_line {
+                            if (*config).radar.crossline_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##CrossLineColor", &mut (*config).radar_cross_line_color);
+                                color_edit_u32_tuple(ui, "##ColorRadarCrossline", &mut (*config).radar.crossline_color);
                             }
 
                             ui.separator();
 
                             // Point Size, Proportion, & Radar Range
-                            ui.slider_config("Point Size", 1.0, 2.0).display_format("%.1f").build(&mut (*config).radar_point_size_proportion);
-                            ui.slider_config("Proportion", 500.0, 3500.0).display_format("%.1f").build(&mut (*config).proportion);
-                            ui.slider_config("Radar Range", 100.0, 300.0).display_format("%.1f").build(&mut (*config).radar_range);
+                            ui.slider_config("Point Size##Radar", 1.0, 2.0).display_format("%.1f").build(&mut (*config).radar.point_size);
+                            ui.slider_config("Proportion##Radar", 500.0, 3500.0).display_format("%.1f").build(&mut (*config).radar.proportion);
+                            ui.slider_config("Range##Radar", 100.0, 300.0).display_format("%.1f").build(&mut (*config).radar.range);
                         }
                     });
 
                     TabItem::new("Misc").build(&ui, || {
-                        // AntiFlashbang & BunnyHop
-                        ui.checkbox("No Flash (Risky)", &mut (*config).anti_flashbang);
+                        // No Flash & Bunny Hop
+                        ui.checkbox("No Flash (Risky)##Misc", &mut (*config).misc.no_flash_enabled);
                         ui.same_line();
-                        ui.checkbox("Bunny Hop (Risky)", &mut (*config).bunny_hop);
+                        ui.checkbox("Bunny Hop (Risky)##Misc", &mut (*config).misc.bunny_hop_enabled);
                         ui.separator();
 
-                        // TeamCheck & ShowWhenSpec
-                        ui.checkbox("Team Check", &mut (*config).team_check);
+                        // Exclude Team & Show When Spectating
+                        ui.checkbox("Exclude Team##Misc", &mut (*config).misc.exclude_team);
                         ui.same_line();
-                        ui.checkbox("Show When Spectating", &mut (*config).show_when_spec);
+                        ui.checkbox("Show When Spectating##Misc", &mut (*config).misc.show_when_spectating);
                         ui.separator();
 
-                        // OBSBypass & Headshot Line
-                        ui.checkbox("Bypass Recorders", &mut (*config).obs_bypass);
+                        // Bypass Capture & Headshot Line
+                        ui.checkbox("Bypass Capture##Misc", &mut (*config).misc.bypass_capture);
                         ui.same_line();
-                        ui.checkbox("Headshot Line", &mut (*config).show_head_shot_line);
+                        ui.checkbox("Headshot Line##Misc", &mut (*config).misc.headshot_line_enabled);
                         
-                        if (*config).show_head_shot_line {
+                        if (*config).misc.headshot_line_enabled {
                             ui.same_line();
-                            color_edit_u32_tuple(ui, "##HeadshotLineColor", &mut (*config).head_shot_line_color);
+                            color_edit_u32_tuple(ui, "##ColorMiscHeadshotLine", &mut (*config).misc.headshot_line_color);
                         }
                     });
 
                     TabItem::new("Config").build(&ui, || {
                         // New Config Input & Button
-                        ui.input_text("New Config Name", &mut *new_config_name).build();
-                        if ui.button("Create Config") {
+                        ui.input_text("##NameConfig", &mut *new_config_name).build();
+                        ui.same_line();
+
+                        if ui.button("Create##Config") {
                             let directory_pathbuf = PathBuf::from(&*config_dir);
                             
                             if let Some(config_path) = directory_pathbuf.join(format!("{}.conf.json", *new_config_name)).to_str() {
@@ -346,11 +366,11 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.separator();
 
                         if let Some(config) = &*selected_config {
-                            ui.text(format!("Selected Config: {}", config));
+                            ui.text(format!("Selected: {}", config));
                             ui.separator();
                         };
 
-                        if ui.button("Load Selected") {
+                        if ui.button("Load##Config") {
                             if let Some(config_name) = &*selected_config {
                                 let directory_pathbuf = PathBuf::from(&*config_dir);
                             
@@ -363,7 +383,9 @@ pub fn render_menu(ui: &mut Ui) {
                             };
                         };
 
-                        if ui.button("Save Selected") {
+                        ui.same_line();
+
+                        if ui.button("Save##Config") {
                             if let Some(config_name) = &*selected_config {
                                 let directory_pathbuf = PathBuf::from(&*config_dir);
                             
@@ -376,8 +398,9 @@ pub fn render_menu(ui: &mut Ui) {
                             };
                         };
 
-                        // Destructive Actions
-                        if ui.button("Delete Selected") {
+                        ui.same_line();
+
+                        if ui.button("Delete##Config") {
                             if let Some(config_name) = &*selected_config {
                                 if config_name != "default.conf.json" {
                                     let directory_pathbuf = PathBuf::from(&*config_dir);
@@ -394,7 +417,7 @@ pub fn render_menu(ui: &mut Ui) {
 
                         ui.separator();
                         
-                        if ui.button("Reset to Default") {
+                        if ui.button("Reset##Config") {
                             *config = Config::default();
                         };
                     });

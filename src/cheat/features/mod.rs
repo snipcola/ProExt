@@ -1,7 +1,7 @@
 pub mod radar;
 pub mod visuals;
 pub mod aimbot;
-pub mod anti_flashbang;
+pub mod no_flash;
 pub mod bunnyhop;
 pub mod esp;
 pub mod triggerbot;
