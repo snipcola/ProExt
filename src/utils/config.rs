@@ -11,7 +11,7 @@ lazy_static! {
     pub static ref PROCESS_TITLE: String = "Counter-Strike 2".to_string();
     pub static ref PROCESS_CLASS: String = "SDL_app".to_string();
 
-    pub static ref PACKAGE_NAME: String = "ExtPro".to_string();
+    pub static ref PACKAGE_NAME: String = "ProExt".to_string();
     pub static ref PACKAGE_VERSION: String = env!("CARGO_PKG_VERSION").to_string();
     pub static ref PACKAGE_AUTHORS: String = env!("CARGO_PKG_AUTHORS").replace(":", " & ").to_string();
 

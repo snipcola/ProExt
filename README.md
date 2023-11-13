@@ -5,9 +5,11 @@
 ## 🎬 Showcase:
 ![showcase](./Showcase.jpg)
 ## 📋 Features:
-- **ESP**: ESP for Bone, Box, Eye Ray, Weapon Name, Player Name, Distance.
-- **Aimbot**: Aim Lock via Key, FOV Circle, Visible Check, RCS Control.
-- **Triggerbot**: Trigger shoot via Key, optional toggle mode, customizable delay.
-- **Radar**: Radar overlay with enemy positions, customizable look, optional crossline.
-- **Misc**: Anti Flashbang (Risky), Bunny Hop (Risky), Team Check, Show UI when Spectating, disable cheat capture by OBS, etc.
-- **Config**: Create, store, and share configuration files with ease - the config must be valid to load.
+- **ESP 👁️**
+- **Aimbot 🎯**
+- **Triggerbot 💨**
+- **Crosshair 𐀏**
+- **Radar 📡**
+- **Bomb Timer 💣**
+- **Spectator List 👀**
+- ...and more to come!
