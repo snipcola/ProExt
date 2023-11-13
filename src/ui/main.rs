@@ -564,7 +564,7 @@ pub fn init_gui() {
                 // Weapon Name
                 if config.esp_enabled && config.show_weapon_esp {
                     (*ui_functions.lock().unwrap()).insert(format!("weapon_name_{}", i), Box::new(move |ui| {
-                        render_weapon_name(ui, &entity.pawn.weapon_name, Vector2 { x: rect.x, y: rect.y + rect.w }, config);
+                        render_weapon_name(ui, &entity.pawn.weapon_name, rect, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("weapon_name_{}", i));

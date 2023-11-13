@@ -94,7 +94,12 @@ pub fn render_menu(ui: &mut Ui) {
                             // Health Bar
                             ui.checkbox("Health Bar", &mut (*config).show_health_bar);
                             ui.same_line();
-                            ui.combo_simple_string("##HealthBarType", &mut (*config).health_bar_type, &["Vertical", "Horizontal"]);
+                            color_edit_u32_tuple(ui, "##HealthBarFirstColor", &mut (*config).health_bar_first_color);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##HealthBarSecondColor", &mut (*config).health_bar_second_color);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##HealthBarThirdColor", &mut (*config).health_bar_third_color);
+                            ui.combo_simple_string("Health Bar Type", &mut (*config).health_bar_type, &["Vertical", "Horizontal"]);
 
                             if (*config).show_health_bar {
                                 // Health Bar Rounding

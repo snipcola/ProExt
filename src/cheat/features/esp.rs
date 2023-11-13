@@ -98,8 +98,8 @@ pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, b_spotted_by_mask: u64, local
     }
 }
 
-pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, pos: Vector2<f32>, config: Config) {
-    stroke_text(ui, weapon_name.to_string(), pos, color_u32_to_f32(config.weapon_name_color).into(), false);
+pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, rect: Vector4<f32>, config: Config) {
+    stroke_text(ui, weapon_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y + rect.w }, color_u32_to_f32(config.weapon_name_color).into(), true);
 }
 
 pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, rect: Vector4<f32>, config: Config) {
@@ -121,9 +121,9 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect_pos: Vector2<f32
     let background_color = ImColor32::from_rgba(90, 90, 90, 220);
     let frame_color = ImColor32::from_rgba(45, 45, 45, 220);
 
-    let first_stage_color = ImColor32::from_rgba(96, 246, 113, 220);
-    let second_stage_color = ImColor32::from_rgba(247, 214, 103, 220);
-    let third_stage_color = ImColor32::from_rgba(255, 95, 95, 220);
+    let first_stage_color = ImColor32::from(color_u32_to_f32(config.health_bar_first_color));
+    let second_stage_color = ImColor32::from(color_u32_to_f32(config.health_bar_second_color));
+    let third_stage_color = ImColor32::from(color_u32_to_f32(config.health_bar_third_color));
 
     let in_range = |value: f32, min: f32, max: f32| -> bool {
         value > min && value <= max
