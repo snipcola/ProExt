@@ -329,10 +329,22 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).misc.enabled {
                             ui.separator();
 
-                            // Watermark
+                            // Watermark & Cheat List
                             ui.checkbox("Watermark##Misc", &mut (*config).misc.watermark_enabled);
                             ui.same_line();
                             ui.checkbox("Cheat List##Misc", &mut (*config).misc.cheat_list_enabled);
+                            ui.separator();
+
+                            // Bomb Timer
+                            ui.checkbox("Bomb Timer##Misc", &mut (*config).misc.bomb_timer_enabled);
+
+                            if (*config).misc.bomb_timer_enabled {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##ColorMiscBombTimerDisabled", &mut (*config).misc.bomb_timer_color_disabled);
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##ColorMiscBombTimerEnabled", &mut (*config).misc.bomb_timer_color_enabled);
+                            }
+
                             ui.separator();
 
                             // Exclude Team & Show on Spectate

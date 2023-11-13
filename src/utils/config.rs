@@ -235,6 +235,9 @@ pub struct Misc {
     pub enabled: bool,
     pub watermark_enabled: bool,
     pub cheat_list_enabled: bool,
+    pub bomb_timer_enabled: bool,
+    pub bomb_timer_color_disabled: (u32, u32, u32, u32),
+    pub bomb_timer_color_enabled: (u32, u32, u32, u32),
     pub exclude_team: bool,
     pub show_on_spectate: bool,
     pub bypass_capture: bool,
@@ -254,7 +257,8 @@ pub struct WindowPosition {
 pub struct WindowPositions {
     pub menu: WindowPosition,
     pub watermark: WindowPosition,
-    pub cheat_list: WindowPosition
+    pub cheat_list: WindowPosition,
+    pub bomb_timer: WindowPosition
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -376,7 +380,10 @@ impl Default for Config {
             misc: Misc {
                 enabled: true,
                 watermark_enabled: true,
-                cheat_list_enabled: false,
+                cheat_list_enabled: true,
+                bomb_timer_enabled: true,
+                bomb_timer_color_disabled: (0, 255, 255, 255),
+                bomb_timer_color_enabled: (255, 0, 0, 255),
                 exclude_team: true,
                 show_on_spectate: true,
                 bypass_capture: true,
@@ -386,9 +393,10 @@ impl Default for Config {
                 bunny_hop_enabled: false,
             },
             window_positions: WindowPositions {
-                menu: WindowPosition { x: 500.0, y: 100.0 },
-                watermark: WindowPosition { x: 0.0, y: 0.0 },
-                cheat_list: WindowPosition { x: 0.0, y: 0.0 }
+                menu: WindowPosition { x: 600.0, y: 150.0 },
+                watermark: WindowPosition { x: 300.0, y: 5.0 },
+                cheat_list: WindowPosition { x: 300.0, y: 40.0 },
+                bomb_timer: WindowPosition { x: 30.0, y: 330.0 }
             }
         };
     }
