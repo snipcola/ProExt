@@ -11,7 +11,7 @@ lazy_static! {
     pub static ref PROCESS_TITLE: String = "Counter-Strike 2".to_string();
     pub static ref PROCESS_CLASS: String = "SDL_app".to_string();
 
-    pub static ref PACKAGE_NAME: String = "CS2External".to_string();
+    pub static ref PACKAGE_NAME: String = "ExtPro".to_string();
     pub static ref PACKAGE_VERSION: String = env!("CARGO_PKG_VERSION").to_string();
     pub static ref PACKAGE_AUTHORS: String = env!("CARGO_PKG_AUTHORS").replace(":", " & ").to_string();
 
@@ -238,6 +238,8 @@ pub struct Misc {
     pub bomb_timer_enabled: bool,
     pub bomb_timer_color_disabled: (u32, u32, u32, u32),
     pub bomb_timer_color_enabled: (u32, u32, u32, u32),
+    pub spectator_list_enabled: bool,
+    pub spectator_list_color: (u32, u32, u32, u32),
     pub exclude_team: bool,
     pub show_on_spectate: bool,
     pub bypass_capture: bool,
@@ -258,7 +260,8 @@ pub struct WindowPositions {
     pub menu: WindowPosition,
     pub watermark: WindowPosition,
     pub cheat_list: WindowPosition,
-    pub bomb_timer: WindowPosition
+    pub bomb_timer: WindowPosition,
+    pub spectator_list: WindowPosition
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -384,6 +387,8 @@ impl Default for Config {
                 bomb_timer_enabled: true,
                 bomb_timer_color_disabled: (0, 255, 255, 255),
                 bomb_timer_color_enabled: (255, 0, 0, 255),
+                spectator_list_enabled: true,
+                spectator_list_color: (0, 255, 255, 255),
                 exclude_team: true,
                 show_on_spectate: true,
                 bypass_capture: true,
@@ -396,7 +401,8 @@ impl Default for Config {
                 menu: WindowPosition { x: 600.0, y: 150.0 },
                 watermark: WindowPosition { x: 300.0, y: 5.0 },
                 cheat_list: WindowPosition { x: 300.0, y: 40.0 },
-                bomb_timer: WindowPosition { x: 30.0, y: 330.0 }
+                bomb_timer: WindowPosition { x: 30.0, y: 330.0 },
+                spectator_list: WindowPosition { x: 445.0, y: 40.0 }
             }
         };
     }

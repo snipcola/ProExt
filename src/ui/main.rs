@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_headshot_line, render_crosshair}, aimbot::{run_aimbot, aimbot_check, render_fov_circle}, no_flash::run_no_flash, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot, watermark::render_watermark, cheat_list::render_cheat_list, bomb_timer::render_bomb_timer}, classes::{entity::Flags, offsets::PAWN_OFFSETS, view::View}}, ui::windows::hide_window_from_capture, utils::{config::Config, process_manager::trace_address}};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_headshot_line, render_crosshair}, aimbot::{run_aimbot, aimbot_check, render_fov_circle}, no_flash::run_no_flash, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot, watermark::render_watermark, cheat_list::render_cheat_list, bomb_timer::render_bomb_timer, spectator_list::{is_spectating, render_spectator_list}}, classes::{entity::Flags, offsets::PAWN_OFFSETS, view::View}}, ui::windows::hide_window_from_capture, utils::{config::Config, process_manager::trace_address}};
 use crate::{ui::menu::render_menu, utils::{config::{PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -424,6 +424,7 @@ pub fn init_gui() {
                 (*ui_functions.lock().unwrap()).remove("radar");
                 (*ui_functions.lock().unwrap()).remove("headshot_line");
                 (*ui_functions.lock().unwrap()).remove("bomb_timer");
+                (*ui_functions.lock().unwrap()).remove("spectator_list");
                 
                 for i in 0 .. 64 {
                     remove_esp(i);
@@ -506,6 +507,9 @@ pub fn init_gui() {
             // Radar Data
             let mut radar_points: Vec<(Vector3<f32>, f32)> = Vec::new();
 
+            // Spectator Data
+            let mut spectators: Vec<String> = Vec::new();
+
             // Entities
             for i in 0 .. 64 {
                 let mut entity = Entity::default();
@@ -525,6 +529,11 @@ pub fn init_gui() {
                 if !entity.update_controller(entity_address) {
                     remove_esp(i);
                     continue;
+                }
+
+                // Spectator Check
+                if !no_pawn && (config.misc.enabled && config.misc.spectator_list_enabled) && is_spectating(entity.controller.address, game.address.entity_list_entry, local_entity.pawn.address, entity_address) {
+                    spectators.push(entity.controller.player_name.clone());
                 }
 
                 if !entity.update_pawn(entity.pawn.address, window_info, game.view) {
@@ -667,6 +676,15 @@ pub fn init_gui() {
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", i));
                 }
+            }
+
+            // Spectator List
+            if !no_pawn && config.misc.enabled && config.misc.spectator_list_enabled {
+                (*ui_functions.lock().unwrap()).insert("spectator_list".to_string(), Box::new(move |ui| {
+                    render_spectator_list(ui, spectators.clone(), config);
+                }));
+            } else {
+                (*ui_functions.lock().unwrap()).remove("spectator_list");
             }
             
             let (aiming_at_enemy, allow_shoot) = {

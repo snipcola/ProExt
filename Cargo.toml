@@ -1,6 +1,6 @@
 [package]
-name = "cs2external"
-version = "0.0.1"
+name = "extpro"
+version = "0.0.2"
 authors = ["Vytrol"]
 edition = "2021"
 

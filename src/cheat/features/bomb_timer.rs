@@ -97,6 +97,7 @@ pub fn render_bomb_timer(ui: &mut Ui, client_dll_address: u64, config: Config) {
             let enabled_color = Vector4 { x: enabled.0, y: enabled.1, z: enabled.2, w: enabled.3 };
 
             ui.text("Bomb Timer");
+            ui.separator();
 
             if *is_planted && remaining_time.is_some() && plant_time.is_some() && bomb_site.is_some() && remaining_time.unwrap() > 0 {
                 ui.text("The bomb has been planted at");
