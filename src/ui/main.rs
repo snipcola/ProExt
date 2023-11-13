@@ -7,7 +7,7 @@ use glium::{glutin::{event_loop::ControlFlow, event::{Event, WindowEvent, Device
 use imgui_glium_renderer::Renderer;
 use mint::{Vector4, Vector2, Vector3};
 
-use crate::{cheat::{features::{radar::render_radar, visuals::{render_headshot_line, render_crosshair}, aimbot::{run_aimbot, aimbot_check, render_fov_circle}, no_flash::run_no_flash, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot}, classes::{entity::Flags, offsets::PAWN_OFFSETS, view::View}}, ui::windows::hide_window_from_capture, utils::{config::Config, process_manager::trace_address}};
+use crate::{cheat::{features::{radar::render_radar, visuals::{render_headshot_line, render_crosshair}, aimbot::{run_aimbot, aimbot_check, render_fov_circle}, no_flash::run_no_flash, bunnyhop::run_bunny_hop, esp::{render_bones, render_eye_ray, get_2d_box, get_2d_bone_rect, render_snap_line, render_box, render_weapon_name, render_distance, render_player_name, render_health_bar, render_head}, triggerbot::run_triggerbot, watermark::render_watermark, cheat_list::render_cheat_list}, classes::{entity::Flags, offsets::PAWN_OFFSETS, view::View}}, ui::windows::hide_window_from_capture, utils::{config::Config, process_manager::trace_address}};
 use crate::{ui::menu::render_menu, utils::{config::{DEBUG, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS, TOGGLE_KEY, THREAD_DELAYS, CONFIG}, process_manager::{read_memory, read_memory_auto}}, cheat::classes::{game::{GAME, update_entity_list_entry}, entity::Entity}};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui, get_window_info, is_window_focused};
 
@@ -132,7 +132,7 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
     }
 
     let allow_shoot = {
-        if config.misc.exclude_team {
+        if config.misc.enabled && config.misc.exclude_team {
             local_entity_pawn_team_id != entity.pawn.team_id && entity.pawn.health > 0
         } else {
             entity.pawn.health > 0
@@ -379,6 +379,8 @@ pub fn init_gui() {
     let mut window_hidden_from_capture = false;
 
     let cheat_tasks_thread = thread::spawn(move || {
+        let mut no_pawn = false;
+
         loop {
             let game = GAME.lock().unwrap().clone();
             let config = CONFIG.lock().unwrap().clone();
@@ -401,15 +403,15 @@ pub fn init_gui() {
                 (*bunnyhop_toggled.lock().unwrap()) = false;
             }
 
-            if !window_hidden_from_capture && config.misc.bypass_capture {
+            if !window_hidden_from_capture && (config.misc.enabled && config.misc.bypass_capture) {
                 hide_window_from_capture(self_hwnd, true);
                 window_hidden_from_capture = true;
-            } else if window_hidden_from_capture && !config.misc.bypass_capture {
+            } else if window_hidden_from_capture && !(config.misc.enabled && config.misc.bypass_capture) {
                 hide_window_from_capture(self_hwnd, false);
                 window_hidden_from_capture = false;
             }
 
-            let mut no_pawn = false;
+
             let matrix_address = game.address.matrix;
             let controller_address = game.address.local_controller;
             let pawn_address = game.address.local_pawn;
@@ -435,6 +437,28 @@ pub fn init_gui() {
                     remove_esp(i);
                 }
             };
+
+            // Watermark
+            if config.misc.enabled && config.misc.watermark_enabled {
+                (*ui_functions.lock().unwrap()).insert("watermark".to_string(), Box::new(move |ui| {
+                    render_watermark(ui, config);
+                }));
+            } else {
+                (*ui_functions.lock().unwrap()).remove("watermark");
+            }
+
+            let is_bunnyhop_toggled = !no_pawn && bunnyhop_toggled.lock().unwrap().clone() && config.misc.bunny_hop_enabled && is_game_window_focused;
+            let is_aimbot_toggled = !no_pawn && aimbot_toggled.lock().unwrap().clone() && config.aimbot.enabled && is_game_window_focused;
+            let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always_activated || triggerbot_toggled.lock().unwrap().clone()) && config.triggerbot.enabled && is_game_window_focused;
+
+            // Cheat List
+            if config.misc.enabled && config.misc.cheat_list_enabled {
+                (*ui_functions.lock().unwrap()).insert("cheat_list".to_string(), Box::new(move |ui| {
+                    render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled, is_bunnyhop_toggled);
+                }));
+            } else {
+                (*ui_functions.lock().unwrap()).remove("cheat_list");
+            }
 
             if !read_memory(matrix_address, &mut (*GAME.lock().unwrap()).view.matrix, 64) {
                 remove_ui_elements();
@@ -465,12 +489,14 @@ pub fn init_gui() {
             }
 
             if !local_entity.update_pawn(local_pawn_address, window_info, game.view) {
-                if !config.misc.show_when_spectating {
+                if !(config.misc.enabled && config.misc.show_on_spectate) {
                     remove_ui_elements();
                     continue;
                 };
 
                 no_pawn = true;
+            } else {
+                no_pawn = false;
             }
 
             // Aimbot Data
@@ -506,7 +532,7 @@ pub fn init_gui() {
                     continue;
                 }
 
-                if config.misc.exclude_team && entity.controller.team_id == local_entity.controller.team_id {
+                if (config.misc.enabled && config.misc.exclude_team) && entity.controller.team_id == local_entity.controller.team_id {
                     remove_esp(i);
                     continue;
                 }
@@ -672,7 +698,7 @@ pub fn init_gui() {
             }
 
             // Headshot Line
-            if !no_pawn && config.misc.headshot_line_enabled {
+            if !no_pawn && config.misc.enabled && config.misc.headshot_line_enabled {
                 (*ui_functions.lock().unwrap()).insert("headshot_line".to_string(), Box::new(move |ui| {
                     render_headshot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
                 }));
@@ -706,25 +732,25 @@ pub fn init_gui() {
                 (*ui_functions.lock().unwrap()).remove("radar");
             }
 
-            // Anti Flashbang
-            if !no_pawn && config.misc.no_flash_enabled {
+            // No Flash
+            if !no_pawn && config.misc.enabled && config.misc.no_flash_enabled {
                 run_no_flash(local_entity.pawn.address);
             }
 
             // Bunnyhop
-            if !no_pawn && config.misc.bunny_hop_enabled && is_game_window_focused {
+            if !no_pawn && config.misc.enabled && config.misc.bunny_hop_enabled && is_game_window_focused {
                 run_bunny_hop(bunnyhop_toggled.lock().unwrap().clone(), local_entity.pawn.has_flag(Flags::InAir));
             }
 
             // Aimbot
-            if !no_pawn && config.aimbot.enabled && *aimbot_toggled.lock().unwrap() && is_game_window_focused {
+            if is_aimbot_toggled {
                 if let Some(aimbot_info) = aimbot_info {
                     run_aimbot(config, aimbot_info, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
                 }
             }
 
             // Triggerbot
-            if !no_pawn && config.triggerbot.enabled && (config.triggerbot.always_activated || *triggerbot_toggled.lock().unwrap()) && is_game_window_focused {
+            if is_triggerbot_toggled {
                 run_triggerbot((aiming_at_enemy, allow_shoot), config, &mut *triggerbot_on_entity.lock().unwrap(), &mut *triggerbot_shot_entity.lock().unwrap(), &mut triggerbot_entity_tries.lock().unwrap());
             }
         }

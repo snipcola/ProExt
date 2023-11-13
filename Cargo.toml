@@ -19,3 +19,4 @@ serde_json = "1.0.108"
 directories = "5.0.1"
 windows = { version = "0.51.1", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Win32_System_Threading", "Win32_System_Diagnostics_Debug", "Win32_System_Memory", "Win32_System_Diagnostics_ToolHelp"] }
 mouse-rs = "0.4.2"
+chrono = "0.4.31"

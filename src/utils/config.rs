@@ -243,13 +243,29 @@ pub struct Radar {
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Misc {
+    pub enabled: bool,
+    pub watermark_enabled: bool,
+    pub cheat_list_enabled: bool,
     pub exclude_team: bool,
-    pub show_when_spectating: bool,
+    pub show_on_spectate: bool,
     pub bypass_capture: bool,
     pub headshot_line_enabled: bool,
     pub headshot_line_color: (u32, u32, u32, u32),
     pub no_flash_enabled: bool,
     pub bunny_hop_enabled: bool,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize)]
+pub struct WindowPosition {
+    pub x: f32,
+    pub y: f32
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize)]
+pub struct WindowPositions {
+    pub menu: WindowPosition,
+    pub watermark: WindowPosition,
+    pub cheat_list: WindowPosition
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -259,7 +275,8 @@ pub struct Config {
     pub triggerbot: Triggerbot,
     pub crosshair: Crosshair,
     pub radar: Radar,
-    pub misc: Misc
+    pub misc: Misc,
+    pub window_positions: WindowPositions
 }
 
 impl Config {
@@ -368,13 +385,21 @@ impl Default for Config {
                 range: 148.0
             },
             misc: Misc {
+                enabled: true,
+                watermark_enabled: true,
+                cheat_list_enabled: false,
                 exclude_team: true,
-                show_when_spectating: true,
+                show_on_spectate: true,
                 bypass_capture: true,
                 headshot_line_enabled: false,
                 headshot_line_color: (255, 255, 255, 255),
                 no_flash_enabled: false,
                 bunny_hop_enabled: false,
+            },
+            window_positions: WindowPositions {
+                menu: WindowPosition { x: 500.0, y: 100.0 },
+                watermark: WindowPosition { x: 0.0, y: 0.0 },
+                cheat_list: WindowPosition { x: 0.0, y: 0.0 }
             }
         };
     }
