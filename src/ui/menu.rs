@@ -128,6 +128,8 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.checkbox("Snap Line", &mut (*config).show_snap_line);
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##LineToEnemyColor", &mut (*config).snap_line_color);
+                            ui.same_line();
+                            ui.combo_simple_string("##SnapLineType", &mut (*config).snap_line_type, &["Top", "Center", "Bottom"]);
                         }
                     });
 
