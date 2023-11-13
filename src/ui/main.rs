@@ -139,11 +139,7 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
         }
     };
 
-    if !allow_shoot {
-        return (true, false);
-    }
-
-    return (true, true);
+    return (true, allow_shoot);
 }
 
 pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<rdev::Button, rdev::Key> {
@@ -168,7 +164,7 @@ pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<rdev::Button, rdev::Key
 }
 
 pub fn init_gui() {
-    let title = &format!("{} v{} - {}", (*PACKAGE_NAME).to_uppercase(), (*PACKAGE_VERSION), (*PACKAGE_AUTHORS));
+    let title = &format!("{} v{} - {}", (*PACKAGE_NAME), (*PACKAGE_VERSION), (*PACKAGE_AUTHORS));
     let window_title = &*PROCESS_TITLE;
     let window_class = &*PROCESS_CLASS;
     let toggle_key = &*TOGGLE_KEY;
@@ -632,11 +628,19 @@ pub fn init_gui() {
                     (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", i));
                 }
             }
+            
+            let (aiming_at_enemy, allow_shoot) = {
+                if no_pawn {
+                    (false, false)
+                } else {
+                    is_enemy_at_crosshair(window_info, local_entity.pawn.address, local_entity.pawn.team_id, game.address.entity_list, game.view, config)
+                }
+            };
 
             // Crosshair
-            if !no_pawn && config.cross_hair {
+            if config.cross_hair {
                 (*ui_functions.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
-                    render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, window_info, local_entity.pawn.address, local_entity.pawn.team_id, game.address.entity_list, game.view, config);
+                    render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, aiming_at_enemy && allow_shoot, config);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("cross_hair");
@@ -688,7 +692,7 @@ pub fn init_gui() {
 
             // Triggerbot
             if !no_pawn && config.trigger_bot && (config.triggerbot_always || *triggerbot_toggled.lock().unwrap()) && is_game_window_focused {
-                run_triggerbot(local_entity.pawn.address, local_entity.pawn.team_id, game.address.entity_list, game.view, window_info, config, &mut *triggerbot_on_entity.lock().unwrap(), &mut *triggerbot_shot_entity.lock().unwrap(), &mut triggerbot_entity_tries.lock().unwrap());
+                run_triggerbot((aiming_at_enemy, allow_shoot), config, &mut *triggerbot_on_entity.lock().unwrap(), &mut *triggerbot_shot_entity.lock().unwrap(), &mut triggerbot_entity_tries.lock().unwrap());
             }
         }
     });

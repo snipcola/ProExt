@@ -4,7 +4,7 @@ use colored::Colorize;
 use imgui::{Ui, TabBar, TabItem};
 use lazy_static::lazy_static;
 
-use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, TOGGLE_KEY};
+use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, TOGGLE_KEY, PACKAGE_NAME};
 use crate::ui::main::TOGGLED;
 use crate::ui::main::color_edit_u32_tuple;
 
@@ -31,7 +31,7 @@ pub fn render_menu(ui: &mut Ui) {
     };
 
     if toggled {
-        ui.window("CS2External")
+        ui.window(&*PACKAGE_NAME)
             .collapsible(false)
             .always_auto_resize(true)
             .build(|| {
