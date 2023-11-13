@@ -9,6 +9,7 @@ lazy_static! {
     pub static ref VIEW_ANGLE: Arc<Mutex<u32>> = Arc::new(Mutex::new(0x0));
     pub static ref LOCAL_PLAYER_CONTROLLER: Arc<Mutex<u32>> = Arc::new(Mutex::new(0x0));
     pub static ref LOCAL_PLAYER_PAWN: Arc<Mutex<u32>> = Arc::new(Mutex::new(0x0));
+    pub static ref BOMB: Arc<Mutex<u32>> = Arc::new(Mutex::new(0x0));
     pub static ref FORCE_JUMP: Arc<Mutex<u32>> = Arc::new(Mutex::new(0x0));
     pub static ref GLOBAL_VARS: Arc<Mutex<u32>> = Arc::new(Mutex::new(0x0));
 
@@ -54,6 +55,10 @@ lazy_static! {
         current_map: 0x0180,
         current_map_name: 0x0188
     }));
+
+    pub static ref BOMB_OFFSETS: Arc<Mutex<BombOffsets>> = Arc::new(Mutex::new(BombOffsets {
+        m_n_bomb_site: 0xE84
+    }));
     
     pub static ref SIGNATURES: Arc<Mutex<Signatures>> = Arc::new(Mutex::new(Signatures {
         global_vars: "48 89 0D ?? ?? ?? ?? 48 89 41".to_string(),
@@ -62,7 +67,8 @@ lazy_static! {
         entity_list: "48 8B 0D ?? ?? ?? ?? 48 89 7C 24 ?? 8B FA C1".to_string(),
         local_player_controller: "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 4F".to_string(),
         force_jump: "48 8B 05 ?? ?? ?? ?? 48 8D 1D ?? ?? ?? ?? 48 89 45".to_string(),
-        local_player_pawn: "48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 83 EC ?? 8B 0D".to_string()
+        local_player_pawn: "48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 83 EC ?? 8B 0D".to_string(),
+        bomb: "48 8B 15 ?? ?? ?? ?? FF C0 48 8D 4C 24".to_string()
     }));
 }
 
@@ -109,6 +115,10 @@ pub struct GlobalVarOffsets {
     pub current_map_name: u32,
 }
 
+pub struct BombOffsets {
+    pub m_n_bomb_site: u32
+}
+
 pub struct Signatures {
     pub global_vars: String,
     pub view_matrix: String,
@@ -116,7 +126,8 @@ pub struct Signatures {
     pub entity_list: String,
     pub local_player_controller: String,
     pub force_jump: String,
-    pub local_player_pawn: String
+    pub local_player_pawn: String,
+    pub bomb: String
 }
 
 pub fn search_offsets(signature: String, module_address: u64) -> Option<u64> {
@@ -149,6 +160,7 @@ pub fn update_offsets() -> Option<String> {
     let mut view_angle = VIEW_ANGLE.lock().unwrap();
     let mut local_player_pawn = LOCAL_PLAYER_PAWN.lock().unwrap();
     let mut force_jump = FORCE_JUMP.lock().unwrap();
+    let mut bomb = BOMB.lock().unwrap();
 
     let client_dll = get_process_module_handle("client.dll") as u64;
     if client_dll == 0 { return Some("ClientDLL".to_string()); }
@@ -189,6 +201,11 @@ pub fn update_offsets() -> Option<String> {
     match search_offsets(signatures.force_jump.clone(), client_dll) {
         Some(address) => *force_jump = (address + 0x30 - client_dll) as u32,
         _ => { return Some("ForceJump".to_string()) }
+    };
+
+    match search_offsets(signatures.bomb.clone(), client_dll) {
+        Some(address) => *bomb = (address - client_dll) as u32,
+        _ => { return Some("Bomb".to_string()) }
     };
 
     return None;
