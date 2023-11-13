@@ -379,16 +379,14 @@ pub fn render_menu(ui: &mut Ui) {
                         // Destructive Actions
                         if ui.button("Delete Selected") {
                             if let Some(config_name) = &*selected_config {
-                                if config_name == "default.conf.json" {
-                                    return;
-                                }
-
-                                let directory_pathbuf = PathBuf::from(&*config_dir);
+                                if config_name != "default.conf.json" {
+                                    let directory_pathbuf = PathBuf::from(&*config_dir);
                             
-                                if let Some(config_path) = directory_pathbuf.join(config_name).to_str() {
-                                    match delete_config(config_path) {
-                                        Err(str) => { println!("{} Failed to delete config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
-                                        _ => {}
+                                    if let Some(config_path) = directory_pathbuf.join(config_name).to_str() {
+                                        match delete_config(config_path) {
+                                            Err(str) => { println!("{} Failed to delete config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
+                                            _ => {}
+                                        }
                                     }
                                 }
                             };
