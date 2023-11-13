@@ -346,6 +346,7 @@ pub fn render_menu(ui: &mut Ui) {
                             }
 
                             // Spectator List
+                            ui.same_line();
                             ui.checkbox("Spectator List##Misc", &mut (*config).misc.spectator_list_enabled);
 
                             if (*config).misc.spectator_list_enabled {
