@@ -1,5 +1,5 @@
 [package]
-name = "extpro"
+name = "proext"
 version = "0.0.2"
 authors = ["Vytrol"]
 edition = "2021"
