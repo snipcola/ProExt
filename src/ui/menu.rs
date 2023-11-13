@@ -3,6 +3,7 @@ use std::{sync::{Arc, Mutex}, path::PathBuf};
 use colored::Colorize;
 use imgui::{Ui, TabBar, TabItem};
 use lazy_static::lazy_static;
+use mint::Vector4;
 
 use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, TOGGLE_KEY, PACKAGE_NAME};
 use crate::ui::main::TOGGLED;
@@ -316,12 +317,6 @@ pub fn render_menu(ui: &mut Ui) {
                     });
 
                     TabItem::new("Misc").build(&ui, || {
-                        // No Flash & Bunny Hop
-                        ui.checkbox("No Flash (Risky)##Misc", &mut (*config).misc.no_flash_enabled);
-                        ui.same_line();
-                        ui.checkbox("Bunny Hop (Risky)##Misc", &mut (*config).misc.bunny_hop_enabled);
-                        ui.separator();
-
                         // Exclude Team & Show When Spectating
                         ui.checkbox("Exclude Team##Misc", &mut (*config).misc.exclude_team);
                         ui.same_line();
@@ -337,6 +332,17 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##ColorMiscHeadshotLine", &mut (*config).misc.headshot_line_color);
                         }
+
+                        ui.separator();
+
+                        // Risky
+                        ui.text_colored(Vector4 { x: 255.0, y: 0.0, z: 0.0, w: 255.0 }, "Risky");
+                        ui.separator();
+
+                        // No Flash & Bunny Hop
+                        ui.checkbox("No Flash##Misc", &mut (*config).misc.no_flash_enabled);
+                        ui.same_line();
+                        ui.checkbox("Bunny Hop##Misc", &mut (*config).misc.bunny_hop_enabled);
                     });
 
                     TabItem::new("Config").build(&ui, || {

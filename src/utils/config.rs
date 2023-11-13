@@ -243,13 +243,13 @@ pub struct Radar {
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Misc {
-    pub no_flash_enabled: bool,
-    pub bunny_hop_enabled: bool,
     pub exclude_team: bool,
     pub show_when_spectating: bool,
     pub bypass_capture: bool,
     pub headshot_line_enabled: bool,
-    pub headshot_line_color: (u32, u32, u32, u32)
+    pub headshot_line_color: (u32, u32, u32, u32),
+    pub no_flash_enabled: bool,
+    pub bunny_hop_enabled: bool,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -368,13 +368,13 @@ impl Default for Config {
                 range: 148.0
             },
             misc: Misc {
-                no_flash_enabled: false,
-                bunny_hop_enabled: false,
                 exclude_team: true,
                 show_when_spectating: true,
                 bypass_capture: true,
                 headshot_line_enabled: false,
-                headshot_line_color: (255, 255, 255, 255)
+                headshot_line_color: (255, 255, 255, 255),
+                no_flash_enabled: false,
+                bunny_hop_enabled: false,
             }
         };
     }
