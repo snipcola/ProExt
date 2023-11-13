@@ -402,7 +402,7 @@ impl Default for Config {
                 watermark: WindowPosition { x: 300.0, y: 5.0 },
                 cheat_list: WindowPosition { x: 300.0, y: 40.0 },
                 bomb_timer: WindowPosition { x: 30.0, y: 330.0 },
-                spectator_list: WindowPosition { x: 445.0, y: 40.0 }
+                spectator_list: WindowPosition { x: 460.0, y: 40.0 }
             }
         };
     }
