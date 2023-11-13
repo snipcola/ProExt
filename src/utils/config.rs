@@ -1,4 +1,3 @@
-use colored::Colorize;
 use glium::glutin::event::VirtualKeyCode;
 use serde::{Deserialize, Serialize};
 use std::{env, fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file}, sync::{Arc, Mutex}, path::PathBuf, time::Duration};
@@ -6,7 +5,6 @@ use directories::UserDirs;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref DEBUG: bool = env::var("DEBUG").unwrap_or("".to_string()) == "true" || false;
     pub static ref TOGGLE_KEY: VirtualKeyCode = VirtualKeyCode::Insert;
 
     pub static ref PROCESS_EXECUTABLE: String = "cs2.exe".to_string();
@@ -86,14 +84,11 @@ pub fn setup_config() -> Option<String> {
     };
 
     *CONFIG_DIR.lock().unwrap() = directory_path.to_string();
-    if *DEBUG { println!("{} Config Dir: {}", "[ INFO ]".blue().bold(), directory_path.bold()); }
 
     match update_configs() {
         Some(str) => { return Some(str); },
         _ => {}
     };
-
-    if *DEBUG { println!("{} Configs: {}", "[ INFO ]".blue().bold(), format!("{:?}", *CONFIGS.lock().unwrap()).bold()); }
 
     if let Some(default_config_path) = directory_pathbuf.join("default.conf.json").to_str() {
         if (*CONFIGS.lock().unwrap()).contains(&String::from("default.conf.json")) {
@@ -104,19 +99,13 @@ pub fn setup_config() -> Option<String> {
                         Err(_) => { return Some("SaveDefaultConfig".to_string()); },
                         _ => {}
                     };
-        
-                    if *DEBUG { println!("{} {} config saved", "[ INFO ]".blue().bold(), default_config_path.bold()); }
                 }
             };
-
-            if *DEBUG { println!("{} {} config loaded", "[ INFO ]".blue().bold(), default_config_path.bold()); }
         } else {
             match (*CONFIG.lock().unwrap()).save_config(default_config_path) {
                 Err(_) => { return Some("SaveDefaultConfig".to_string()); },
                 _ => {}
             };
-
-            if *DEBUG { println!("{} {} config saved", "[ INFO ]".blue().bold(), default_config_path.bold()); }
         };
     };
 

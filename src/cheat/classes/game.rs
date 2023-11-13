@@ -1,12 +1,9 @@
 use std::sync::{Arc, Mutex};
-
-use colored::Colorize;
 use mint::Vector2;
 use lazy_static::lazy_static;
 
 use crate::utils::process_manager::{get_process_module_handle, read_memory_auto, write_memory_auto};
 use crate::cheat::classes::offsets::{ENTITY_LIST, MATRIX, VIEW_ANGLE, LOCAL_PLAYER_CONTROLLER, LOCAL_PLAYER_PAWN, FORCE_JUMP, GLOBAL_VARS};
-use crate::utils::config::DEBUG;
 use crate::cheat::classes::view::View;
 
 lazy_static! {
@@ -71,16 +68,6 @@ pub fn init_game_address() -> bool {
     (*game).address.local_pawn = (*game).address.client_dll + *local_player_pawn as u64;
     (*game).address.force_jump = (*game).address.client_dll + *force_jump as u64;
     (*game).address.global_vars = (*game).address.client_dll + *global_vars as u64;
-
-    if *DEBUG {
-        println!("{} EntityList Address: {}", "[ INFO ]".blue().bold(), format!("{:X}", (*game).address.entity_list as u32).bold());
-        println!("{} ViewMatrix Address: {}", "[ INFO ]".blue().bold(), format!("{:X}", (*game).address.matrix as u32).bold());
-        println!("{} ViewAngle Address: {}", "[ INFO ]".blue().bold(), format!("{:X}", (*game).address.view_angle as u32).bold());
-        println!("{} LocalController Address: {}", "[ INFO ]".blue().bold(), format!("{:X}", (*game).address.local_controller as u32).bold());
-        println!("{} LocalPawn Address: {}", "[ INFO ]".blue().bold(), format!("{:X}", (*game).address.local_pawn as u32).bold());
-        println!("{} ForceJump Address: {}", "[ INFO ]".blue().bold(), format!("{:X}", (*game).address.force_jump as u32).bold());
-        println!("{} GlobalVars Address: {}", "[ INFO ]".blue().bold(), format!("{:X}", (*game).address.global_vars as u32).bold());
-    }
 
     return (*game).address.client_dll != 0;
 }

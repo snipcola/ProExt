@@ -2,7 +2,6 @@ use std::mem;
 use std::ffi::{OsString, c_void};
 use std::os::windows::prelude::OsStringExt;
 use std::sync::{Arc, Mutex};
-use colored::Colorize;
 use lazy_static::lazy_static;
 
 use windows::Win32::Foundation::{HANDLE, BOOL, CloseHandle};
@@ -11,7 +10,7 @@ use windows::Win32::System::Diagnostics::ToolHelp::{CreateToolhelp32Snapshot, CR
 use windows::Win32::System::Threading::{OpenProcess, PROCESS_ALL_ACCESS, PROCESS_CREATE_THREAD};
 use windows::Win32::System::Memory::{VirtualQueryEx, MEMORY_BASIC_INFORMATION};
 
-use crate::utils::config::{DEBUG, PROCESS_EXECUTABLE};
+use crate::utils::config::PROCESS_EXECUTABLE;
 
 lazy_static! {
     pub static ref PROCESS_MANAGER: Arc<Mutex<ProcessManager>> = Arc::new(Mutex::new(ProcessManager {
@@ -47,14 +46,10 @@ pub fn attach_process_manager() -> AttachStatus {
         process_id => { (*process_manager).process_id = process_id; }
     };
     
-    if *DEBUG { println!("{} ProcessID: {}", "[ INFO ]".blue().bold(), format!("{}", (*process_manager).process_id).bold()); }
-
     match unsafe { OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD, BOOL::from(true), (*process_manager).process_id) } {
         Ok(handle) => { (*process_manager).h_process = handle; },
         Err(_) => { return AttachStatus::FailedHProcess; }
     }
-
-    if *DEBUG { println!("{} HProcess: {}", "[ INFO ]".blue().bold(), format!("{:?}", (*process_manager).h_process.0).bold()); }
 
     drop(process_manager);
     let module_address = get_process_module_handle(process_name);
@@ -64,8 +59,6 @@ pub fn attach_process_manager() -> AttachStatus {
         0 => { return AttachStatus::FailedModule; },
         module_address => { (*process_manager).module_address = module_address; }
     };
-
-    if *DEBUG { println!("{} ModuleAddress: {}", "[ INFO ]".blue().bold(), format!("{:X}", (*process_manager).module_address).bold()); }
 
     (*process_manager).attached = true;
     return AttachStatus::Success;

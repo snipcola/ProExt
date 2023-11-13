@@ -1,8 +1,7 @@
-use colored::Colorize;
 use lazy_static::lazy_static;
 use std::sync::{Mutex, Arc};
 
-use crate::utils::{process_manager::{search_memory, read_memory_auto, get_process_module_handle}, config::DEBUG};
+use crate::utils::process_manager::{search_memory, read_memory_auto, get_process_module_handle};
 
 lazy_static! {
     pub static ref ENTITY_LIST: Arc<Mutex<u32>> = Arc::new(Mutex::new(0x0));
@@ -154,35 +153,25 @@ pub fn update_offsets() -> Option<String> {
     let client_dll = get_process_module_handle("client.dll") as u64;
     if client_dll == 0 { return Some("ClientDLL".to_string()); }
 
-    if *DEBUG { println!("{} ClientDLL Handle: {}", "[ INFO ]".blue().bold(), format!("{:X}", client_dll as u32).bold()); }
-
     match search_offsets(signatures.entity_list.clone(), client_dll) {
         Some(address) => *entity_list = (address - client_dll) as u32,
         _ => { return Some("EntityList".to_string()) }
     };
-
-    if *DEBUG { println!("{} EntityList Offset: {}", "[ INFO ]".blue().bold(), format!("{:X}", *entity_list).bold()); }
 
     match search_offsets(signatures.local_player_controller.clone(), client_dll) {
         Some(address) => *local_player_controller = (address - client_dll) as u32,
         _ => { return Some("LocalPlayerController".to_string()) }
     };
 
-    if *DEBUG { println!("{} LocalPlayerController Offset: {}", "[ INFO ]".blue().bold(), format!("{:X}", *local_player_controller).bold()); }
-
     match search_offsets(signatures.view_matrix.clone(), client_dll) {
         Some(address) => *matrix = (address - client_dll) as u32,
         _ => { return Some("ViewMatrix".to_string()) }
     };
 
-    if *DEBUG { println!("{} ViewMatrix Offset: {}", "[ INFO ]".blue().bold(), format!("{:X}", *matrix).bold()); }
-
     match search_offsets(signatures.global_vars.clone(), client_dll) {
         Some(address) => *global_vars = (address - client_dll) as u32,
         _ => { return Some("GlobalVars".to_string()) }
     };
-
-    if *DEBUG { println!("{} GlobalVars Offset: {}", "[ INFO ]".blue().bold(), format!("{:X}", *global_vars).bold()); }
 
     match search_offsets(signatures.view_angles.clone(), client_dll) {
         Some(mut address) => {
@@ -192,21 +181,15 @@ pub fn update_offsets() -> Option<String> {
         _ => { return Some("ViewAngles".to_string()) }
     };
 
-    if *DEBUG { println!("{} ViewAngles Offset: {}", "[ INFO ]".blue().bold(), format!("{:X}", *view_angle).bold()); }
-
     match search_offsets(signatures.local_player_pawn.clone(), client_dll) {
         Some(address) => *local_player_pawn = (address + 0x138 - client_dll) as u32,
         _ => { return Some("LocalPlayerPawn".to_string()) }
     };
 
-    if *DEBUG { println!("{} LocalPlayerPawn Offset: {}", "[ INFO ]".blue().bold(), format!("{:X}", *local_player_pawn).bold()); }
-
     match search_offsets(signatures.force_jump.clone(), client_dll) {
         Some(address) => *force_jump = (address + 0x30 - client_dll) as u32,
         _ => { return Some("ForceJump".to_string()) }
     };
-
-    if *DEBUG { println!("{} ForceJump Offset: {}", "[ INFO ]".blue().bold(), format!("{:X}", *force_jump).bold()); }
 
     return None;
 }
