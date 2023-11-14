@@ -370,7 +370,7 @@ impl Default for Config {
                 lines_thickness: 1
             },
             radar: Radar {
-                enabled: true,
+                enabled: false,
                 color: (255, 0, 0, 255),
                 mode: 2,
                 alpha: 0.0,
