@@ -2,14 +2,14 @@ use std::ops::BitAnd;
 use imgui::Ui;
 use mint::Vector4;
 
-use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::main::color_u32_to_f32};
+use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::main::color_u32_to_f32, cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS}};
 
 pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64, local_entity_pawn_address: u64, entity_address: u64) -> bool {
     let mut pawn: u32 = 0;
     let mut cs_player_pawn: usize = 0;
     let mut observer_services: usize = 0;
 
-    if !read_memory_auto(entity_controller_address + 0x5DC, &mut pawn) {
+    if !read_memory_auto(entity_controller_address + (*ENTITY_OFFSETS.lock().unwrap()).player_pawn as u64, &mut pawn) {
         return false;
     }
 
@@ -17,7 +17,7 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
         return false;
     }
 
-    if !read_memory_auto(cs_player_pawn as u64 + 0x10C0, &mut observer_services) {
+    if !read_memory_auto(cs_player_pawn as u64 + (*PAWN_OFFSETS.lock().unwrap()).observer_services as u64, &mut observer_services) {
         return false;
     }
 

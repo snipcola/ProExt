@@ -39,7 +39,8 @@ lazy_static! {
         camera_services: 0x10E0,
         fov_start: 0x214,
         flags: 0x3C8,
-        spotted_by_mask: 0x1630 + 0xC
+        spotted_by_mask: 0x1630 + 0xC,
+        observer_services: 0x10C0
     }));
     
     pub static ref GLOBAL_VAR_OFFSETS: Arc<Mutex<GlobalVarOffsets>> = Arc::new(Mutex::new(GlobalVarOffsets {
@@ -99,6 +100,7 @@ pub struct PawnOffsets {
     pub fov_start: u32,
     pub flags: u32,
     pub spotted_by_mask: u32,
+    pub observer_services: u32
 }
 
 pub struct GlobalVarOffsets {
