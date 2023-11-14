@@ -5,24 +5,40 @@ use mint::Vector4;
 use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::main::color_u32_to_f32};
 
 pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64, local_entity_pawn_address: u64, entity_address: u64) -> bool {
-    let mut m_h_pawn: u32 = 0;
-    let mut p_cs_player_pawn: usize = 0;
-    let mut m_p_observer_services: usize = 0;
+    let mut pawn: u32 = 0;
+    let mut cs_player_pawn: usize = 0;
+    let mut observer_services: usize = 0;
 
-    read_memory_auto(entity_controller_address + 0x5DC, &mut m_h_pawn);
-    read_memory_auto(game_entity_list_entry + 120 * (m_h_pawn.bitand(0x1FF)) as u64, &mut p_cs_player_pawn);
-    read_memory_auto(p_cs_player_pawn as u64 + 0x10C0, &mut m_p_observer_services);
+    if !read_memory_auto(entity_controller_address + 0x5DC, &mut pawn) {
+        return false;
+    }
 
-    if m_p_observer_services != 0 {
-        let mut m_h_observer_target: u32 = 0;
+    if !read_memory_auto(game_entity_list_entry + 120 * (pawn.bitand(0x1FF)) as u64, &mut cs_player_pawn) {
+        return false;
+    }
+
+    if !read_memory_auto(cs_player_pawn as u64 + 0x10C0, &mut observer_services) {
+        return false;
+    }
+
+    if observer_services != 0 {
+        let mut observer_target: u32 = 0;
         let mut list_entry: usize = 0;
-        let mut p_controller: usize = 0;
+        let mut controller: usize = 0;
         
-        read_memory_auto(m_p_observer_services as u64 + 0x44, &mut m_h_observer_target);
-        read_memory_auto(entity_address + 0x8 * ((m_h_observer_target & 0x7FFF) >> 9) as u64 + 0x10, &mut list_entry);
-        read_memory_auto(game_entity_list_entry + 120 * (m_h_observer_target.bitand(0x1FF)) as u64, &mut p_controller);
+        if !read_memory_auto(observer_services as u64 + 0x44, &mut observer_target) {
+            return false;
+        }
 
-        if p_controller as u64 == local_entity_pawn_address {
+        if !read_memory_auto(entity_address + 0x8 * ((observer_target & 0x7FFF) >> 9) as u64 + 0x10, &mut list_entry) {
+            return false;
+        }
+
+        if !read_memory_auto(game_entity_list_entry + 120 * (observer_target.bitand(0x1FF)) as u64, &mut controller) {
+            return false;
+        }
+
+        if controller as u64 == local_entity_pawn_address {
             return true;
         }
     }

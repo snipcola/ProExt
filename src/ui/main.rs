@@ -105,11 +105,11 @@ pub fn stroke_text(ui: &mut Ui, _text: String, pos: Vector2<f32>, color: ImColor
 pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity_pawn_address: u64, local_entity_pawn_team_id: i32, game_address_entity_list: u64, game_view: View, config: Config) -> (bool, bool) {
     let mut u_handle: u32 = 0;
     
-    if !read_memory_auto(local_entity_pawn_address + (*PAWN_OFFSETS.lock().unwrap()).i_id_ent_index as u64, &mut u_handle) {
+    if !read_memory_auto(local_entity_pawn_address + (*PAWN_OFFSETS.lock().unwrap()).ent_index as u64, &mut u_handle) {
         return (false, false);
     }
 
-    if !read_memory_auto(local_entity_pawn_address + (*PAWN_OFFSETS.lock().unwrap()).i_id_ent_index as u64, &mut u_handle) {
+    if !read_memory_auto(local_entity_pawn_address + (*PAWN_OFFSETS.lock().unwrap()).ent_index as u64, &mut u_handle) {
         return (false, false);
     }
 
@@ -569,7 +569,7 @@ pub fn init_gui() {
 
                 // Aimbot Check
                 if !no_pawn && config.aimbot.enabled {
-                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, !entity.pawn.has_flag(Flags::InAir), config);
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i, !entity.pawn.has_flag(Flags::InAir), config);
                 }
 
                 // Skeleton
@@ -625,7 +625,7 @@ pub fn init_gui() {
                 // Box
                 if config.esp.enabled && config.esp.box_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
-                        render_box(ui, rect, entity.pawn.b_spotted_by_mask, local_entity.pawn.b_spotted_by_mask, local_player_controller_index, i, config);
+                        render_box(ui, rect, entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("box_{}", i));

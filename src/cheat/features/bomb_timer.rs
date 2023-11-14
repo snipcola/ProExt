@@ -22,7 +22,7 @@ pub fn get_bomb_site(planted: bool, client_dll_address: u64) -> Option<String> {
             return None;
         }
 
-        if !read_memory_auto(planted_c4 as u64 + (*BOMB_OFFSETS.lock().unwrap()).m_n_bomb_site as u64, &mut site) {
+        if !read_memory_auto(planted_c4 as u64 + (*BOMB_OFFSETS.lock().unwrap()).bomb_site as u64, &mut site) {
             return None;
         }
 
