@@ -341,7 +341,7 @@ impl Default for Config {
                 only_grounded: true,
                 bone: 1,
                 fov: 3.5,
-                smooth: 0.6,
+                smooth: 0.5,
                 start_bullet: 1,
                 rcs_yaw: 1.0,
                 rcs_pitch: 1.0
