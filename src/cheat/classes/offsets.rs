@@ -16,9 +16,9 @@ lazy_static! {
     pub static ref ENTITY_OFFSETS: Arc<Mutex<EntityOffsets>> = Arc::new(Mutex::new(EntityOffsets {
         health: 0x32C,
         team_id: 0x3BF,
-        is_alive: 0x7C4,
-        player_pawn: 0x7BC,
-        is_player_name: 0x610
+        is_alive: 0x7DC,
+        player_pawn: 0x5F4,
+        is_player_name: 0x628
     }));
     
     pub static ref PAWN_OFFSETS: Arc<Mutex<PawnOffsets>> = Arc::new(Mutex::new(PawnOffsets {
@@ -29,17 +29,17 @@ lazy_static! {
         bone_array: 0x1E0,
         ang_eye_angles: 0x1510,
         vec_last_clip_camera_pos: 0x128C,
-        p_clipping_weapon: 0x12A8,
-        i_shots_fired: 0x1418,
-        fl_flash_duration: 0x1468,
+        clipping_weapon: 0x12A8,
+        shots_fired: 0x1418,
+        flash_duration: 0x1468,
         aim_punch_angle: 0x1714,
         aim_punch_cache: 0x1738,
-        i_id_ent_index: 0x153C,
-        i_team_num: 0x3BF,
+        ent_index: 0x153C,
+        team_num: 0x3BF,
         camera_services: 0x10E0,
-        i_fov_start: 0x214,
-        f_flags: 0x3C8,
-        b_spotted_by_mask: 0x1630 + 0xC
+        fov_start: 0x214,
+        flags: 0x3C8,
+        spotted_by_mask: 0x1630 + 0xC
     }));
     
     pub static ref GLOBAL_VAR_OFFSETS: Arc<Mutex<GlobalVarOffsets>> = Arc::new(Mutex::new(GlobalVarOffsets {
@@ -57,13 +57,13 @@ lazy_static! {
     }));
 
     pub static ref BOMB_OFFSETS: Arc<Mutex<BombOffsets>> = Arc::new(Mutex::new(BombOffsets {
-        m_n_bomb_site: 0xE84
+        bomb_site: 0xE84
     }));
     
     pub static ref SIGNATURES: Arc<Mutex<Signatures>> = Arc::new(Mutex::new(Signatures {
         global_vars: "48 89 0D ?? ?? ?? ?? 48 89 41".to_string(),
         view_matrix: "48 8D 0D ?? ?? ?? ?? 48 C1 E0 06".to_string(),
-        view_angles: "48 8B 0D ?? ?? ?? ?? 48 8B 01 48 FF 60 30".to_string(),
+        view_angles: "48 8B 0D ?? ?? ?? ?? E9 ?? ?? ?? ?? CC CC CC CC 40 55".to_string(),
         entity_list: "48 8B 0D ?? ?? ?? ?? 48 89 7C 24 ?? 8B FA C1".to_string(),
         local_player_controller: "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 4F".to_string(),
         force_jump: "48 8B 05 ?? ?? ?? ?? 48 8D 1D ?? ?? ?? ?? 48 89 45".to_string(),
@@ -88,17 +88,17 @@ pub struct PawnOffsets {
     pub bone_array: u32,
     pub ang_eye_angles: u32,
     pub vec_last_clip_camera_pos: u32,
-    pub p_clipping_weapon: u32,
-    pub i_shots_fired: u32,
-    pub fl_flash_duration: u32,
+    pub clipping_weapon: u32,
+    pub shots_fired: u32,
+    pub flash_duration: u32,
     pub aim_punch_angle: u32,
     pub aim_punch_cache: u32,
-    pub i_id_ent_index: u32,
-    pub i_team_num: u32,
+    pub ent_index: u32,
+    pub team_num: u32,
     pub camera_services: u32,
-    pub i_fov_start: u32,
-    pub f_flags: u32,
-    pub b_spotted_by_mask: u32,
+    pub fov_start: u32,
+    pub flags: u32,
+    pub spotted_by_mask: u32,
 }
 
 pub struct GlobalVarOffsets {
@@ -116,7 +116,7 @@ pub struct GlobalVarOffsets {
 }
 
 pub struct BombOffsets {
-    pub m_n_bomb_site: u32
+    pub bomb_site: u32
 }
 
 pub struct Signatures {
@@ -187,8 +187,8 @@ pub fn update_offsets() -> Option<String> {
 
     match search_offsets(signatures.view_angles.clone(), client_dll) {
         Some(mut address) => {
-            if !read_memory_auto(address, &mut address) { return Some("ViewAnglesMemory".to_string()); };
-            *view_angle = (address + 0x4518 - client_dll) as u32;
+            if !read_memory_auto(address, &mut address) { return Some("ViewAnglesMemory".to_string()) };
+            *view_angle = (address + 21288 - client_dll) as u32;
         },
         _ => { return Some("ViewAngles".to_string()) }
     };

@@ -38,8 +38,8 @@ pub struct PlayerPawn {
     pub health: i32,
     pub team_id: i32,
     pub fov: i32,
-    pub b_spotted_by_mask: u64,
-    pub f_flags: i32
+    pub spotted_by_mask: u64,
+    pub flags: i32
 }
 
 pub enum Flags {
@@ -56,7 +56,7 @@ impl Default for Entity {
     fn default() -> Self {
         return Entity {
             controller: PlayerController { address: 0, team_id: 0, health: 0, alive_status: 0, pawn: 0, player_name: "Name_None".to_string() },
-            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "Weapon_None".to_string(), shots_fired: 0, aim_punch_angle: Vector2 { x: 0.0, y: 0.0 }, aim_punch_cache: CUtlVector { count: 0, data: 0 }, health: 0, team_id: 0, fov: 0, b_spotted_by_mask: 0, f_flags: 0 }
+            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "Weapon_None".to_string(), shots_fired: 0, aim_punch_angle: Vector2 { x: 0.0, y: 0.0 }, aim_punch_cache: CUtlVector { count: 0, data: 0 }, health: 0, team_id: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
         }
     }
 }
@@ -237,11 +237,11 @@ impl PlayerPawn {
     }
 
     pub fn get_spotted(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).b_spotted_by_mask, &mut self.b_spotted_by_mask);
+        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).spotted_by_mask, &mut self.spotted_by_mask);
     }
 
     pub fn get_weapon_name(&mut self) -> bool {
-        let weapon_name_address = trace_address(self.address + (*PAWN_OFFSETS.lock().unwrap()).p_clipping_weapon as u64, &[0x10, 0x20, 0x0]);
+        let weapon_name_address = trace_address(self.address + (*PAWN_OFFSETS.lock().unwrap()).clipping_weapon as u64, &[0x10, 0x20, 0x0]);
         let mut buffer: [u8; 40] = [0; 40];
 
         if weapon_name_address == 0 {
@@ -264,7 +264,7 @@ impl PlayerPawn {
     }
 
     pub fn get_shots_fired(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).i_shots_fired, &mut self.shots_fired);
+        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).shots_fired, &mut self.shots_fired);
     }
 
     pub fn get_aim_punch_angle(&mut self) -> bool {
@@ -272,7 +272,7 @@ impl PlayerPawn {
     }
 
     pub fn get_team_id(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).i_team_num, &mut self.team_id);
+        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).team_num, &mut self.team_id);
     }
 
     pub fn get_aim_punch_cache(&mut self) -> bool {
@@ -294,14 +294,14 @@ impl PlayerPawn {
             return false;
         }
 
-        return get_address_with_offset(camera_services, (*PAWN_OFFSETS.lock().unwrap()).i_fov_start, &mut self.fov);
+        return get_address_with_offset(camera_services, (*PAWN_OFFSETS.lock().unwrap()).fov_start, &mut self.fov);
     }
 
     pub fn get_f_flags(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).f_flags, &mut self.f_flags);
+        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).flags, &mut self.flags);
     }
 
     pub fn has_flag(&mut self, flag: Flags) -> bool {
-        return self.f_flags & (flag as i32) != 0;
+        return self.flags & (flag as i32) != 0;
     }
 }
