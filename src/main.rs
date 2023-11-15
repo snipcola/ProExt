@@ -23,10 +23,7 @@ fn main() {
         let latest_md5 = get_latest_md5();
 
         if own_md5.is_some() && latest_md5.is_some() {
-            let own_md5 = own_md5.unwrap();
-            let latest_md5 = latest_md5.unwrap();
-
-            if own_md5 == latest_md5 {
+            if own_md5.unwrap() == latest_md5.unwrap() {
                 println!("{} Software is up-to-date", "[ OKAY ]".bold().green());
             } else {
                 let update_confirmation = input(format!("{} Software is not up-to-date. Would you like to update? (y/n):", "[ INFO ]".bold().yellow()));

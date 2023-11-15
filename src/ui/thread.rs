@@ -1,10 +1,10 @@
 use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}};
 
+use glium::{glutin::{event_loop::{EventLoop, ControlFlow}, dpi::{PhysicalSize, PhysicalPosition}, event::{Event, DeviceEvent, ElementState, WindowEvent}}, Display, Surface};
 use imgui::Context;
-use imgui_dx11_renderer::Renderer;
+use imgui_glium_renderer::Renderer;
 use imgui_winit_support::WinitPlatform;
-use windows::Win32::{Foundation::HWND, Graphics::{Direct3D11::{ID3D11DeviceContext, ID3D11Device, ID3D11RenderTargetView}, Dxgi::IDXGISwapChain}};
-use winit::{event_loop::{EventLoop, ControlFlow}, window::Window, dpi::{PhysicalSize, PhysicalPosition}, event::{Event, DeviceEvent, ElementState, WindowEvent}};
+use windows::Win32::Foundation::HWND;
 
 use crate::ui::{main::{WINDOW_FOCUSED, WINDOW_INFO, WINDOW_LAST_MOVED, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused, focus_window}, menu::render_menu};
 use crate::utils::config::THREAD_DELAYS;
@@ -58,37 +58,38 @@ pub fn bind_ui_keys(window_hwnd: HWND, self_hwnd: HWND) {
     });
 }
 
-pub fn run_event_loop(window_info: Arc<Mutex<(EventLoop<()>, Window, Option<ID3D11DeviceContext>, ID3D11Device, IDXGISwapChain, Option<ID3D11RenderTargetView>)>>, imgui_info: Arc<Mutex<(WinitPlatform, Context)>>, window_hwnd: HWND, self_hwnd: HWND) {
-    let window_size_info = WINDOW_INFO.clone();
+pub fn run_event_loop(event_loop_display: Arc<Mutex<(EventLoop<()>, Display)>>, winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>>, window_hwnd: HWND, self_hwnd: HWND) {
+    let window_info = WINDOW_INFO.clone();
     let window_last_moved = WINDOW_LAST_MOVED.clone();
 
     let ui_functions = UI_FUNCTIONS.clone();
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();
 
-    let (event_loop, window, device_ctx, device, swapchain, target) = Arc::try_unwrap(window_info).unwrap().into_inner().unwrap();
-    let (mut platform, mut imgui) = Arc::try_unwrap(imgui_info).unwrap().into_inner().unwrap();
-    
-    let mut renderer = unsafe { Renderer::new(&mut imgui, &device).unwrap() };
-    let mut last_frame = Instant::now();
+    let (event_loop, display) = Arc::try_unwrap(event_loop_display).unwrap().into_inner().unwrap();
+    let (mut winit_platform, mut imgui_context) = Arc::try_unwrap(winit_platform_imgui_context).unwrap().into_inner().unwrap();
+    let mut renderer = Renderer::init(&mut imgui_context, &display).unwrap();
+
     let toggle_key = &*TOGGLE_KEY;
+    let mut last_frame = Instant::now();
 
     run_windows_thread(window_hwnd, self_hwnd);
 
     event_loop.run(move | event, _, control_flow | {
         let toggled_value = *toggled.lock().unwrap();
         let window_last_moved = *window_last_moved.lock().unwrap();
+        let gl_window = display.gl_window();
 
         if window_last_moved.elapsed().as_millis() < 250 {
-            // gl_window.window().set_cursor_hittest(false).unwrap();
+            gl_window.window().set_cursor_hittest(false).unwrap();
         } else {
-            // gl_window.window().set_cursor_hittest(toggled_value).unwrap();
+            gl_window.window().set_cursor_hittest(toggled_value).unwrap();
         }
 
-        if let Some(((x, y), (width, height))) = *window_size_info.lock().unwrap() {
+        if let Some(((x, y), (width, height))) = *window_info.lock().unwrap() {
             if window_last_moved.elapsed().as_millis() < 10 {
-                window.set_inner_size(PhysicalSize::new(width, height));
-                window.set_outer_position(PhysicalPosition::new(x, y));
+                gl_window.window().set_inner_size(PhysicalSize::new(width, height));
+                gl_window.window().set_outer_position(PhysicalPosition::new(x, y));
             }
         }
 
@@ -99,32 +100,29 @@ pub fn run_event_loop(window_info: Arc<Mutex<(EventLoop<()>, Window, Option<ID3D
         match event {
             Event::NewEvents(_) => {
                 let now = Instant::now();
-                imgui.io_mut().update_delta_time(now.duration_since(last_frame));
+                imgui_context.io_mut().update_delta_time(now.duration_since(last_frame));
                 last_frame = now;
             },
             Event::MainEventsCleared => {
-                platform.prepare_frame(imgui.io_mut(), &window).unwrap();
-                window.request_redraw();
+                winit_platform.prepare_frame(imgui_context.io_mut(), gl_window.window()).unwrap();
+                gl_window.window().request_redraw();
             },
             Event::RedrawRequested(_) => {
-                unsafe {
-                    if let Some(ref context) = device_ctx {
-                        context.OMSetRenderTargets(&[target.clone()], None);
-                        context.ClearRenderTargetView(target.as_ref().unwrap(), &0.6);
-                    }
-                }
-
-                let mut ui = imgui.frame();
+                let ui = imgui_context.frame();
 
                 for (_, function) in (*ui_functions.lock().unwrap()).iter() {
-                    function(&mut ui);
+                    function(ui);
                 }
 
-                render_menu(&mut ui);
+                render_menu(ui);
 
-                platform.prepare_render(&mut ui, &window);
-                renderer.render(ui.render()).unwrap();
-                unsafe { swapchain.Present(1, 0).unwrap() };
+                let mut target = display.draw();
+                target.clear_color_srgb(0.0, 0.0, 0.0, 0.0);
+                winit_platform.prepare_render(ui, gl_window.window());
+
+                let draw_data = imgui_context.render();
+                renderer.render(&mut target, draw_data).unwrap();
+                target.finish().unwrap();
             },
             Event::DeviceEvent {
                 event: DeviceEvent::Key(key),
@@ -149,7 +147,7 @@ pub fn run_event_loop(window_info: Arc<Mutex<(EventLoop<()>, Window, Option<ID3D
                 *control_flow = ControlFlow::Exit;
             },
             event => {
-                platform.handle_event(imgui.io_mut(), &window, &event);
+                winit_platform.handle_event(imgui_context.io_mut(), gl_window.window(), &event);
             }
         };
     });
