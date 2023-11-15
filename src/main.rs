@@ -5,16 +5,41 @@ mod ui;
 use std::thread::{self, sleep};
 use colored::{Colorize, control::set_virtual_terminal};
 
+use crate::utils::input::input;
 use crate::utils::process_manager::{AttachStatus, attach_process_manager};
 use crate::cheat::classes::offsets::update_offsets;
 use crate::cheat::classes::game::init_game_address;
 use crate::ui::main::init_gui;
 use crate::utils::pause::pause;
-use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_EXECUTABLE, THREAD_DELAYS};
+use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_EXECUTABLE, THREAD_DELAYS, UPDATE_URL};
+use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists};
 
 fn main() {
     set_virtual_terminal(true).unwrap();
     println!("{} {} | {} | {}", "[ INFO ]".bold().cyan(), (*PACKAGE_NAME).bold(), (*PACKAGE_AUTHORS).bold(), format!("v{}", (*PACKAGE_VERSION)).bold());
+
+    if !cfg!(debug_assertions) && update_exists() {
+        let own_md5 = get_own_md5();
+        let latest_md5 = get_latest_md5();
+
+        if own_md5.is_some() && latest_md5.is_some() {
+            let own_md5 = own_md5.unwrap();
+            let latest_md5 = latest_md5.unwrap();
+
+            if own_md5 == latest_md5 {
+                println!("{} Software is up-to-date", "[ OKAY ]".bold().green());
+            } else {
+                let update_confirmation = input(format!("{} Software is not up-to-date. Would you like to update? (y/n):", "[ INFO ]".bold().yellow()));
+
+                if update_confirmation.to_lowercase() == "y" {
+                    open::that(UPDATE_URL.clone()).ok();
+                    return;
+                }
+            }
+        } else {
+            println!("{} Couldn't check for updates, continuing anyway", "[ FAIL ]".bold().red());
+        }
+    }
 
     match setup_config() {
         None => {
