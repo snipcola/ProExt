@@ -5,7 +5,7 @@ use imgui::{Ui, Context};
 use imgui_winit_support::WinitPlatform;
 use lazy_static::lazy_static;
 
-use crate::{ui::functions::{bind_ui_keys, run_event_loop}, cheat::thread::run_cheats_thread};
+use crate::{ui::thread::{bind_ui_keys, run_event_loop}, cheat::thread::run_cheats_thread};
 use crate::utils::config::{PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui};
 
