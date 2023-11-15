@@ -67,7 +67,7 @@ pub fn attach_process_manager() -> AttachStatus {
 pub fn detach_process_manager(process_manager: &mut ProcessManager) {
     if !HANDLE::is_invalid(&process_manager.h_process) { 
         unsafe {
-            let _ = CloseHandle((*process_manager).h_process);
+            CloseHandle((*process_manager).h_process).ok();
         }
     }
 
@@ -119,7 +119,7 @@ pub fn search_memory(signature: &str, start_address: u64, end_address: u64, sear
     fn get_signature_array(signature: &str) -> Vec<u16> {
         let mut signature_array: Vec<u16> = Vec::new();
         let mut sig = signature.to_string();
-        let _ = sig.retain(|c| c != ' ');
+        sig.retain(|c| c != ' ');
         let size = sig.len();
 
         if size % 2 != 0 {
@@ -271,12 +271,12 @@ pub fn get_process_id(process_name: &str) -> u32 {
             let current_name = OsString::from_wide(&process_info.szExeFile[..]).into_string().unwrap().replace("\u{0}", "");
 
             if current_name == process_name {
-                let _ = CloseHandle(h_snapshot);
+                CloseHandle(h_snapshot).ok();
                 return process_info.th32ProcessID;
             }
         }
 
-        let _ = CloseHandle(h_snapshot);
+        CloseHandle(h_snapshot).ok();
         return 0;
     }
 }
@@ -298,12 +298,12 @@ pub fn get_process_module_handle(module_name: &str) -> u64 {
             let current_name = OsString::from_wide(&module_info.szModule[..]).into_string().unwrap().replace("\u{0}", "");
 
             if current_name == module_name {
-                let _ = CloseHandle(h_snapshot);
+                CloseHandle(h_snapshot).ok();
                 return module_info.hModule.0 as u64;
             }
         }
 
-        let _ = CloseHandle(h_snapshot);
+        CloseHandle(h_snapshot).ok();
         return 0;
     }
 }

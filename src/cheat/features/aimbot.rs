@@ -1,8 +1,53 @@
-use std::f32::consts::PI;
-
+use std::{f32::consts::PI, sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use mint::{Vector3, Vector2};
-use crate::{utils::{config::Config, process_manager::read_memory_auto}, cheat::classes::{game::set_view_angle, entity::CUtlVector, bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}}, ui::main::{distance_between_vec2, color_u32_to_f32, color_with_masked_alpha}};
+use lazy_static::lazy_static;
+
+use crate::{utils::{config::Config, process_manager::read_memory_auto}, cheat::classes::{game::set_view_angle, entity::CUtlVector, bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}}, ui::main::{distance_between_vec2, color_u32_to_f32, color_with_masked_alpha, hotkey_index_to_io}};
+
+lazy_static! {
+    pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+}
+
+pub fn get_aimbot_toggled(config: Config) -> bool {
+    match hotkey_index_to_io(config.aimbot.key) {
+        Ok(aimbot_button) => {
+            if config.aimbot.mode == 0 {
+                return aimbot_button.is_pressed();
+            } else {
+                let aimbot_toggled = *AIMBOT_TOGGLED.lock().unwrap();
+                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
+
+                if aimbot_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                    *AIMBOT_TOGGLED.lock().unwrap() = !aimbot_toggled;
+                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
+
+                    return !aimbot_toggled;
+                } else {
+                    return aimbot_toggled;
+                }
+            }
+        },
+        Err(aimbot_key) => {
+            if config.aimbot.mode == 0 {
+                return aimbot_key.is_pressed();
+            } else {
+                let aimbot_toggled = *AIMBOT_TOGGLED.lock().unwrap();
+                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
+
+                if aimbot_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                    *AIMBOT_TOGGLED.lock().unwrap() = !aimbot_toggled;
+                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
+                    
+                    return !aimbot_toggled;
+                } else {
+                    return aimbot_toggled;
+                }
+            }
+        }
+    }
+}
 
 pub fn run_aimbot(config: Config, aimbot_info: (f32, f32), view_angle: Vector2<f32>, shots_fired: u64, aim_punch_cache: CUtlVector) {
     let (mut yaw, mut pitch) = aimbot_info;

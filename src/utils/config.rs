@@ -1,4 +1,5 @@
 use glium::glutin::event::VirtualKeyCode;
+use mki::Keyboard;
 use serde::{Deserialize, Serialize};
 use std::{env, fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file}, sync::{Arc, Mutex}, path::PathBuf, time::Duration};
 use directories::UserDirs;
@@ -6,6 +7,7 @@ use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref TOGGLE_KEY: VirtualKeyCode = VirtualKeyCode::Insert;
+    pub static ref TOGGLE_KEY_MKI: Keyboard = Keyboard::Insert;
 
     pub static ref PROCESS_EXECUTABLE: String = "cs2.exe".to_string();
     pub static ref PROCESS_TITLE: String = "Counter-Strike 2".to_string();
@@ -194,9 +196,10 @@ pub struct Aimbot {
 pub struct Triggerbot {
     pub enabled: bool,
     pub key: usize,
+    pub mode: usize,
+    pub tap_interval: u32,
     pub always_activated: bool,
-    pub delay: u32,
-    pub interval: u32
+    pub delay: u32
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -349,9 +352,10 @@ impl Default for Config {
             triggerbot: Triggerbot {
                 enabled:  false,
                 key: 0,
+                mode: 0,
+                tap_interval: 150,
                 always_activated: false,
-                delay: 250,
-                interval: 25
+                delay: 250
             },
             crosshair: Crosshair {
                 enabled: true,

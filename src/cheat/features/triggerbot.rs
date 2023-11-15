@@ -1,11 +1,48 @@
-use std::time::{Instant, Duration};
-use mouse_rs::{Mouse, types::keys::Keys};
+use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
+use mki::Mouse;
+use lazy_static::lazy_static;
+use crate::{utils::config::Config, ui::main::hotkey_index_to_io};
 
-use crate::utils::config::Config;
+lazy_static! {
+    pub static ref SHOT_ENTITY: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+    pub static ref ON_ENTITY: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None));
+    pub static ref TRIES: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
+    pub static ref MOUSE_LOCKED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+}
 
-pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Config, on_entity: &mut Option<Instant>, shot_entity: &mut Instant, tries: &mut u32) {
+pub fn lock_mouse() {
+    Mouse::Left.press();
+    *MOUSE_LOCKED.lock().unwrap() = true;
+}
+
+pub fn unlock_mouse() {
+    Mouse::Left.release();
+    *MOUSE_LOCKED.lock().unwrap() = false;
+}
+
+pub fn get_triggerbot_toggled(config: Config) -> bool {
+    match hotkey_index_to_io(config.triggerbot.key) {
+        Ok(triggerbot_button) => {
+            return triggerbot_button.is_pressed();
+        },
+        Err(triggerbot_key) => {
+            return triggerbot_key.is_pressed();
+        }
+    }
+}
+
+pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Config) {
+    let mouse_locked = MOUSE_LOCKED.lock().unwrap().clone();
+    let mut on_entity = ON_ENTITY.lock().unwrap();
+    let mut shot_entity = SHOT_ENTITY.lock().unwrap();
+    let mut tries = TRIES.lock().unwrap();
+
     if !aiming_at_enemy {
         if *tries > 500 {
+            if mouse_locked {
+                unlock_mouse();
+            }
+
             *on_entity = None;
             *tries = 0;
         } else {
@@ -21,12 +58,14 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
         return;
     }
 
-    if let Some(on_entity) = on_entity {
-        if on_entity.elapsed() >= Duration::from_millis(config.triggerbot.delay as u64) && shot_entity.elapsed() >= Duration::from_millis(config.triggerbot.interval as u64) {
-            let mouse = Mouse::new();
-            let _ = mouse.click(&Keys::LEFT);
-
-            *shot_entity = Instant::now();
+    if let Some(on_entity) = *on_entity {
+        if on_entity.elapsed() >= Duration::from_millis(config.triggerbot.delay as u64) {
+            if config.triggerbot.mode == 0 && shot_entity.elapsed() >= Duration::from_millis(config.triggerbot.tap_interval as u64) {
+                Mouse::Left.click();
+                *shot_entity = Instant::now();
+            } else if !mouse_locked {
+                lock_mouse();
+            }
         }
     } else {
         *on_entity = Some(Instant::now());
