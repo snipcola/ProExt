@@ -11,8 +11,8 @@ use crate::cheat::classes::offsets::update_offsets;
 use crate::cheat::classes::game::init_game_address;
 use crate::ui::main::init_gui;
 use crate::utils::pause::pause;
-use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_EXECUTABLE, THREAD_DELAYS, UPDATE_URL};
-use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists};
+use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_EXECUTABLE, THREAD_DELAYS};
+use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists, open_update_url};
 
 fn main() {
     set_virtual_terminal(true).unwrap();
@@ -32,7 +32,7 @@ fn main() {
                 let update_confirmation = input(format!("{} Software is not up-to-date. Would you like to update? (y/n):", "[ INFO ]".bold().yellow()));
 
                 if update_confirmation.to_lowercase() == "y" {
-                    open::that(UPDATE_URL.clone()).ok();
+                    open_update_url();
                     return;
                 }
             }
