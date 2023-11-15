@@ -228,15 +228,23 @@ pub fn render_menu(ui: &mut Ui) {
                             // Trigger Key
                             ui.same_line();
                             ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
+                            
+                            // Mode
+                            ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Tap", "Hold"]);
+
+                            if (*config).triggerbot.mode == 0 {
+                                // Interval
+                                ui.slider_config("Interval##Triggerbot", 100, 500).display_format("%d").build(&mut (*config).triggerbot.tap_interval);
+                            }
+
                             ui.separator();
 
                             // Always Activated
                             ui.checkbox("Always##Triggerbot", &mut (*config).triggerbot.always_activated);
                             ui.separator();
 
-                            // Delay & Interval
+                            // Delay
                             ui.slider_config("Delay##Triggerbot", 15, 500).display_format("%d").build(&mut (*config).triggerbot.delay);
-                            ui.slider_config("Interval##Triggerbot", 10, 250).display_format("%d").build(&mut (*config).triggerbot.interval);
                         }
                     });
 

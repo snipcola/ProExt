@@ -1,6 +1,7 @@
-use dont_disappear::any_key_to_continue;
 use colored::Colorize;
+use std::io::{self, Read};
 
 pub fn pause() {
-    any_key_to_continue::custom_msg(format!("{} Press any key to quit...", "[ EXIT ]".bold().yellow()).as_str());
+    println!("{} Press enter to exit...", "[ EXIT ]".bold().yellow());
+    io::stdin().read(&mut [0]).ok();
 }
