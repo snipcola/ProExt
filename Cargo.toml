@@ -19,4 +19,4 @@ windows = { version = "0.51.1", features = ["Win32_Foundation", "Win32_UI_Window
 mki = "0.2.3"
 mouse-rs = "0.4.2"
 md5 = "0.7.0"
-chttp = "0.5.5"
+ureq = "2.8.0"
