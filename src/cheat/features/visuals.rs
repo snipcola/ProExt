@@ -3,7 +3,8 @@ use std::f32::consts::PI;
 use imgui::{Ui, ImColor32};
 use mint::Vector2;
 
-use crate::{ui::main::{color_u32_to_f32, color_with_masked_alpha, rectangle}, utils::config::Config};
+use crate::utils::config::Config;
+use crate::ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle};
 
 pub fn render_headshot_line(ui: &mut Ui, window_width: i32, window_height: i32, fov: i32, view_angle_x: f32, config: Config) {
     let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 - window_height as f32 / (2.0 * f32::sin(fov as f32 * PI / 180.0) / f32::sin(90.0 * PI / 180.0)) * f32::sin(view_angle_x as f32 * PI / 180.0) / f32::sin(90.0 * PI / 180.0) };

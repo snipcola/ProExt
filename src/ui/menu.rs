@@ -6,8 +6,8 @@ use lazy_static::lazy_static;
 use mint::Vector4;
 
 use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, TOGGLE_KEY, PACKAGE_NAME, WindowPosition};
+use crate::ui::functions::color_edit_u32_tuple;
 use crate::ui::main::TOGGLED;
-use crate::ui::main::color_edit_u32_tuple;
 
 lazy_static! {
     static ref NEW_CONFIG_NAME: Arc<Mutex<String>> = Arc::new(Mutex::new(String::new()));

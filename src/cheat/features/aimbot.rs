@@ -3,7 +3,7 @@ use imgui::Ui;
 use mint::{Vector3, Vector2};
 use lazy_static::lazy_static;
 
-use crate::{utils::{config::Config, process_manager::read_memory_auto}, cheat::classes::{game::set_view_angle, entity::CUtlVector, bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}}, ui::main::{distance_between_vec2, color_u32_to_f32, color_with_masked_alpha, hotkey_index_to_io}};
+use crate::{utils::{config::Config, process_manager::read_memory_auto}, ui::functions::{hotkey_index_to_io, distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::classes::{game::set_view_angle, entity::CUtlVector, bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}}};
 
 lazy_static! {
     pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
