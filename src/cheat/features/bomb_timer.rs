@@ -2,7 +2,7 @@ use std::{sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use lazy_static::lazy_static;
 use mint::Vector4;
-use crate::{utils::{config::{Config, CONFIG, WindowPosition}, process_manager::read_memory_auto}, cheat::classes::offsets::{BOMB, BOMB_OFFSETS}, ui::main::color_u32_to_f32};
+use crate::{utils::{config::{Config, CONFIG, WindowPosition}, process_manager::read_memory_auto}, ui::functions::color_u32_to_f32, cheat::classes::offsets::{BOMB, BOMB_OFFSETS}};
 
 lazy_static! {
     pub static ref IS_PLANTED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));

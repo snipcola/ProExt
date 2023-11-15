@@ -2,7 +2,7 @@ use std::ops::BitAnd;
 use imgui::Ui;
 use mint::Vector4;
 
-use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::main::color_u32_to_f32, cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS}};
+use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::functions::color_u32_to_f32, cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS}};
 
 pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64, local_entity_pawn_address: u64, entity_address: u64) -> bool {
     let mut pawn: u32 = 0;

@@ -4,7 +4,7 @@ use imgui::{Ui, ImColor32};
 use mint::{Vector2, Vector3};
 
 use crate::utils::config::Config;
-use crate::ui::main::{color_u32_to_f32, color_with_masked_alpha};
+use crate::ui::functions::{color_u32_to_f32, color_with_masked_alpha};
 
 pub fn revolve_coordinates_system(revolve_angle: f32, origin_pos: Vector2<f32>, dest_pos: Vector2<f32>) -> Vector2<f32> {
     let mut result_pos: Vector2<f32> = Vector2 { x: 0.0, y: 0.0 };

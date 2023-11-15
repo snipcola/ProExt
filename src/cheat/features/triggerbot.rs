@@ -1,7 +1,8 @@
 use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
 use mouse_rs::{Mouse, types::keys::Keys};
 use lazy_static::lazy_static;
-use crate::{utils::config::Config, ui::main::hotkey_index_to_io};
+use crate::utils::config::Config;
+use crate::ui::functions::hotkey_index_to_io;
 
 lazy_static! {
     pub static ref SHOT_ENTITY: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));

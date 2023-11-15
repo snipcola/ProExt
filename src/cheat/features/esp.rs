@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 use imgui::{Ui, ImColor32};
 use mint::{Vector3, Vector2, Vector4};
-use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::main::{color_u32_to_f32, rectangle, stroke_text, distance_between_vec3, mix_colors, color_with_alpha, color_with_masked_alpha}};
+use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle, distance_between_vec3, stroke_text, mix_colors, color_with_alpha}};
 
 pub fn render_bones(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Config) {
     let mut previous: BoneJointPos = BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false };
