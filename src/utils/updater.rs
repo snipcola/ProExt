@@ -1,5 +1,5 @@
-use reqwest::{StatusCode, blocking::get};
-use std::{io::Read, env, fs::File};
+use std::{io::Read, env, fs::File, process::Command};
+use chttp::{get, http::StatusCode};
 use md5::compute;
 
 use crate::utils::config::UPDATE_URL;
@@ -33,7 +33,7 @@ pub fn get_latest_md5() -> Option<String> {
 
     let mut text = "".to_string();
     
-    if let Err(_) = response.read_to_string(&mut text) {
+    if let Err(_) = response.body_mut().read_to_string(&mut text) {
         return None;
     }
 
@@ -41,8 +41,15 @@ pub fn get_latest_md5() -> Option<String> {
 }
 
 pub fn update_exists() -> bool {
-    match get(UPDATE_URL.clone()) {
-        Ok(response) => { return response.status() == StatusCode::OK; },
+    match chttp::get(UPDATE_URL.clone()) {
+        Ok(response) => { return response.status() == StatusCode::OK || response.status() == StatusCode::FOUND; },
         Err(_) => { return false; }
     }
+}
+
+pub fn open_update_url() {
+    Command::new("cmd.exe")
+        .args(["/C", "start", &UPDATE_URL.clone()])
+        .spawn()
+        .ok();
 }
