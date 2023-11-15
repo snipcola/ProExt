@@ -6,6 +6,9 @@ use directories::UserDirs;
 use lazy_static::lazy_static;
 
 lazy_static! {
+    pub static ref UPDATE_URL: String = "https://github.com/vytrol/ProExt/raw/main/bin/proext.exe".to_string();
+    pub static ref UPDATE_HASH_URL: String = "https://github.com/vytrol/ProExt/raw/main/bin/hash.txt".to_string();
+
     pub static ref TOGGLE_KEY: VirtualKeyCode = VirtualKeyCode::Insert;
     pub static ref TOGGLE_KEY_MKI: Keyboard = Keyboard::Insert;
 
