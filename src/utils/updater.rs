@@ -1,5 +1,5 @@
 use std::{io::Read, env, fs::File, process::Command};
-use chttp::{get, http::StatusCode};
+use ureq::get;
 use md5::compute;
 
 use crate::utils::config::UPDATE_URL;
@@ -26,23 +26,20 @@ pub fn get_own_md5() -> Option<String> {
 }
 
 pub fn get_latest_md5() -> Option<String> {
-    let mut response = match get(UPDATE_HASH_URL.clone()) {
+    let response = match get(&UPDATE_HASH_URL.clone()).call() {
         Ok(response) => response,
         _ => { return None; }
     };
 
-    let mut text = "".to_string();
-    
-    if let Err(_) = response.body_mut().read_to_string(&mut text) {
-        return None;
-    }
-
-    return Some(text.trim().to_string());
+    return match response.into_string() {
+        Ok(text) => Some(text.trim().to_string()),
+        _ => None
+    };
 }
 
 pub fn update_exists() -> bool {
-    match chttp::get(UPDATE_URL.clone()) {
-        Ok(response) => { return response.status() == StatusCode::OK || response.status() == StatusCode::FOUND; },
+    match get(&UPDATE_URL.clone()).call() {
+        Ok(response) => { return response.status() == 200; },
         Err(_) => { return false; }
     }
 }
