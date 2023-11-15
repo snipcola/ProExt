@@ -1,5 +1,5 @@
 use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
-use mki::Mouse;
+use mouse_rs::{Mouse, types::keys::Keys};
 use lazy_static::lazy_static;
 use crate::{utils::config::Config, ui::main::hotkey_index_to_io};
 
@@ -8,15 +8,26 @@ lazy_static! {
     pub static ref ON_ENTITY: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None));
     pub static ref TRIES: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
     pub static ref MOUSE_LOCKED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    pub static ref MOUSE: Arc<Mutex<Mouse>> = Arc::new(Mutex::new(Mouse::new()));
+}
+
+pub fn click_mouse() {
+    let mouse = MOUSE.lock().unwrap();
+
+    mouse.click(&Keys::LEFT).ok();
 }
 
 pub fn lock_mouse() {
-    Mouse::Left.press();
+    let mouse = MOUSE.lock().unwrap();
+
+    mouse.press(&Keys::LEFT).ok();
     *MOUSE_LOCKED.lock().unwrap() = true;
 }
 
 pub fn unlock_mouse() {
-    Mouse::Left.release();
+    let mouse = MOUSE.lock().unwrap();
+
+    mouse.release(&Keys::LEFT).ok();
     *MOUSE_LOCKED.lock().unwrap() = false;
 }
 
@@ -61,7 +72,7 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
     if let Some(on_entity) = *on_entity {
         if on_entity.elapsed() >= Duration::from_millis(config.triggerbot.delay as u64) {
             if config.triggerbot.mode == 0 && shot_entity.elapsed() >= Duration::from_millis(config.triggerbot.tap_interval as u64) {
-                Mouse::Left.click();
+                click_mouse();
                 *shot_entity = Instant::now();
             } else if !mouse_locked {
                 lock_mouse();
