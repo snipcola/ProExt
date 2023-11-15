@@ -24,6 +24,8 @@ jobs:
         run: |
           mkdir ./bin 2>nul
           move ./build/x86_64-pc-windows-msvc/release/proext.exe ./bin
+      - name: Save hash
+          certutil -hashfile ./bin/proext.exe MD5 | find /i /v "md5" | find /i /v "certutil" > ./bin/hash.txt
       - name: Commit and push
         run: |
           git config --global user.name "Vytrol"
