@@ -114,7 +114,7 @@ pub struct GlobalVarOffsets {
     pub interval_per_tick2: u32,
     pub current_netchan: u32,
     pub current_map: u32,
-    pub current_map_name: u32,
+    pub current_map_name: u32
 }
 
 pub struct BombOffsets {

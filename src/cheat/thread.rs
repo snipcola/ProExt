@@ -142,7 +142,7 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
             // Bomb Timer
             if !no_pawn && config.misc.enabled && config.misc.bomb_timer_enabled {
                 (*ui_functions.lock().unwrap()).insert("bomb_timer".to_string(), Box::new(move |ui| {
-                    render_bomb_timer(ui, game.address.client_dll, config);
+                    render_bomb_timer(ui, game.address.bomb, config);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("bomb_timer");
@@ -261,7 +261,7 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
                     continue;
                 }
 
-                // Line to Enemy
+                // Snapline
                 if config.esp.enabled && config.esp.snap_line_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("snap_line_{}", i), Box::new(move |ui| {
                         render_snap_line(ui, rect, config, window_info.1.0, window_info.1.1);
