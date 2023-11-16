@@ -57,6 +57,17 @@ pub fn render_eye_ray(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], view_angle
     ui.get_background_draw_list().add_line(head.screen_pos, pos, color_u32_to_f32(config.esp.eye_ray_color)).thickness(1.3).build();
 }
 
+fn calculate_size(initial: Vector2<f32>, distance: f32, max_distance: f32) -> Vector2<f32> {
+    let scale = 1.0 - (distance / max_distance);
+    return Vector2 { x: initial.x * scale, y: initial.y * scale };
+}
+
+pub fn get_2d_box_non_player(size: Vector2<f32>, screen_pos: Vector2<f32>, distance: f32) -> Vector4<f32> {
+    let size = calculate_size(size, distance, 300.0);
+    let pos = Vector2 { x: screen_pos.x - size.x / 2.0, y: screen_pos.y - size.y / 2.0 };
+    return Vector4 { x: pos.x, y: pos.y, z: size.x, w: size.y };
+}
+
 pub fn get_2d_box(bone_pos_list: [BoneJointPos; 30], screen_pos: Vector2<f32>) -> Vector4<f32> {
     let head = bone_pos_list[BoneIndex::Head as usize];
     let size = Vector2 { x: ((screen_pos.y - head.screen_pos.y) * 1.09) * 0.6, y: (screen_pos.y - head.screen_pos.y) * 1.09 };
@@ -99,6 +110,15 @@ pub fn render_snap_line(ui: &mut Ui, rect: Vector4<f32>, config: Config, window_
     ui.get_background_draw_list().add_line(from_line, to_line, color_u32_to_f32(config.esp.snap_line_color)).thickness(1.2).build();
 }
 
+pub fn render_box_bomb(ui: &mut Ui, rect: Vector4<f32>, config: Config) {
+    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_masked_alpha(config.esp.bomb_color, 0xFF000000).into(), 3.0, config.esp.bomb_rounding, false);
+    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.esp.bomb_color).into(), 1.3, config.esp.bomb_rounding, false);
+
+    if config.esp.filled_bomb_enabled {
+        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_alpha(config.esp.filled_bomb_color, config.esp.filled_bomb_alpha).into(), 1.0, config.esp.bomb_rounding, true);
+    }
+}
+
 pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, config: Config) {
     rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_masked_alpha(config.esp.box_color, 0xFF000000).into(), 3.0, config.esp.box_rounding, false);
     
@@ -122,11 +142,15 @@ pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vect
     stroke_text(ui, format!("{}m", distance), Vector2 { x: rect.x + rect.z + 4.0, y: rect.y }, color_u32_to_f32(config.esp.distance_color).into(), false);
 }
 
-pub fn render_player_name(ui: &mut Ui, player_name: &str, rect: Vector4<f32>, config: Config) {
+pub fn render_bomb_name(ui: &mut Ui, name: &str, rect: Vector4<f32>, config: Config) {
+    stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.bomb_color).into(), true);
+}
+
+pub fn render_name(ui: &mut Ui, name: &str, rect: Vector4<f32>, config: Config) {
     if config.esp.health_bar_enabled && config.esp.health_bar_mode == 1 {
-        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.player_name_color).into(), true);
+        stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
     } else {
-        stroke_text(ui, player_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, color_u32_to_f32(config.esp.player_name_color).into(), true);
+        stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
     }
 }
 
@@ -165,4 +189,19 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect_pos: Vector2<f32
     }
 
     rectangle(ui, rect_pos, rect_size, frame_color, 1.0, config.esp.health_bar_rounding, false);
+}
+
+pub fn render_bomb(ui: &mut Ui, pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, screen_pos: Vector2<f32>, bomb_site: &str, config: Config) {
+    let distance = distance_between_vec3(pos, local_pawn_pos) as u32 / 100;
+    let rect = get_2d_box_non_player(Vector2 { x: 20.0, y: 20.0 }, screen_pos, distance as f32);
+
+    render_box_bomb(ui, rect, config);
+
+    if config.esp.name_enabled {
+        render_bomb_name(ui, format!("Bomb ({})", bomb_site).as_str(), rect, config);
+    }
+
+    if config.esp.distance_enabled {
+        render_distance(ui, pos, local_pawn_pos, rect, config);
+    }
 }
