@@ -59,6 +59,9 @@ pub fn render_menu(ui: &mut Ui) {
                                 color_edit_u32_tuple(ui, "##ColorESPBox", &mut (*config).esp.box_color);
                                 ui.same_line();
                                 ui.combo_simple_string("##ModeESPBox", &mut (*config).esp.box_mode, &["Normal", "Dynamic"]);
+                                
+                                // Box Rounding
+                                ui.slider_config("Rounding##ESPBox", 0, 25).display_format("%d").build(&mut (*config).esp.box_rounding);
 
                                 // Box Target
                                 ui.checkbox("Target##ESPBox", &mut (*config).esp.box_target_enabled);
@@ -67,10 +70,6 @@ pub fn render_menu(ui: &mut Ui) {
                                     ui.same_line();
                                     color_edit_u32_tuple(ui, "##TargetColorESPBox", &mut (*config).esp.box_target_color);
                                 }
-                                
-                                // Box Rounding
-                                ui.slider_config("Rounding##ESPBox", 0, 25).display_format("%d").build(&mut (*config).esp.box_rounding);
-                                ui.separator();
 
                                 // Filled Box
                                 ui.checkbox("Filled##ESPBox", &mut (*config).esp.filled_box_enabled);
@@ -80,9 +79,11 @@ pub fn render_menu(ui: &mut Ui) {
                                     color_edit_u32_tuple(ui, "##FilledColorESPBox", &mut (*config).esp.filled_box_color);
 
                                     // Filled Box Alpha
-                                    ui.slider_config("Alpha##ESPBoxFilled", 0.1, 1.0).display_format("%.1f").build(&mut (*config).esp.filled_box_alpha);
-                                    ui.separator();
+                                    ui.same_line();
+                                    ui.slider_config("##AlphaESPBoxFilled", 0.1, 1.0).display_format("%.1f").build(&mut (*config).esp.filled_box_alpha);
                                 }
+
+                                ui.separator();
                             }
 
                             // Skeleton
@@ -123,20 +124,21 @@ pub fn render_menu(ui: &mut Ui) {
                                 color_edit_u32_tuple(ui, "##SecondColorESPHealth", &mut (*config).esp.health_bar_second_color);
                                 ui.same_line();
                                 color_edit_u32_tuple(ui, "##BarThirdColorESPHealth", &mut (*config).esp.health_bar_third_color);
-                                ui.combo_simple_string("Mode##ESPHealth", &mut (*config).esp.health_bar_mode, &["Vertical", "Horizontal"]);
+                                ui.same_line();
+                                ui.combo_simple_string("##ModeESPHealth", &mut (*config).esp.health_bar_mode, &["Vertical", "Horizontal"]);
 
-                                // Health Bar Rounding
+                                // Health Rounding
                                 ui.slider_config("Rounding##ESPHealth", 0, 25).display_format("%d").build(&mut (*config).esp.health_bar_rounding);
                             }
 
                             ui.separator();
 
                             // Player Name
-                            ui.checkbox("Name##ESP", &mut (*config).esp.player_name_enabled);
+                            ui.checkbox("Name##ESP", &mut (*config).esp.name_enabled);
                             
-                            if (*config).esp.player_name_enabled {
+                            if (*config).esp.name_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##ColorESPPlayer", &mut (*config).esp.player_name_color);
+                                color_edit_u32_tuple(ui, "##ColorESPPlayer", &mut (*config).esp.name_color);
                             }
 
                             // Weapon Name
@@ -156,6 +158,31 @@ pub fn render_menu(ui: &mut Ui) {
                             }
 
                             ui.separator();
+
+                            // Bomb
+                            ui.checkbox("Bomb##ESP", &mut (*config).esp.bomb_enabled);
+
+                            if (*config).esp.bomb_enabled {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##ColorESPBomb", &mut (*config).esp.bomb_color);
+
+                                // Bomb Rounding
+                                ui.slider_config("Rounding##ESPBomb", 0, 25).display_format("%d").build(&mut (*config).esp.bomb_rounding);
+								
+                                // Filled Bomb
+                                ui.checkbox("Filled##ESPBomb", &mut (*config).esp.filled_bomb_enabled);
+
+                                if (*config).esp.filled_bomb_enabled {
+                                    ui.same_line();
+                                    color_edit_u32_tuple(ui, "##FilledColorESPBomb", &mut (*config).esp.filled_bomb_color);
+
+                                    // Filled Bomb Alpha
+                                    ui.same_line();
+                                    ui.slider_config("##AlphaESPBombFilled", 0.1, 1.0).display_format("%.1f").build(&mut (*config).esp.filled_bomb_alpha);
+                                }
+
+                                ui.separator();
+                            }
 
                             // Snap Line
                             ui.checkbox("Snapline##ESP", &mut (*config).esp.snap_line_enabled);

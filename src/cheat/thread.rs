@@ -16,18 +16,23 @@ use crate::cheat::features::aimbot::{get_aimbot_toggled, aimbot_check, render_fo
 use crate::cheat::features::bomb_timer::render_bomb_timer;
 use crate::cheat::features::bunnyhop::{run_bunny_hop, get_bunnyhop_toggled};
 use crate::cheat::features::cheat_list::render_cheat_list;
-use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_weapon_name, render_distance, render_player_name};
+use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_weapon_name, render_distance, render_name};
 use crate::cheat::features::no_flash::run_no_flash;
 use crate::cheat::features::radar::render_radar;
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
 use crate::cheat::features::triggerbot::{get_triggerbot_toggled, run_triggerbot};
 use crate::cheat::features::visuals::{render_crosshair, render_headshot_line};
 use crate::cheat::features::watermark::render_watermark;
+use crate::cheat::features::bomb_timer::BOMB_POSITION;
+use crate::cheat::features::bomb_timer::BOMB_SITE;
+use crate::cheat::features::esp::render_bomb;
 
 pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
     let mut window_hidden_from_capture = false;
     let window_info = WINDOW_INFO.clone();
     let ui_functions = UI_FUNCTIONS.clone();
+    let bomb_pos = BOMB_POSITION.clone();
+    let bomb_site = BOMB_SITE.clone();
 
     thread::spawn(move || {
         let mut no_pawn = false;
@@ -73,6 +78,7 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
                 (*ui_functions.lock().unwrap()).remove("headshot_line");
                 (*ui_functions.lock().unwrap()).remove("bomb_timer");
                 (*ui_functions.lock().unwrap()).remove("spectator_list");
+                (*ui_functions.lock().unwrap()).remove("bomb");
                 
                 for i in 0 .. 64 {
                     remove_esp(i);
@@ -140,9 +146,9 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Bomb Timer
-            if !no_pawn && config.misc.enabled && config.misc.bomb_timer_enabled {
+            if !no_pawn {
                 (*ui_functions.lock().unwrap()).insert("bomb_timer".to_string(), Box::new(move |ui| {
-                    render_bomb_timer(ui, game.address.bomb, config);
+                    render_bomb_timer(ui, config.misc.enabled && config.misc.bomb_timer_enabled, game.address.bomb, config);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("bomb_timer");
@@ -316,10 +322,10 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
                     (*ui_functions.lock().unwrap()).remove(&format!("distance_{}", i));
                 }
 
-                // Player Name
-                if config.esp.enabled && config.esp.player_name_enabled {
+                // Name
+                if config.esp.enabled && config.esp.name_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("player_name_{}", i), Box::new(move |ui| {
-                        render_player_name(ui, &entity.controller.player_name, rect, config);
+                        render_name(ui, &entity.controller.player_name, rect, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", i));
@@ -353,6 +359,23 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
                     None
                 }
             };
+
+            // Bomb
+            if !no_pawn && config.esp.bomb_enabled && bomb_pos.lock().unwrap().is_some() && bomb_site.lock().unwrap().is_some() {
+                let bomb_pos = (*bomb_pos.lock().unwrap()).unwrap();
+                let bomb_site = (bomb_site.lock().unwrap().clone()).unwrap();
+                let mut bomb_screen_pos = Vector2 { x: 0.0, y: 0.0 };
+                
+                if game.view.world_to_screen(bomb_pos, &mut bomb_screen_pos, window_info) {
+                    (*ui_functions.lock().unwrap()).insert("bomb".to_string(), Box::new(move |ui| {
+                        render_bomb(ui, bomb_pos, local_entity.pawn.pos, bomb_screen_pos, &bomb_site, config);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove("bomb");
+                }
+            } else {
+                (*ui_functions.lock().unwrap()).remove("bomb");
+            }
 
             // Crosshair
             if !no_pawn && config.crosshair.enabled {
