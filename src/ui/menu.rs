@@ -132,7 +132,7 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.separator();
 
                             // Player Name
-                            ui.checkbox("Player##ESP", &mut (*config).esp.player_name_enabled);
+                            ui.checkbox("Name##ESP", &mut (*config).esp.player_name_enabled);
                             
                             if (*config).esp.player_name_enabled {
                                 ui.same_line();

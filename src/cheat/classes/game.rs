@@ -6,6 +6,8 @@ use crate::utils::process_manager::{get_process_module_handle, read_memory_auto,
 use crate::cheat::classes::offsets::{ENTITY_LIST, MATRIX, VIEW_ANGLE, LOCAL_PLAYER_CONTROLLER, LOCAL_PLAYER_PAWN, FORCE_JUMP, GLOBAL_VARS};
 use crate::cheat::classes::view::View;
 
+use super::offsets::BOMB;
+
 lazy_static! {
     pub static ref GAME: Arc<Mutex<Game>> = Arc::new(Mutex::new(Game {
         address: Address {
@@ -17,7 +19,8 @@ lazy_static! {
             local_controller: 0,
             local_pawn: 0,
             force_jump: 0,
-            global_vars: 0
+            global_vars: 0,
+            bomb: 0
         },
         view: View {
             matrix: [
@@ -46,7 +49,8 @@ pub struct Address {
     pub local_controller: u64,
     pub local_pawn: u64,
     pub force_jump: u64,
-    pub global_vars: u64
+    pub global_vars: u64,
+    pub bomb: u64
 }
 
 pub fn init_game_address() -> bool {
@@ -58,6 +62,7 @@ pub fn init_game_address() -> bool {
     let local_player_pawn = LOCAL_PLAYER_PAWN.lock().unwrap();
     let force_jump = FORCE_JUMP.lock().unwrap();
     let global_vars = GLOBAL_VARS.lock().unwrap();
+    let bomb = BOMB.lock().unwrap();
 
     (*game).address.client_dll = get_process_module_handle("client.dll") as u64;
 
@@ -68,6 +73,7 @@ pub fn init_game_address() -> bool {
     (*game).address.local_pawn = (*game).address.client_dll + *local_player_pawn as u64;
     (*game).address.force_jump = (*game).address.client_dll + *force_jump as u64;
     (*game).address.global_vars = (*game).address.client_dll + *global_vars as u64;
+    (*game).address.bomb = (*game).address.client_dll + *bomb as u64;
 
     return (*game).address.client_dll != 0;
 }

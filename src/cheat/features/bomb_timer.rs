@@ -2,56 +2,70 @@ use std::{sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use lazy_static::lazy_static;
 use mint::Vector4;
-use crate::{utils::{config::{Config, CONFIG, WindowPosition}, process_manager::read_memory_auto}, ui::functions::color_u32_to_f32, cheat::classes::offsets::{BOMB, BOMB_OFFSETS}};
+use crate::{utils::{config::{Config, CONFIG, WindowPosition}, process_manager::read_memory_auto}, ui::functions::color_u32_to_f32, cheat::classes::offsets::BOMB_OFFSETS};
 
 lazy_static! {
     pub static ref IS_PLANTED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref PLANT_TIME: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None));
 }
 
-pub fn get_bomb_site(planted: bool, client_dll_address: u64) -> Option<String> {
-    if planted {
-        let mut site: u32 = 0;
-        let mut planted_c4: usize = 0;
-        
-        if !read_memory_auto(client_dll_address + (*BOMB.lock().unwrap()) as u64, &mut planted_c4) {
-            return None;
-        }
+pub fn get_bomb_node_address(bomb_address: u64) -> Option<u64> {
+    let mut bomb_node: u64 = 0;
 
-        if !read_memory_auto(planted_c4 as u64, &mut planted_c4) {
-            return None;
-        }
-
-        if !read_memory_auto(planted_c4 as u64 + (*BOMB_OFFSETS.lock().unwrap()).bomb_site as u64, &mut site) {
-            return None;
-        }
-
-        if site == 1 {
-            return Some("B".to_string());
-        } else {
-            return Some("A".to_string());
-        }
+    if !read_memory_auto(bomb_address, &mut bomb_node) {
+        return None;
     }
 
-    return None;
+    if !read_memory_auto(bomb_node, &mut bomb_node) {
+        return None;
+    }
+
+    return Some(bomb_node);
 }
 
-pub fn get_bomb_planted(client_dll_address: u64) -> bool {
-    let planted_address = client_dll_address + (*BOMB.lock().unwrap()) as u64 - 0x8;
+pub fn get_bomb_planted(bomb_address: u64) -> bool {
+    let planted_address = bomb_address - 0x8;
     let mut is_bomb_planted: bool = false;
     
-    read_memory_auto(planted_address as u64, &mut is_bomb_planted);
+    if !read_memory_auto(planted_address as u64, &mut is_bomb_planted) {
+        return false;
+    };
 
     return is_bomb_planted;
 }
 
-pub fn render_bomb_timer(ui: &mut Ui, client_dll_address: u64, config: Config) {
+pub fn get_bomb_site(bomb_node_address: u64) -> Option<String> {
+    let mut site: u32 = 0;
+
+    if !read_memory_auto(bomb_node_address + (*BOMB_OFFSETS.lock().unwrap()).bomb_site as u64, &mut site) {
+        return None;
+    }
+
+    if site == 1 {
+        return Some("B".to_string());
+    } else {
+        return Some("A".to_string());
+    }
+}
+
+pub fn render_bomb_timer(ui: &mut Ui, bomb_address: u64, config: Config) {
     let window_position = config.window_positions.bomb_timer;
 
-    let is_bomb_planted = get_bomb_planted(client_dll_address);
-    let bomb_site = get_bomb_site(is_bomb_planted, client_dll_address);
+    let is_bomb_planted = get_bomb_planted(bomb_address);
     let mut is_planted = IS_PLANTED.lock().unwrap();
     let mut plant_time = PLANT_TIME.lock().unwrap();
+    let bomb_node_address = match is_bomb_planted {
+        true => get_bomb_node_address(bomb_address),
+        false => None
+    };
+
+    let bomb_site = match is_bomb_planted {
+        true => match bomb_node_address {
+            Some(address) => get_bomb_site(address),
+            _ => None
+        },
+        false => None
+    };
 
     if is_bomb_planted && !*is_planted && ((*plant_time).is_none() || plant_time.unwrap().elapsed() > Duration::from_secs(60)) {
         *is_planted = true;
