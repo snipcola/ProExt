@@ -23,16 +23,13 @@ use crate::cheat::features::spectator_list::{is_spectating, render_spectator_lis
 use crate::cheat::features::triggerbot::{get_triggerbot_toggled, run_triggerbot};
 use crate::cheat::features::visuals::{render_crosshair, render_headshot_line};
 use crate::cheat::features::watermark::render_watermark;
-use crate::cheat::features::bomb_timer::BOMB_POSITION;
-use crate::cheat::features::bomb_timer::BOMB_SITE;
 use crate::cheat::features::esp::render_bomb;
+use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
 
 pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
     let mut window_hidden_from_capture = false;
     let window_info = WINDOW_INFO.clone();
     let ui_functions = UI_FUNCTIONS.clone();
-    let bomb_pos = BOMB_POSITION.clone();
-    let bomb_site = BOMB_SITE.clone();
 
     thread::spawn(move || {
         let mut no_pawn = false;
@@ -145,10 +142,52 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
                 no_pawn = false;
             }
 
+            // Bomb Data
+            let (bomb_planted, bomb_site, bomb_pos): (bool, Option<String>, Option<Vector3<f32>>) = if !no_pawn && (config.esp.bomb_enabled || (config.misc.enabled && config.misc.bomb_timer_enabled)) {
+                let bomb_address = game.address.bomb;
+                let bomb_planted = get_bomb_planted(bomb_address);
+
+                if bomb_planted {
+                    let planted_bomb = get_bomb(bomb_address);
+
+                    let bomb_site = match planted_bomb {
+                        Some(bomb) => get_bomb_site(bomb),
+                        _ => None
+                    };
+                    
+                    let bomb_pos = match planted_bomb {
+                        Some(bomb) => get_bomb_position(bomb),
+                        _ => None
+                    };
+
+                    (bomb_planted, bomb_site, bomb_pos)
+                } else {
+                    (bomb_planted, None, None)
+                }
+            } else {
+                (false, None, None)
+            };
+
+            // Bomb
+            if !no_pawn && config.esp.bomb_enabled && bomb_site.is_some() && bomb_pos.is_some() {
+                let (bomb_site, bomb_pos) = (bomb_site.clone().unwrap(), bomb_pos.unwrap());
+                let mut bomb_screen_pos = Vector2 { x: 0.0, y: 0.0 };
+                
+                if game.view.world_to_screen(bomb_pos, &mut bomb_screen_pos, window_info) {
+                    (*ui_functions.lock().unwrap()).insert("bomb".to_string(), Box::new(move |ui| {
+                        render_bomb(ui, bomb_pos, local_entity.pawn.pos, bomb_screen_pos, &bomb_site, config);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove("bomb");
+                }
+            } else {
+                (*ui_functions.lock().unwrap()).remove("bomb");
+            }
+
             // Bomb Timer
-            if !no_pawn {
+            if !no_pawn && config.misc.enabled && config.misc.bomb_timer_enabled {
                 (*ui_functions.lock().unwrap()).insert("bomb_timer".to_string(), Box::new(move |ui| {
-                    render_bomb_timer(ui, config.misc.enabled && config.misc.bomb_timer_enabled, game.address.bomb, config);
+                    render_bomb_timer(ui, bomb_planted, bomb_site.clone(), config);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("bomb_timer");
@@ -218,7 +257,10 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
                 // Bone
                 let bone = match entity.get_bone() {
                     Some(bone) => bone,
-                    _ => { continue; }
+                    _ => {
+                        remove_esp(i);
+                        continue;
+                    }
                 };
 
                 // Aimbot Check
@@ -359,23 +401,6 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
                     None
                 }
             };
-
-            // Bomb
-            if !no_pawn && config.esp.bomb_enabled && bomb_pos.lock().unwrap().is_some() && bomb_site.lock().unwrap().is_some() {
-                let bomb_pos = (*bomb_pos.lock().unwrap()).unwrap();
-                let bomb_site = (bomb_site.lock().unwrap().clone()).unwrap();
-                let mut bomb_screen_pos = Vector2 { x: 0.0, y: 0.0 };
-                
-                if game.view.world_to_screen(bomb_pos, &mut bomb_screen_pos, window_info) {
-                    (*ui_functions.lock().unwrap()).insert("bomb".to_string(), Box::new(move |ui| {
-                        render_bomb(ui, bomb_pos, local_entity.pawn.pos, bomb_screen_pos, &bomb_site, config);
-                    }));
-                } else {
-                    (*ui_functions.lock().unwrap()).remove("bomb");
-                }
-            } else {
-                (*ui_functions.lock().unwrap()).remove("bomb");
-            }
 
             // Crosshair
             if !no_pawn && config.crosshair.enabled {
