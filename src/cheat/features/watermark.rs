@@ -35,6 +35,6 @@ pub fn render_watermark(ui: &mut Ui, config: Config) {
             ui.same_line();
             ui.text_colored(Vector4 { x: 255.0, y: 255.0, z: 0.0, w: 255.0 }, get_current_time());
             ui.same_line();
-            ui.text_colored(Vector4 { x: 0.0, y: 255.0, z: 0.0, w: 255.0 }, format!("{} FPS", f32::floor(ui.io().framerate)));
+            ui.text_colored(Vector4 { x: 0.0, y: 255.0, z: 0.0, w: 255.0 }, format!("{} FPS", ui.io().framerate.floor()));
         });
 }

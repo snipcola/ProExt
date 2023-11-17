@@ -31,7 +31,7 @@ pub fn render_head(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Confi
     let neck = bone_pos_list[BoneIndex::Neck0 as usize];
     
     let center_pos = head.screen_pos;
-    let radius = f32::abs(head.screen_pos.y - neck.screen_pos.y) + 2.0;
+    let radius = (head.screen_pos.y - neck.screen_pos.y).abs() + 2.0;
 
     if radius > 200.0 {
         return;
@@ -46,11 +46,11 @@ pub fn render_head(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Confi
 }
 
 pub fn render_eye_ray(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], view_angle: Vector2<f32>, config: Config, view: View, window_info: ((i32, i32), (i32, i32))) {
-    let line_length = f32::cos(view_angle.x * PI / 180.0) * 30.0;
+    let line_length = (view_angle.x * PI / 180.0).cos() * 30.0;
     let head = bone_pos_list[BoneIndex::Head as usize];
     let mut pos = Vector2 { x: 0.0, y: 0.0 };
 
-    if !view.world_to_screen(Vector3 { x: head.pos.x + f32::cos(view_angle.y * PI / 180.0) * line_length, y: head.pos.y + f32::sin(view_angle.y * PI / 180.0) * line_length, z: head.pos.z - f32::sin(view_angle.x * PI / 180.0) * 30.0 }, &mut pos, window_info) {
+    if !view.world_to_screen(Vector3 { x: head.pos.x + (view_angle.y * PI / 180.0).cos() * line_length, y: head.pos.y + (view_angle.y * PI / 180.0).sin() * line_length, z: head.pos.z - (view_angle.x * PI / 180.0).sin() * 30.0 }, &mut pos, window_info) {
         return;
     }
 
@@ -85,11 +85,11 @@ pub fn get_2d_bone_rect(bone_pos_list: [BoneJointPos; 30]) -> Vector4<f32> {
             continue;
         }
 
-        min.x = f32::min(joint.screen_pos.x, min.x);
-        min.y = f32::min(joint.screen_pos.y, min.y);
+        min.x = joint.screen_pos.x.min(min.x);
+        min.y = joint.screen_pos.y.min(min.y);
 
-        max.x = f32::max(joint.screen_pos.x, max.x);
-        max.y = f32::max(joint.screen_pos.y, max.y);
+        max.x = joint.screen_pos.x.max(max.x);
+        max.y = joint.screen_pos.y.max(max.y);
     }
 
     return Vector4 { x: min.x, y: min.y, z: (max.x - min.x), w: (max.y - min.y) };
@@ -172,9 +172,9 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect_pos: Vector2<f32
     let (height, width) = ((rect_size.y * proportion), (rect_size.x * proportion));
     let color = {
         if in_range(proportion, 0.5, 1.0) {
-            mix_colors(first_stage_color, second_stage_color, f32::powf(proportion, 2.5) * 3.0 - 1.0)
+            mix_colors(first_stage_color, second_stage_color, proportion.powf(2.5) * 3.0 - 1.0)
         } else {
-            mix_colors(second_stage_color, third_stage_color, f32::powf(proportion, 2.5) * 4.0)
+            mix_colors(second_stage_color, third_stage_color, proportion.powf(2.5) * 4.0)
         }
     };
     

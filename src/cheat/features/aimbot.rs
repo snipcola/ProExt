@@ -2,12 +2,11 @@ use std::{f32::consts::PI, sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use mint::{Vector3, Vector2};
 use lazy_static::lazy_static;
-use crate::{utils::{config::{Config, CHEAT_DELAYS}, mouse::move_mouse}, ui::functions::{hotkey_index_to_io, distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::classes::{bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}, view::View}};
+use crate::{utils::{config::{Config, CHEAT_DELAYS}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{hotkey_index_to_io, distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::classes::{bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}, view::View}};
 
 lazy_static! {
     pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
-    pub static ref LAST_MOVED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
 }
 
 pub fn get_aimbot_toggled(config: Config) -> bool {
@@ -49,108 +48,33 @@ pub fn get_aimbot_toggled(config: Config) -> bool {
     }
 }
 
-pub fn run_aimbot(config: Config, aimbot_info: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>) {
-    if (*LAST_MOVED.lock().unwrap()).elapsed().as_millis() < CHEAT_DELAYS.aimbot.as_millis() {
-        return;
-    }
-    
-    let norm = aimbot_info;
+pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>) {
     let smooth = config.aimbot.smooth;
+    let smooth_base = 1.0;
 
     let (screen_center_x, screen_center_y) = ((window_info.1.0 / 2) as f32, (window_info.1.1 / 2) as f32);
     let mut screen_pos = Vector2 { x: 0.0, y: 0.0 };
 
-    let mut target_x = 0.0;
-    let mut target_y = 0.0;
-
-    if !game_view.world_to_screen(aim_pos, &mut screen_pos, window_info) {
+    if (*LAST_MOVED.lock().unwrap()).elapsed().as_millis() < CHEAT_DELAYS.aimbot.as_millis() || !game_view.world_to_screen(aim_pos, &mut screen_pos, window_info) || ((screen_center_x - screen_pos.x).abs() <= 1.0 && (screen_center_y - screen_pos.y).abs() <= 1.0)  {
         return;
     }
 
-    let x_diff = (screen_center_x - screen_pos.x).abs();
-    let y_diff = (screen_center_y - screen_pos.y).abs();
+    let mut target_x = if screen_pos.x > screen_center_x { -(screen_center_x - screen_pos.x) } else { screen_pos.x - screen_center_x };
+    target_x /= if smooth != smooth_base { smooth } else { 1.0 };
+    target_x = if screen_pos.x > screen_center_x { if target_x + screen_center_x > screen_center_x * 2.0 { 0.0 } else { target_x } } else { if target_x + screen_center_x < 0.0 { 0.0 } else { target_x } };
 
-    if x_diff <= 1.0 && y_diff <= 1.0 {
-        return;
-    }
+    let mut target_y = if screen_pos.y > screen_center_y { -(screen_center_y - screen_pos.y) } else { screen_pos.y - screen_center_y };
+    target_y /= if smooth != smooth_base { smooth } else { 1.0 };
+    target_y = if screen_pos.y > screen_center_y { if target_y + screen_center_y > screen_center_y * 2.0 { 0.0 } else { target_y } } else { if target_y + screen_center_y < 0.0 { 0.0 } else { target_y } };
 
-    if screen_pos.x != 0.0 {
-        if screen_pos.x > screen_center_x {
-            target_x = -(screen_center_x - screen_pos.x);
+    if smooth == smooth_base { return move_mouse(target_x as i32, target_y as i32); }
 
-            if smooth != 0.0 {
-                target_x /= smooth;
-            }
-    
-            if target_x + screen_center_x > screen_center_x * 2.0 {
-                target_x = 0.0;
-            }
-        } else {
-            target_x = screen_pos.x - screen_center_x;
+    target_x /= smooth * (1.0 + (1.0 - (norm / config.aimbot.fov)));
+    target_y /= smooth * (1.0 + (1.0 - (norm / config.aimbot.fov)));
 
-            if smooth != 0.0 {
-                target_x /= smooth;
-            }
-    
-            if target_x + screen_center_x < 0.0 {
-                target_x = 0.0;
-            }
-        }
-    }
+    target_x = if target_x.abs() < 1.0 { if target_x > 0.0 { 1.0 } else { -1.0 } } else { target_x };
+    target_y = if target_y.abs() < 1.0 { if target_y > 0.0 { 1.0 } else { -1.0 } } else { target_y };
 
-    if screen_pos.y != 0.0 {
-        if screen_pos.y > screen_center_y {
-            target_y = -(screen_center_y - screen_pos.y);
-
-            if smooth != 0.0 {
-                target_y /= smooth;
-            }
-
-            if target_y + screen_center_y > screen_center_y * 2.0 {
-                target_y = 0.0;
-            }
-        } else {
-            target_y = screen_pos.y - screen_center_y;
-
-            if smooth != 0.0 {
-                target_y /= smooth;
-            }
-
-            if target_y + screen_center_y < 0.0 {
-                target_y = 0.0;
-            }
-        }
-    }
-
-    if smooth == 0.0 {
-        *LAST_MOVED.lock().unwrap() = Instant::now();
-        move_mouse(target_x as i32, target_y as i32);
-        return;
-    }
-
-    let distance_ratio = norm / config.aimbot.fov;
-    let speed_factor = 1.0 + (1.0 - distance_ratio);
-
-    target_x /= smooth * speed_factor;
-    target_y /= smooth * speed_factor;
-
-    if f32::abs(target_x) < 1.0 {
-        if target_x > 0.0 {
-            target_x = 1.0;
-        } else {
-            target_x = -1.0;
-        }
-    }
-
-    if f32::abs(target_y) < 1.0 {
-        if target_y > 0.0 {
-            target_y = 1.0;
-        } else {
-            target_y = -1.0;
-        }
-    }
-
-    *LAST_MOVED.lock().unwrap() = Instant::now();
     move_mouse(target_x as i32, target_y as i32);
 }
 

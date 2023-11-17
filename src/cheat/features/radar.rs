@@ -1,5 +1,4 @@
 use std::f32::consts::PI;
-
 use imgui::{Ui, ImColor32};
 use mint::{Vector2, Vector3};
 
@@ -57,9 +56,9 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
             let arc_arrow_size = 7.0 * config.radar.point_size;
 
             for (pos, yaw) in points {
-                let distance = f32::sqrt(f32::powf(local_pos.x - pos.x, 2.0) + f32::powf(local_pos.y - pos.y, 2.0)) / config.radar.proportion * config.radar.range * 2.0;
-                let angle = (local_yaw - f32::atan2(pos.y - local_pos.y, pos.x - local_pos.x) * 180.0 / PI) * PI / 180.0;
-                let point_pos = Vector2 { x: window_pos.x + distance * f32::sin(angle), y: window_pos.y - distance * f32::cos(angle) };
+                let distance = ((local_pos.x - pos.x).powf(2.0) + (local_pos.y - pos.y).powf(2.0)).sqrt() / config.radar.proportion * config.radar.range * 2.0;
+                let angle = (local_yaw - (pos.y - local_pos.y).atan2(pos.x - local_pos.x) * 180.0 / PI) * PI / 180.0;
+                let point_pos = Vector2 { x: window_pos.x + distance * angle.sin(), y: window_pos.y - distance * angle.cos() };
 
                 if point_pos.x < window_pos.x - config.radar.range || point_pos.x > window_pos.x + config.radar.range || point_pos.y > window_pos.y + config.radar.range || point_pos.y < window_pos.y - config.radar.range {
                     continue;
@@ -80,9 +79,9 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
                     ui.get_window_draw_list().add_polyline(vec![a, b, point_pos, c], color_with_masked_alpha(config.radar.color, 0xFF000000)).thickness(0.1).build();
                 } else {
                     let angle2 = (local_yaw - yaw) - 90.0;
-                    let triangle_point = Vector2 { x: point_pos.x + (arc_arrow_size + arc_arrow_size / 3.0) * f32::cos(-angle2 * PI / 180.0), y: point_pos.y - (arc_arrow_size + arc_arrow_size / 3.0) * f32::sin(-angle2 * PI / 180.0) };
-                    let triangle_point_2 = Vector2 { x: point_pos.x + arc_arrow_size * f32::cos(-(angle2 - 30.0) * PI / 180.0), y: point_pos.y - arc_arrow_size * f32::sin(-(angle2 - 30.0) * PI / 180.0) };
-                    let triangle_point_3 = Vector2 { x: point_pos.x + arc_arrow_size * f32::cos(-(angle2 + 30.0) * PI / 180.0), y: point_pos.y - arc_arrow_size * f32::sin(-(angle2 + 30.0) * PI / 180.0) };
+                    let triangle_point = Vector2 { x: point_pos.x + (arc_arrow_size + arc_arrow_size / 3.0) * (-angle2 * PI / 180.0).cos(), y: point_pos.y - (arc_arrow_size + arc_arrow_size / 3.0) * (-angle2 * PI / 180.0).sin() };
+                    let triangle_point_2 = Vector2 { x: point_pos.x + arc_arrow_size * (-(angle2 - 30.0) * PI / 180.0).cos(), y: point_pos.y - arc_arrow_size * (-(angle2 - 30.0) * PI / 180.0).sin() };
+                    let triangle_point_3 = Vector2 { x: point_pos.x + arc_arrow_size * (-(angle2 + 30.0) * PI / 180.0).cos(), y: point_pos.y - arc_arrow_size * (-(angle2 + 30.0) * PI / 180.0).sin() };
 
                     ui.get_window_draw_list().add_circle(point_pos, 0.85 * arc_arrow_size, color_u32_to_f32(config.radar.color)).thickness(30.0).filled(true).build();
                     ui.get_window_draw_list().add_circle(point_pos, 0.95 * arc_arrow_size, color_with_masked_alpha(config.radar.color, 0xFF000000)).thickness(0.1).build();
