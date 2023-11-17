@@ -1,9 +1,10 @@
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}, time::Instant};
 use windows::Win32::UI::Input::KeyboardAndMouse::{mouse_event, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, MOUSEEVENTF_MOVE};
 use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref MOUSE_LOCKED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    pub static ref LAST_MOVED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
 }
 
 pub fn click_mouse() {
@@ -25,4 +26,5 @@ pub fn release_mouse() {
 
 pub fn move_mouse(x: i32, y: i32) {
     unsafe { mouse_event(MOUSEEVENTF_MOVE, x, y, 0, 0) };
+    *LAST_MOVED.lock().unwrap() = Instant::now();
 }
