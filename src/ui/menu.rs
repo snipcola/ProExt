@@ -409,6 +409,10 @@ pub fn render_menu(ui: &mut Ui) {
 
                             ui.separator();
 
+                            // Discord RPC
+                            ui.checkbox("Discord RPC##Misc", &mut (*config).misc.discord_rpc_enabled);
+                            ui.separator();
+
                             // Risky
                             ui.text_colored(Vector4 { x: 255.0, y: 0.0, z: 0.0, w: 255.0 }, "Risky");
                             ui.separator();

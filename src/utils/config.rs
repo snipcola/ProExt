@@ -6,6 +6,8 @@ use directories::UserDirs;
 use lazy_static::lazy_static;
 
 lazy_static! {
+    pub static ref RPC_CLIENT_ID: u64 = 1174845327099048018;
+
     pub static ref UPDATE_URL: String = "https://github.com/vytrol/ProExt/raw/main/bin/proext.exe".to_string();
     pub static ref UPDATE_HASH_URL: String = "https://github.com/vytrol/ProExt/raw/main/bin/hash.txt".to_string();
 
@@ -257,8 +259,9 @@ pub struct Misc {
     pub bypass_capture: bool,
     pub headshot_line_enabled: bool,
     pub headshot_line_color: (u32, u32, u32, u32),
+    pub discord_rpc_enabled: bool,
     pub no_flash_enabled: bool,
-    pub bunny_hop_enabled: bool,
+    pub bunny_hop_enabled: bool
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -413,8 +416,9 @@ impl Default for Config {
                 bypass_capture: true,
                 headshot_line_enabled: false,
                 headshot_line_color: (255, 255, 255, 255),
+                discord_rpc_enabled: true,
                 no_flash_enabled: false,
-                bunny_hop_enabled: false,
+                bunny_hop_enabled: false
             },
             window_positions: WindowPositions {
                 menu: WindowPosition { x: 600.0, y: 150.0 },

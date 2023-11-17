@@ -6,7 +6,7 @@ use std::thread::{self, sleep};
 use colored::{Colorize, control::set_virtual_terminal};
 
 use crate::utils::input::input;
-use crate::utils::process_manager::{AttachStatus, attach_process_manager};
+use crate::utils::process_manager::attach_process_manager;
 use crate::cheat::classes::offsets::update_offsets;
 use crate::cheat::classes::game::init_game_address;
 use crate::ui::main::init_gui;
@@ -56,9 +56,9 @@ fn main() {
     };
 
     match attach_process_manager() {
-        AttachStatus::Success =>  println!("{} Attached {} process", "[ OKAY ]".bold().green(), PROCESS_EXECUTABLE.bold()),
-        status => {
-            println!("{} Failed to attach {} process {}", "[ FAIL ]".bold().red(), PROCESS_EXECUTABLE.bold(), format!("({:?})", status).bold());
+        None =>  println!("{} Attached {} process", "[ OKAY ]".bold().green(), PROCESS_EXECUTABLE.bold()),
+        Some(error) => {
+            println!("{} Failed to attach {} process {}", "[ FAIL ]".bold().red(), PROCESS_EXECUTABLE.bold(), format!("({})", error).bold());
             return pause();
         }
     }

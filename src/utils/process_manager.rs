@@ -21,14 +21,6 @@ lazy_static! {
     }));
 }
 
-#[derive(Debug, PartialEq)]
-pub enum AttachStatus {
-    Success,
-    FailedProcessId,
-    FailedHProcess,
-    FailedModule
-}
-
 pub struct ProcessManager {
     pub attached: bool,
     pub h_process: HANDLE,
@@ -36,19 +28,19 @@ pub struct ProcessManager {
     pub module_address: u64
 }
 
-pub fn attach_process_manager() -> AttachStatus {
+pub fn attach_process_manager() -> Option<String> {
     let process_name = &*PROCESS_EXECUTABLE;
     let process_manager = PROCESS_MANAGER.clone();
     let mut process_manager = process_manager.lock().unwrap();
 
     match get_process_id(process_name) {
-        0 => { return AttachStatus::FailedProcessId; },
+        0 => { return Some("ProcessId".to_string()); },
         process_id => { (*process_manager).process_id = process_id; }
     };
     
     match unsafe { OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD, BOOL::from(true), (*process_manager).process_id) } {
         Ok(handle) => { (*process_manager).h_process = handle; },
-        Err(_) => { return AttachStatus::FailedHProcess; }
+        Err(_) => { return Some("HProcess".to_string()); }
     }
 
     drop(process_manager);
@@ -56,12 +48,12 @@ pub fn attach_process_manager() -> AttachStatus {
     let mut process_manager = PROCESS_MANAGER.lock().unwrap();
 
     match module_address {
-        0 => { return AttachStatus::FailedModule; },
+        0 => { return Some("Module".to_string()); },
         module_address => { (*process_manager).module_address = module_address; }
     };
 
     (*process_manager).attached = true;
-    return AttachStatus::Success;
+    return None;
 }
 
 pub fn detach_process_manager(process_manager: &mut ProcessManager) {
