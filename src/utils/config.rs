@@ -6,10 +6,16 @@ use directories::UserDirs;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref RPC_CLIENT_ID: u64 = 1174845327099048018;
+    pub static ref PACKAGE_NAME: String = "ProExt".to_string();
+    pub static ref PACKAGE_VERSION: String = env!("CARGO_PKG_VERSION").to_string();
+    pub static ref PACKAGE_AUTHORS: String = env!("CARGO_PKG_AUTHORS").replace(":", " & ").to_string();
 
     pub static ref UPDATE_URL: String = "https://github.com/vytrol/ProExt/raw/main/bin/proext.exe".to_string();
     pub static ref UPDATE_HASH_URL: String = "https://github.com/vytrol/ProExt/raw/main/bin/hash.txt".to_string();
+
+    pub static ref RPC_CLIENT_ID: u64 = 1174845327099048018;
+    pub static ref RPC_STATE: String = "An open-source, external CS2 cheat.".to_string();
+    pub static ref RPC_IMAGE_ASSET: String = "cs2".to_string();
 
     pub static ref TOGGLE_KEY: VirtualKeyCode = VirtualKeyCode::Insert;
     pub static ref TOGGLE_KEY_MKI: Keyboard = Keyboard::Insert;
@@ -17,10 +23,6 @@ lazy_static! {
     pub static ref PROCESS_EXECUTABLE: String = "cs2.exe".to_string();
     pub static ref PROCESS_TITLE: String = "Counter-Strike 2".to_string();
     pub static ref PROCESS_CLASS: String = "SDL_app".to_string();
-
-    pub static ref PACKAGE_NAME: String = "ProExt".to_string();
-    pub static ref PACKAGE_VERSION: String = env!("CARGO_PKG_VERSION").to_string();
-    pub static ref PACKAGE_AUTHORS: String = env!("CARGO_PKG_AUTHORS").replace(":", " & ").to_string();
 
     pub static ref THREAD_DELAYS: ThreadDelays = ThreadDelays {
         update_configs: Duration::from_millis(20),
