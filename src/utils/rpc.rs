@@ -1,7 +1,7 @@
 use std::{sync::{Arc, Mutex}, thread, time::{SystemTime, UNIX_EPOCH}};
 use discord_rpc_client::Client;
 use lazy_static::lazy_static;
-use crate::utils::config::RPC_CLIENT_ID;
+use crate::utils::config::{RPC_CLIENT_ID, RPC_STATE, RPC_IMAGE_ASSET};
 use crate::utils::config::CONFIG;
 
 lazy_static! {
@@ -12,8 +12,8 @@ pub fn set_rpc_activity(client: &mut Client, started: u64) {
     client
         .set_activity(| activity | {
             activity
-                .state("An open-source, external CS2 cheat.")
-                .assets(| assets | assets.large_image("cs2"))
+                .state(&*RPC_STATE)
+                .assets(| assets | assets.large_image(&*RPC_IMAGE_ASSET))
                 .timestamps(| timestamps | timestamps.start(started))
         })
         .ok();
