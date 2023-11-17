@@ -459,7 +459,9 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
             // Aimbot
             if is_aimbot_toggled {
                 if let Some(aimbot_info) = aimbot_info {
-                    run_aimbot(config, aimbot_info, local_entity.pawn.view_angle, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
+                    if let Some(aim_pos) = aim_pos {
+                        run_aimbot(config, aimbot_info, window_info, game.view, aim_pos);
+                    }
                 }
             }
 

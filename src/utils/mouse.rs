@@ -1,28 +1,28 @@
 use std::sync::{Arc, Mutex};
-use mouse_rs::{Mouse, types::keys::Keys};
+use windows::Win32::UI::Input::KeyboardAndMouse::{mouse_event, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, MOUSEEVENTF_MOVE};
 use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref MOUSE_LOCKED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-    pub static ref MOUSE: Arc<Mutex<Mouse>> = Arc::new(Mutex::new(Mouse::new()));
 }
 
 pub fn click_mouse() {
-    let mouse = MOUSE.lock().unwrap();
-
-    mouse.click(&Keys::LEFT).ok();
+    unsafe {
+        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+    }
 }
 
 pub fn press_mouse() {
-    let mouse = MOUSE.lock().unwrap();
-
-    mouse.press(&Keys::LEFT).ok();
+    unsafe { mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0) };
     *MOUSE_LOCKED.lock().unwrap() = true;
 }
 
 pub fn release_mouse() {
-    let mouse = MOUSE.lock().unwrap();
-
-    mouse.release(&Keys::LEFT).ok();
+    unsafe { mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0) };
     *MOUSE_LOCKED.lock().unwrap() = false;
+}
+
+pub fn move_mouse(x: i32, y: i32) {
+    unsafe { mouse_event(MOUSEEVENTF_MOVE, x, y, 0, 0) };
 }
