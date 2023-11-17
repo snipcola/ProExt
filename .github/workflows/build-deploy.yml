@@ -22,7 +22,8 @@ jobs:
           args: --release --target x86_64-pc-windows-msvc --target-dir ./build
       - name: Move executable
         run: |
-          mkdir ./bin 2>nul
+          rd /s /q ./bin
+          mkdir ./bin
           move ./build/x86_64-pc-windows-msvc/release/proext.exe ./bin
       - name: Save hash
         run: |
@@ -33,4 +34,4 @@ jobs:
           git config --global user.email "63375371+vytrol@users.noreply.github.com"
           git add ./bin
           git commit -m "📦 Updated Binaries"
-          git push
+          git push -f
