@@ -16,9 +16,9 @@ lazy_static! {
     pub static ref ENTITY_OFFSETS: Arc<Mutex<EntityOffsets>> = Arc::new(Mutex::new(EntityOffsets {
         health: 0x32C,
         team_id: 0x3BF,
-        is_alive: 0x7DC,
-        player_pawn: 0x5F4,
-        is_player_name: 0x628
+        is_alive: 0x7F4,
+        player_pawn: 0x60C,
+        is_player_name: 0x640
     }));
     
     pub static ref PAWN_OFFSETS: Arc<Mutex<PawnOffsets>> = Arc::new(Mutex::new(PawnOffsets {
@@ -192,7 +192,7 @@ pub fn update_offsets() -> Option<String> {
     match search_offsets(signatures.view_angles.clone(), client_dll) {
         Some(mut address) => {
             if !read_memory_auto(address, &mut address) { return Some("ViewAnglesMemory".to_string()) };
-            *view_angle = (address + 21288 - client_dll) as u32;
+            *view_angle = (address + 24896 - client_dll) as u32;
         },
         _ => { return Some("ViewAngles".to_string()) }
     };
