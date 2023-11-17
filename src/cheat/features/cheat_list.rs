@@ -74,6 +74,10 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
                     ui.text_colored(green, "- Exclude Team");
                 }
 
+                if config.misc.discord_rpc_enabled {
+                    ui.text_colored(green, "- Discord RPC");
+                }
+
                 if pawn && config.misc.no_flash_enabled {
                     ui.text_colored(green, "- No Flash");
                     ui.same_line();
