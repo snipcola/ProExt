@@ -1,5 +1,4 @@
 use std::sync::{Arc, Mutex};
-use mint::Vector2;
 use lazy_static::lazy_static;
 
 use crate::utils::process_manager::{get_process_module_handle, read_memory_auto, write_memory_auto};
@@ -91,17 +90,6 @@ pub fn update_entity_list_entry() -> bool {
 
     (*game).address.entity_list_entry = entity_list_entry;
     return (*game).address.entity_list_entry != 0;
-}
-
-pub fn set_view_angle(yaw: f32, pitch: f32) -> bool {
-    let game = GAME.lock().unwrap();
-    let mut angle = Vector2 { x: pitch, y: yaw };
-
-    if !write_memory_auto::<Vector2<f32>>((*game).address.view_angle, &mut angle) {
-        return false;
-    }
-
-    return true;
 }
 
 pub fn set_force_jump(value: i32) -> bool {

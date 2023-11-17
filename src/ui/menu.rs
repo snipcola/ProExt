@@ -236,13 +236,8 @@ pub fn render_menu(ui: &mut Ui) {
                             // Bone, FOV, & Smooth
                             ui.combo_simple_string("Bone##Aimbot", &mut (*config).aimbot.bone, &["Head", "Neck", "Spine"]);
                             ui.slider_config("Fov##Aimbot", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aimbot.fov);
-                            ui.slider_config("Smooth##Aimbot", 0.0, 0.9).display_format("%.1f").build(&mut (*config).aimbot.smooth);
+                            ui.slider_config("Smooth##Aimbot", 1.0, 5.0).display_format("%.1f").build(&mut (*config).aimbot.smooth);
                             ui.separator();
-
-                            // Start Bullet, Yaw, & Pitch
-                            ui.slider_config("Start Bullet##Aimbot", 1, 6).display_format("%d").build(&mut (*config).aimbot.start_bullet);
-                            ui.slider_config("Yaw##Aimbot", 0.0, 2.0).display_format("%.1f").build(&mut (*config).aimbot.rcs_yaw);
-                            ui.slider_config("Pitch##Aimbot", 0.0, 2.0).display_format("%.1f").build(&mut (*config).aimbot.rcs_pitch);
                         }
                     });
 

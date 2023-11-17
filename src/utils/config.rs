@@ -29,6 +29,10 @@ lazy_static! {
         window_tasks: Duration::from_millis(10)
     };
 
+    pub static ref CHEAT_DELAYS: CheatDelays = CheatDelays {
+        aimbot: Duration::from_millis(10)
+    };
+
     pub static ref CONFIG_DIR: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
     pub static ref CONFIGS: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     pub static ref CONFIG: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::default()));
@@ -37,6 +41,10 @@ lazy_static! {
 pub struct ThreadDelays {
     pub update_configs: Duration,
     pub window_tasks: Duration
+}
+
+pub struct CheatDelays {
+    pub aimbot: Duration
 }
 
 pub fn get_directory_dir(name: &str) -> Option<String> {
@@ -199,10 +207,7 @@ pub struct Aimbot {
     pub only_grounded: bool,
     pub bone: usize,
     pub fov: f32,
-    pub smooth: f32,
-    pub start_bullet: u32,
-    pub rcs_yaw: f32,
-    pub rcs_pitch: f32
+    pub smooth: f32
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -364,10 +369,7 @@ impl Default for Config {
                 only_grounded: true,
                 bone: 1,
                 fov: 3.5,
-                smooth: 0.5,
-                start_bullet: 1,
-                rcs_yaw: 1.0,
-                rcs_pitch: 1.0
+                smooth: 1.5
             },
             triggerbot: Triggerbot {
                 enabled:  false,

@@ -2,12 +2,12 @@ use std::{f32::consts::PI, sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use mint::{Vector3, Vector2};
 use lazy_static::lazy_static;
-
-use crate::{utils::{config::Config, process_manager::read_memory_auto}, ui::functions::{hotkey_index_to_io, distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::classes::{game::set_view_angle, entity::CUtlVector, bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}}};
+use crate::{utils::{config::{Config, CHEAT_DELAYS}, mouse::move_mouse}, ui::functions::{hotkey_index_to_io, distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::classes::{bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}, view::View}};
 
 lazy_static! {
     pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+    pub static ref LAST_MOVED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
 }
 
 pub fn get_aimbot_toggled(config: Config) -> bool {
@@ -49,28 +49,109 @@ pub fn get_aimbot_toggled(config: Config) -> bool {
     }
 }
 
-pub fn run_aimbot(config: Config, aimbot_info: (f32, f32), view_angle: Vector2<f32>, shots_fired: u64, aim_punch_cache: CUtlVector) {
-    let (mut yaw, mut pitch) = aimbot_info;
+pub fn run_aimbot(config: Config, aimbot_info: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>) {
+    if (*LAST_MOVED.lock().unwrap()).elapsed().as_millis() < CHEAT_DELAYS.aimbot.as_millis() {
+        return;
+    }
+    
+    let norm = aimbot_info;
+    let smooth = config.aimbot.smooth;
 
-    yaw = yaw * (1.0 - config.aimbot.smooth) + view_angle.y;
-    pitch = pitch * (1.0 - config.aimbot.smooth) + view_angle.x;
+    let (screen_center_x, screen_center_y) = ((window_info.1.0 / 2) as f32, (window_info.1.1 / 2) as f32);
+    let mut screen_pos = Vector2 { x: 0.0, y: 0.0 };
 
-    if shots_fired > config.aimbot.start_bullet as u64 {
-        let mut punch_angle = Vector2 { x: 0.0, y: 0.0 };
+    let mut target_x = 0.0;
+    let mut target_y = 0.0;
 
-        if aim_punch_cache.count <= 0 && aim_punch_cache.count > 0xFFFF {
-            return;
-        }
-
-        if !read_memory_auto(aim_punch_cache.data + (aim_punch_cache.count - 1) * std::mem::size_of::<Vector3<f32>>() as u64, &mut punch_angle) {
-            return;
-        }
-
-        yaw = yaw - punch_angle.y * config.aimbot.rcs_yaw;
-        pitch = pitch - punch_angle.x * config.aimbot.rcs_pitch;
+    if !game_view.world_to_screen(aim_pos, &mut screen_pos, window_info) {
+        return;
     }
 
-    set_view_angle(yaw, pitch);
+    let x_diff = (screen_center_x - screen_pos.x).abs();
+    let y_diff = (screen_center_y - screen_pos.y).abs();
+
+    if x_diff <= 1.0 && y_diff <= 1.0 {
+        return;
+    }
+
+    if screen_pos.x != 0.0 {
+        if screen_pos.x > screen_center_x {
+            target_x = -(screen_center_x - screen_pos.x);
+
+            if smooth != 0.0 {
+                target_x /= smooth;
+            }
+    
+            if target_x + screen_center_x > screen_center_x * 2.0 {
+                target_x = 0.0;
+            }
+        } else {
+            target_x = screen_pos.x - screen_center_x;
+
+            if smooth != 0.0 {
+                target_x /= smooth;
+            }
+    
+            if target_x + screen_center_x < 0.0 {
+                target_x = 0.0;
+            }
+        }
+    }
+
+    if screen_pos.y != 0.0 {
+        if screen_pos.y > screen_center_y {
+            target_y = -(screen_center_y - screen_pos.y);
+
+            if smooth != 0.0 {
+                target_y /= smooth;
+            }
+
+            if target_y + screen_center_y > screen_center_y * 2.0 {
+                target_y = 0.0;
+            }
+        } else {
+            target_y = screen_pos.y - screen_center_y;
+
+            if smooth != 0.0 {
+                target_y /= smooth;
+            }
+
+            if target_y + screen_center_y < 0.0 {
+                target_y = 0.0;
+            }
+        }
+    }
+
+    if smooth == 0.0 {
+        *LAST_MOVED.lock().unwrap() = Instant::now();
+        move_mouse(target_x as i32, target_y as i32);
+        return;
+    }
+
+    let distance_ratio = norm / config.aimbot.fov;
+    let speed_factor = 1.0 + (1.0 - distance_ratio);
+
+    target_x /= smooth * speed_factor;
+    target_y /= smooth * speed_factor;
+
+    if f32::abs(target_x) < 1.0 {
+        if target_x > 0.0 {
+            target_x = 1.0;
+        } else {
+            target_x = -1.0;
+        }
+    }
+
+    if f32::abs(target_y) < 1.0 {
+        if target_y > 0.0 {
+            target_y = 1.0;
+        } else {
+            target_y = -1.0;
+        }
+    }
+
+    *LAST_MOVED.lock().unwrap() = Instant::now();
+    move_mouse(target_x as i32, target_y as i32);
 }
 
 pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, in_air: bool, config: Config) {

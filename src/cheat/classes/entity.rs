@@ -32,9 +32,6 @@ pub struct PlayerPawn {
     pub screen_pos: Vector2<f32>,
     pub camera_pos: Vector3<f32>,
     pub weapon_name: String,
-    pub shots_fired: u64,
-    pub aim_punch_angle: Vector2<f32>,
-    pub aim_punch_cache: CUtlVector,
     pub health: i32,
     pub team_id: i32,
     pub fov: i32,
@@ -56,7 +53,7 @@ impl Default for Entity {
     fn default() -> Self {
         return Entity {
             controller: PlayerController { address: 0, team_id: 0, health: 0, alive_status: 0, pawn: 0, player_name: "Name_None".to_string() },
-            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "Weapon_None".to_string(), shots_fired: 0, aim_punch_angle: Vector2 { x: 0.0, y: 0.0 }, aim_punch_cache: CUtlVector { count: 0, data: 0 }, health: 0, team_id: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
+            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "Weapon_None".to_string(), health: 0, team_id: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
         }
     }
 }
@@ -118,14 +115,6 @@ impl Entity {
             return false;
         }
 
-        if !self.pawn.get_aim_punch_angle() {
-            return false;
-        }
-
-        if !self.pawn.get_shots_fired() {
-            return false;
-        }
-
         if !self.pawn.get_health() {
             return false;
         }
@@ -143,10 +132,6 @@ impl Entity {
         }
 
         if !self.pawn.get_f_flags() {
-            return false;
-        }
-
-        if !self.pawn.get_aim_punch_cache() {
             return false;
         }
 
@@ -263,20 +248,8 @@ impl PlayerPawn {
         return true;
     }
 
-    pub fn get_shots_fired(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).shots_fired, &mut self.shots_fired);
-    }
-
-    pub fn get_aim_punch_angle(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).aim_punch_angle, &mut self.aim_punch_angle);
-    }
-
     pub fn get_team_id(&mut self) -> bool {
         return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).team_num, &mut self.team_id);
-    }
-
-    pub fn get_aim_punch_cache(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).aim_punch_cache, &mut self.aim_punch_cache);
     }
 
     pub fn get_pos(&mut self) -> bool {
