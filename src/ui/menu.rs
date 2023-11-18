@@ -204,7 +204,7 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).aimbot.enabled {
                             // Aim Key
                             ui.same_line();
-                            ui.combo_simple_string("##KeyAimbot", &mut (*config).aimbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
+                            ui.combo_simple_string("##KeyAimbot", &mut (*config).aimbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Shift", "Control"]);
                             ui.combo_simple_string("Mode##Aimbot", &mut (*config).aimbot.mode, &["Hold", "Toggle"]);
                             ui.separator();
 
@@ -249,7 +249,7 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).triggerbot.enabled {
                             // Trigger Key
                             ui.same_line();
-                            ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Shift", "Control"]);
+                            ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Button", "Shift", "Control"]);
                             
                             // Mode
                             ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Tap", "Hold"]);

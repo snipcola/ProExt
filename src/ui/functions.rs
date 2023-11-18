@@ -13,9 +13,12 @@ pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<Mouse, Keyboard> {
         return Ok(Mouse::Right);
     }
     else if hotkey_index == 4 {
-        return Err(Keyboard::LeftShift);
+        return Ok(Mouse::Side);
     }
     else if hotkey_index == 5 {
+        return Err(Keyboard::LeftShift);
+    }
+    else if hotkey_index == 6 {
         return Err(Keyboard::LeftControl);
     }
     else {
