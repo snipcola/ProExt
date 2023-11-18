@@ -249,7 +249,7 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).triggerbot.enabled {
                             // Trigger Key
                             ui.same_line();
-                            ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Button", "Shift", "Control"]);
+                            ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Shift", "Control"]);
                             
                             // Mode
                             ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Tap", "Hold"]);
