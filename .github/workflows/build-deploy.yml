@@ -22,7 +22,7 @@ jobs:
           args: --release --target x86_64-pc-windows-msvc --target-dir ./build
       - name: Move executable
         run: |
-          rd /s /q ./bin
+          rm -r -fo ./bin
           mkdir ./bin
           move ./build/x86_64-pc-windows-msvc/release/proext.exe ./bin
       - name: Save hash
