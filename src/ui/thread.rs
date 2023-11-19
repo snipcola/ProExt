@@ -19,13 +19,13 @@ lazy_static! {
     pub static ref MOUSE_POS: Arc<Mutex<Option<(i32, i32)>>> = Arc::new(Mutex::new(None));
 }
 
-pub fn run_windows_thread(window_hwnd: HWND) {
+pub fn run_windows_thread(hwnd: HWND) {
     let window_info = WINDOW_INFO.clone();
     let exit = EXIT.clone();
 
     thread::spawn(move || {
         loop {
-            if let Some(((x, y), (width, height))) = get_window_info(window_hwnd) {
+            if let Some(((x, y), (width, height))) = get_window_info(hwnd) {
                 let window_info_var = ((x + 1, y + 1), (width - 2, height - 2));
                 *window_info.lock().unwrap() = Some(window_info_var);
             } else {
@@ -64,7 +64,7 @@ pub fn bind_ui_keys(hwnd: HWND) {
     });
 }
 
-pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>>, window_hwnd: HWND) {
+pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>>, hwnd: HWND) {
     let window_info = WINDOW_INFO.clone();
     let ui_functions = UI_FUNCTIONS.clone();
 
@@ -80,8 +80,10 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
     let toggle_key = &*TOGGLE_KEY;
     let mut last_frame = Instant::now();
 
-    run_windows_thread(window_hwnd);
+    run_windows_thread(hwnd);
     run_io_thread();
+
+    window.window().set_visible(true);
     
     event_loop.run(move | event, _, control_flow | {
         let toggled_value = *toggled.lock().unwrap();
