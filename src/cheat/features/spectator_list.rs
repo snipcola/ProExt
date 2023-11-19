@@ -2,7 +2,7 @@ use std::ops::BitAnd;
 use imgui::Ui;
 use mint::Vector4;
 
-use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::functions::color_u32_to_f32, cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS}};
+use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}, cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS}};
 
 pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64, local_entity_pawn_address: u64, entity_address: u64) -> bool {
     let mut pawn: u32 = 0;
@@ -49,14 +49,14 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
 pub fn render_spectator_list(ui: &mut Ui, spectators: Vec<String>, config: Config) {
     let window_position = config.window_positions.spectator_list;
 
-    ui.window("Spectator List")
-        .resizable(false)
+    ui.window("Spectators")
         .collapsible(false)
-        .scroll_bar(false)
-        .title_bar(false)
         .always_auto_resize(true)
         .position([window_position.x, window_position.y], imgui::Condition::Appearing)
         .build(|| {
+            let window_active = ui.is_window_hovered();
+            (*WINDOWS_ACTIVE.lock().unwrap()).insert("spectator_list".to_string(), window_active);
+            
             let window_pos = ui.window_pos();
             let mut config_mut = CONFIG.lock().unwrap();
             (*config_mut).window_positions.spectator_list = WindowPosition { x: window_pos[0], y: window_pos[1] };
@@ -65,11 +65,14 @@ pub fn render_spectator_list(ui: &mut Ui, spectators: Vec<String>, config: Confi
             let spectator_list_color_f32 = color_u32_to_f32(config.misc.spectator_list_color);
             let spectator_list_color = Vector4 { x: spectator_list_color_f32.0, y: spectator_list_color_f32.1, z: spectator_list_color_f32.2, w: spectator_list_color_f32.3 };
 
-            ui.text("Spectator List");
-            ui.separator();
+            if spectators.len() == 0 {
+                ui.text_colored(spectator_list_color, "No spectators.");
+            } else {
+                ui.text_colored(spectator_list_color, "Spectating:");
 
-            for spectator in spectators {
-                ui.text_colored(spectator_list_color, spectator);
+                for spectator in spectators {
+                    ui.text_colored(spectator_list_color, format!("- {}", spectator));
+                }
             }
         });
 }

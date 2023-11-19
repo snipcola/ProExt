@@ -1,11 +1,13 @@
-use glium::{glutin::{ContextBuilder, window::WindowBuilder, platform::windows::WindowBuilderExtWindows, event_loop::EventLoop}, Display};
 use imgui::{Context, FontSource};
 use imgui_winit_support::{WinitPlatform, HiDpiMode};
+use glutin::{event_loop::EventLoop, WindowedContext, PossiblyCurrent, window::WindowBuilder, platform::windows::WindowBuilderExtWindows, ContextBuilder};
 
-use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY}}, core::HSTRING};
+use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY, GCLP_HBRBACKGROUND, SetClassLongPtrW}}, core::HSTRING};
 use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetForegroundWindow, SetForegroundWindow, FindWindowW};
 use windows::Win32::Graphics::Gdi::ClientToScreen;
 use windows::core::PCWSTR;
+
+pub type Window = WindowedContext<PossiblyCurrent>;
 
 pub fn find_window(title: &str, class: Option<&str>) -> Option<HWND> {
     unsafe {
@@ -74,10 +76,9 @@ pub fn focus_window(window: HWND) -> bool {
     return unsafe { SetForegroundWindow(window).into() };
 }
 
-pub fn create_window(title: &str, window_hwnd: HWND) -> (EventLoop<()>, Display) {
+pub fn create_window(title: &str, window_hwnd: HWND) -> (EventLoop<()>, Window) {
     let event_loop = EventLoop::new();
-    let context = ContextBuilder::new().with_vsync(true);
-    let builder = WindowBuilder::new()
+    let window_builder = WindowBuilder::new()
         .with_owner_window(window_hwnd.0)
         .with_title(title)
         .with_transparent(true)
@@ -86,22 +87,37 @@ pub fn create_window(title: &str, window_hwnd: HWND) -> (EventLoop<()>, Display)
         .with_skip_taskbar(true)
         .with_drag_and_drop(false)
         .with_undecorated_shadow(false);
-    let display = Display::new(builder, context, &event_loop).unwrap();
 
-    return (event_loop, display);
+    let window = unsafe {
+        ContextBuilder::new()
+            .with_vsync(true)
+            .build_windowed(window_builder, &event_loop)
+            .unwrap()
+            .make_current()
+            .unwrap()
+    };
+
+    return (event_loop, window);
 }
 
-pub fn init_imgui(display: &Display) -> (WinitPlatform, Context) {
+pub fn get_glow_context(window: &Window) -> glow::Context {
+    unsafe { glow::Context::from_loader_function(|s| window.get_proc_address(s).cast()) }
+}
+
+pub fn init_imgui(window: &Window) -> (WinitPlatform, Context) {
     let mut imgui_context = Context::create();
     imgui_context.set_ini_filename(None);
     imgui_context.set_log_filename(None);
     imgui_context.io_mut().config_windows_move_from_title_bar_only = true;
 
     let mut winit_platform = WinitPlatform::init(&mut imgui_context);
-    let gl_window = display.gl_window();
-    winit_platform.attach_window(imgui_context.io_mut(), gl_window.window(), HiDpiMode::Default);
+    winit_platform.attach_window(imgui_context.io_mut(), window.window(), HiDpiMode::Default);
     imgui_context.fonts().add_font(&[FontSource::DefaultFontData { config: None }]);
     imgui_context.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
 
     return (winit_platform, imgui_context);
+}
+
+pub fn set_window_brush_to_transparent(hwnd: HWND) {
+    unsafe { SetClassLongPtrW(hwnd, GCLP_HBRBACKGROUND, 0) };
 }

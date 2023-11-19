@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use imgui::Ui;
 use mint::Vector4;
-use crate::utils::config::{CONFIG, WindowPosition, Config};
+use crate::{utils::config::{CONFIG, WindowPosition, Config}, ui::main::WINDOWS_ACTIVE};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -13,14 +13,14 @@ lazy_static! {
 pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled: bool, triggerbot_toggled: bool) {
     let window_position = config.window_positions.cheat_list;
 
-    ui.window("Cheat List")
-        .resizable(false)
+    ui.window("Cheats")
         .collapsible(false)
-        .scroll_bar(false)
-        .title_bar(false)
         .always_auto_resize(true)
         .position([window_position.x, window_position.y], imgui::Condition::Appearing)
         .build(|| {
+            let window_active = ui.is_window_hovered();
+            (*WINDOWS_ACTIVE.lock().unwrap()).insert("cheat_list".to_string(), window_active);
+
             let window_pos = ui.window_pos();
             let mut config_mut = CONFIG.lock().unwrap();
             (*config_mut).window_positions.cheat_list = WindowPosition { x: window_pos[0], y: window_pos[1] };
@@ -29,9 +29,6 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
             let blue = Vector4 { x: 0.0, y: 255.0, z: 255.0, w: 255.0 };
             let green = Vector4 { x: 0.0, y: 255.0, z: 0.0, w: 255.0 };
             let red = Vector4 { x: 255.0, y: 0.0, z: 0.0, w: 255.0 };
-
-            ui.text("Cheat List");
-            ui.separator();
 
             if config.esp.enabled {
                 ui.text_colored(blue, "ESP");

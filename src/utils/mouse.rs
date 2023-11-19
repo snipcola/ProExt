@@ -1,5 +1,5 @@
 use std::{sync::{Arc, Mutex}, time::Instant};
-use windows::Win32::UI::Input::KeyboardAndMouse::{mouse_event, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, MOUSEEVENTF_MOVE};
+use windows::Win32::UI::{Input::KeyboardAndMouse::{mouse_event, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, MOUSEEVENTF_MOVE}, WindowsAndMessaging::GetCursorPos};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -27,4 +27,16 @@ pub fn release_mouse() {
 pub fn move_mouse(x: i32, y: i32) {
     unsafe { mouse_event(MOUSEEVENTF_MOVE, x, y, 0, 0) };
     *LAST_MOVED.lock().unwrap() = Instant::now();
+}
+
+pub fn get_mouse_position() -> Option<(i32, i32)> {
+    unsafe {
+        let mut position = std::mem::zeroed();
+        
+        if !GetCursorPos(&mut position).is_ok() {
+            return None;
+        }
+
+        return Some((position.x, position.y));
+    }
 }

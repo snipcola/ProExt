@@ -1,4 +1,4 @@
-use glium::glutin::event::VirtualKeyCode;
+use glutin::event::VirtualKeyCode;
 use mki::Keyboard;
 use serde::{Deserialize, Serialize};
 use std::{env, fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file}, sync::{Arc, Mutex}, path::PathBuf, time::Duration};
@@ -427,9 +427,9 @@ impl Default for Config {
             window_positions: WindowPositions {
                 menu: WindowPosition { x: 600.0, y: 150.0 },
                 watermark: WindowPosition { x: 300.0, y: 5.0 },
-                cheat_list: WindowPosition { x: 300.0, y: 40.0 },
+                cheat_list: WindowPosition { x: 300.0, y: 58.0 },
                 bomb_timer: WindowPosition { x: 30.0, y: 330.0 },
-                spectator_list: WindowPosition { x: 460.0, y: 40.0 }
+                spectator_list: WindowPosition { x: 460.0, y: 58.0 }
             }
         };
     }
