@@ -3,7 +3,7 @@ use imgui_winit_support::{WinitPlatform, HiDpiMode};
 use glutin::{event_loop::EventLoop, WindowedContext, PossiblyCurrent, window::WindowBuilder, platform::windows::WindowBuilderExtWindows, ContextBuilder};
 
 use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY, GCLP_HBRBACKGROUND, SetClassLongPtrW}}, core::HSTRING};
-use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetForegroundWindow, SetForegroundWindow, FindWindowW};
+use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetForegroundWindow, FindWindowW};
 use windows::Win32::Graphics::Gdi::ClientToScreen;
 use windows::core::PCWSTR;
 
@@ -72,15 +72,12 @@ pub fn is_window_focused(window: HWND) -> bool {
     return unsafe { GetForegroundWindow() } == window;
 }
 
-pub fn focus_window(window: HWND) -> bool {
-    return unsafe { SetForegroundWindow(window).into() };
-}
-
-pub fn create_window(title: &str, window_hwnd: HWND) -> (EventLoop<()>, Window) {
+pub fn create_window(title: &str, hwnd: HWND) -> (EventLoop<()>, Window) {
     let event_loop = EventLoop::new();
     let window_builder = WindowBuilder::new()
-        .with_owner_window(window_hwnd.0)
+        .with_owner_window(hwnd.0)
         .with_title(title)
+        .with_visible(false)
         .with_transparent(true)
         .with_decorations(false)
         .with_resizable(false)

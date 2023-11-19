@@ -26,7 +26,7 @@ use crate::cheat::features::watermark::render_watermark;
 use crate::cheat::features::esp::render_bomb;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
 
-pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
+pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
     let mut window_hidden_from_capture = false;
     let window_info = WINDOW_INFO.clone();
     let ui_functions = UI_FUNCTIONS.clone();
@@ -42,7 +42,7 @@ pub fn run_cheats_thread(window_hwnd: HWND, self_hwnd: HWND) {
                 _ => { continue; }
             };
 
-            let is_game_window_focused = is_window_focused(window_hwnd);
+            let is_game_window_focused = is_window_focused(hwnd);
 
             if !window_hidden_from_capture && (config.misc.enabled && config.misc.bypass_capture) {
                 hide_window_from_capture(self_hwnd, true);
