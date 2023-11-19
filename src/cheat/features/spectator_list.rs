@@ -1,5 +1,5 @@
 use std::ops::BitAnd;
-use imgui::Ui;
+use imgui::{Ui, StyleColor};
 use mint::Vector4;
 
 use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}, cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS}};
@@ -48,6 +48,7 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
 
 pub fn render_spectator_list(ui: &mut Ui, spectators: Vec<String>, config: Config) {
     let window_position = config.window_positions.spectator_list;
+    let titlebar_color = ui.push_style_color(StyleColor::TitleBgActive, [0.01, 0.01, 0.01, 1.0]);
 
     ui.window("Spectators")
         .collapsible(false)
@@ -75,4 +76,6 @@ pub fn render_spectator_list(ui: &mut Ui, spectators: Vec<String>, config: Confi
                 }
             }
         });
+
+    titlebar_color.end();
 }

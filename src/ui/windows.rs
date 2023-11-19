@@ -108,7 +108,6 @@ pub fn init_imgui(window: &Window) -> (WinitPlatform, Context) {
     let mut imgui_context = Context::create();
     imgui_context.set_ini_filename(None);
     imgui_context.set_log_filename(None);
-    imgui_context.io_mut().config_windows_move_from_title_bar_only = true;
 
     let mut winit_platform = WinitPlatform::init(&mut imgui_context);
     winit_platform.attach_window(imgui_context.io_mut(), window.window(), HiDpiMode::Default);

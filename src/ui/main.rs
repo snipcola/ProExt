@@ -6,7 +6,7 @@ use imgui_winit_support::WinitPlatform;
 use lazy_static::lazy_static;
 
 use crate::{ui::thread::{bind_ui_keys, run_event_loop}, cheat::thread::run_cheats_thread, utils::rpc::initialize_rpc};
-use crate::utils::config::{PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_TITLE, PROCESS_CLASS};
+use crate::utils::config::{PACKAGE_NAME, PROCESS_TITLE, PROCESS_CLASS};
 use crate::ui::windows::{create_window, find_window, focus_window, init_imgui};
 use crate::ui::windows::Window;
 use crate::ui::windows::set_window_brush_to_transparent;
@@ -21,7 +21,7 @@ lazy_static! {
 }
 
 pub fn init_gui() {
-    let title = &format!("{} v{} - {}", (*PACKAGE_NAME), (*PACKAGE_VERSION), (*PACKAGE_AUTHORS));
+    let title = (*PACKAGE_NAME).as_str();
     let window_title = &*PROCESS_TITLE;
     let window_class = &*PROCESS_CLASS;
 
