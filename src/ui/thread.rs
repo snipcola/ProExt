@@ -45,6 +45,8 @@ pub fn run_io_thread() {
             if let Some(pos) = get_mouse_position() {
                 *mouse_pos.lock().unwrap() = Some(pos);
             }
+
+            sleep(THREAD_DELAYS.io_tasks);
         }
     });
 }

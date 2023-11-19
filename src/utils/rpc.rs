@@ -1,8 +1,9 @@
-use std::{sync::{Arc, Mutex}, thread, time::{SystemTime, UNIX_EPOCH}};
+use std::{sync::{Arc, Mutex}, thread::{self, sleep}, time::{SystemTime, UNIX_EPOCH}};
 use discord_rpc_client::Client;
 use lazy_static::lazy_static;
 use crate::utils::config::{RPC_CLIENT_ID, RPC_STATE, RPC_IMAGE_ASSET};
 use crate::utils::config::CONFIG;
+use crate::utils::config::THREAD_DELAYS;
 
 lazy_static! {
     pub static ref RPC_CLIENT: Arc<Mutex<Client>> = Arc::new(Mutex::new(Client::new(*RPC_CLIENT_ID)));
@@ -41,6 +42,8 @@ pub fn initialize_rpc() {
             } else {
                 clear_rpc_activity(&mut client);
             }
+
+            sleep(THREAD_DELAYS.rpc);
         }
     });
 }

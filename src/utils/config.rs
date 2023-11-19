@@ -25,8 +25,10 @@ lazy_static! {
     pub static ref PROCESS_CLASS: String = "SDL_app".to_string();
 
     pub static ref THREAD_DELAYS: ThreadDelays = ThreadDelays {
-        update_configs: Duration::from_millis(20),
-        window_tasks: Duration::from_millis(10)
+        update_configs: Duration::from_millis(10),
+        window_tasks: Duration::from_millis(10),
+        io_tasks: Duration::from_millis(1),
+        rpc: Duration::from_millis(100)
     };
 
     pub static ref CHEAT_DELAYS: CheatDelays = CheatDelays {
@@ -40,7 +42,9 @@ lazy_static! {
 
 pub struct ThreadDelays {
     pub update_configs: Duration,
-    pub window_tasks: Duration
+    pub window_tasks: Duration,
+    pub io_tasks: Duration,
+    pub rpc: Duration
 }
 
 pub struct CheatDelays {
