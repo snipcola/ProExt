@@ -119,10 +119,10 @@ pub fn render_box_bomb(ui: &mut Ui, rect: Vector4<f32>, config: Config) {
     }
 }
 
-pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, config: Config) {
+pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, enemy_visible: bool, config: Config) {
     rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_masked_alpha(config.esp.box_color, 0xFF000000).into(), 3.0, config.esp.box_rounding, false);
     
-    if config.esp.box_target_enabled && (b_spotted_by_mask & (1 << local_player_controller_index) != 0 || local_b_spotted_by_mask & (1 << i) != 0) {
+    if config.esp.box_target_enabled && enemy_visible {
         rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.esp.box_target_color).into(), 1.3, config.esp.box_rounding, false);
     } else {
         rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.esp.box_color).into(), 1.3, config.esp.box_rounding, false);
@@ -154,7 +154,17 @@ pub fn render_name(ui: &mut Ui, name: &str, rect: Vector4<f32>, config: Config) 
     }
 }
 
-pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect_pos: Vector2<f32>, rect_size: Vector2<f32>, config: Config) {
+pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect: Vector4<f32>, config: Config) {
+    let (rect_pos, rect_size) = {
+        if config.esp.health_bar_mode == 0 {
+            // Vertical
+            (Vector2 { x: rect.x - 7.0, y: rect.y }, Vector2 { x: 7.0, y: rect.w })
+        } else {
+            // Horizontal
+            (Vector2 { x: rect.x + rect.z / 2.0 - 70.0 / 2.0, y: rect.y - 13.0 }, Vector2 { x: 70.0, y: 8.0 })
+        }
+    };
+    
     let max_health = 100.0;
 
     let background_color = ImColor32::from_rgba(90, 90, 90, 220);

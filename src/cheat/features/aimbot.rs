@@ -76,7 +76,7 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     move_mouse(target_x as i32, target_y as i32);
 }
 
-pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64, in_air: bool, config: Config) {
+pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, enemy_visible: bool, in_air: bool, config: Config) {
     let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
     let bone_index = aim_position_to_bone_index(config.aimbot.bone);
     let distance_to_sight = distance_between_vec2(bone_pos_list[bone_index].screen_pos, pos);
@@ -88,7 +88,7 @@ pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window
     if distance_to_sight < *max_aim_distance {
         *max_aim_distance = distance_to_sight;
 
-        if !config.aimbot.only_visible || b_spotted_by_mask & (1 << local_player_controller_index) != 0 || local_b_spotted_by_mask & (1 << i) != 0 {
+        if !config.aimbot.only_visible || enemy_visible {
             *aim_pos = Some(bone_pos_list[bone_index].pos);
 
             if bone_index as usize == BoneIndex::Head as usize {
@@ -100,7 +100,15 @@ pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window
     }
 }
 
-pub fn render_fov_circle(ui: &mut Ui, window_width: i32, window_height: i32, fov: i32, color: (u32, u32, u32, u32), config: Config) {
+pub fn render_fov_circle(ui: &mut Ui, window_width: i32, window_height: i32, fov: i32, aimbot_info: Option<f32>, config: Config) {
+    let color = {
+        if config.aimbot.fov_circle_target_enabled && aimbot_info.is_some() {
+            config.aimbot.fov_circle_target_color
+        } else {
+            config.aimbot.fov_circle_color
+        }
+    };
+    
     let center_point: Vector2<f32> = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
     let radius = (config.aimbot.fov / 180.0 * PI / 2.0).tan() / (fov as f32 / 180.0 * PI / 2.0).tan() * window_width as f32;
 

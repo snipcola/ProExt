@@ -25,6 +25,7 @@ use crate::cheat::features::visuals::{render_crosshair, render_headshot_line};
 use crate::cheat::features::watermark::render_watermark;
 use crate::cheat::features::esp::render_bomb;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
+use crate::cheat::functions::is_enemy_visible;
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
     let mut window_hidden_from_capture = false;
@@ -126,6 +127,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let mut local_entity = Entity::default();
             let mut local_player_controller_index = 1;
 
+            // Update Controller & Pawn
             if !local_entity.update_controller(local_controller_address) {
                 remove_ui_elements();
                 continue;
@@ -213,13 +215,20 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     continue;
                 }
 
+                // Self Check
                 if entity_address == local_entity.controller.address {
                     local_player_controller_index = i;
                     remove_esp(i);
                     continue;
                 }
 
+                // Update Controller & Pawn
                 if !entity.update_controller(entity_address) {
+                    remove_esp(i);
+                    continue;
+                }
+
+                if !entity.update_pawn(entity.pawn.address, window_info, game.view) {
                     remove_esp(i);
                     continue;
                 }
@@ -229,16 +238,13 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     spectators.push(entity.controller.player_name.clone());
                 }
 
-                if !entity.update_pawn(entity.pawn.address, window_info, game.view) {
-                    remove_esp(i);
-                    continue;
-                }
-
+                // Team Check
                 if (config.misc.enabled && config.misc.exclude_team) && entity.controller.team_id == local_entity.controller.team_id {
                     remove_esp(i);
                     continue;
                 }
 
+                // Alive Check
                 if !entity.is_alive() {
                     remove_esp(i);
                     continue;
@@ -249,12 +255,13 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y));
                 }
 
+                // Screen Check
                 if !entity.is_in_screen(window_info, game.view) {
                     remove_esp(i);
                     continue;
                 }
 
-                // Bone
+                // Bone Data
                 let bone = match entity.get_bone() {
                     Some(bone) => bone,
                     _ => {
@@ -263,9 +270,12 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     }
                 };
 
+                // Enemy Visible
+                let enemy_visible = is_enemy_visible( entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i);
+
                 // Aimbot Check
                 if !no_pawn && config.aimbot.enabled {
-                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i, !entity.pawn.has_flag(Flags::InAir), config);
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, enemy_visible, !entity.pawn.has_flag(Flags::InAir), config);
                 }
 
                 // Skeleton
@@ -295,7 +305,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     (*ui_functions.lock().unwrap()).remove(&format!("eye_ray_{}", i));
                 }
 
-                // Box Rect
+                // Rect Data
                 let rect = {
                     if config.esp.box_mode == 0 {
                         get_2d_box(bone.bone_pos_list, entity.pawn.screen_pos)
@@ -304,7 +314,10 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     }
                 };
 
-                if rect.z > 2500.0 || rect.w > 2500.0 {
+                // Rect Check
+                let (max_width, max_height) = ((window_info.1.0 as f32 * 1.5), (window_info.1.1 as f32 * 1.5));
+
+                if rect.x.abs() >= max_width || rect.y.abs() >= max_height || rect.z.abs() >= max_width || rect.w.abs() >= max_height {
                     remove_esp(i);
                     continue;
                 }
@@ -321,7 +334,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 // Box
                 if config.esp.enabled && config.esp.box_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
-                        render_box(ui, rect, entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i, config);
+                        render_box(ui, rect, enemy_visible, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("box_{}", i));
@@ -329,18 +342,8 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 // Health Bar
                 if config.esp.enabled && config.esp.health_bar_enabled {
-                    let (health_bar_pos, health_bar_size) = {
-                        if config.esp.health_bar_mode == 0 {
-                            // Vertical
-                            (Vector2 { x: rect.x - 7.0, y: rect.y }, Vector2 { x: 7.0, y: rect.w })
-                        } else {
-                            // Horizontal
-                            (Vector2 { x: rect.x + rect.z / 2.0 - 70.0 / 2.0, y: rect.y - 13.0 }, Vector2 { x: 70.0, y: 8.0 })
-                        }
-                    };
-
                     (*ui_functions.lock().unwrap()).insert(format!("health_bar_{}", i), Box::new(move |ui| {
-                        render_health_bar(ui, entity.pawn.health as f32, health_bar_pos, health_bar_size, config);
+                        render_health_bar(ui, entity.pawn.health as f32, rect, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("health_bar_{}", i));
@@ -383,6 +386,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 (*ui_functions.lock().unwrap()).remove("spectator_list");
             }
             
+            // Aim Info
             let (aiming_at_enemy, allow_shoot) = {
                 if no_pawn {
                     (false, false)
@@ -423,15 +427,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             // FOV Circle
             if !no_pawn && config.aimbot.enabled && config.aimbot.fov_circle_enabled {
                 (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
-                    let color = {
-                        if config.aimbot.fov_circle_target_enabled && aimbot_info.is_some() {
-                            config.aimbot.fov_circle_target_color
-                        } else {
-                            config.aimbot.fov_circle_color
-                        }
-                    };
-
-                    render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, color, config);
+                    render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, aimbot_info, config);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");

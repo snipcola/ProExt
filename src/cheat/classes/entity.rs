@@ -1,3 +1,4 @@
+use std::ops::BitAnd;
 use mint::{Vector2, Vector3};
 
 use crate::utils::process_manager::{get_address_with_offset, read_memory, read_memory_auto, trace_address};
@@ -200,7 +201,7 @@ impl PlayerController {
             return 0;
         }
 
-        if !read_memory_auto(entity_pawn_list_entry + 0x10 + 8 * ((self.pawn & 0x7FFF) >> 9), &mut entity_pawn_list_entry) {
+        if !read_memory_auto(entity_pawn_list_entry + 0x10 + 8 * (self.pawn.bitand(0x7FFF) >> 9), &mut entity_pawn_list_entry) {
             return 0;
         }
 
