@@ -1,3 +1,4 @@
+use std::ops::BitAnd;
 use mint::{Vector3, Vector2};
 use crate::cheat::classes::{entity::Entity, offsets::PAWN_OFFSETS, view::View};
 use crate::utils::{config::Config, process_manager::{read_memory_auto, trace_address}};
@@ -22,7 +23,7 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
 
     let mut pawn_address: u64 = 0;
 
-    if !read_memory_auto(list_entry + 0x78 * (u_handle & 0x1FF) as u64, &mut pawn_address) {
+    if !read_memory_auto(list_entry + 0x78 * u_handle.bitand(0x1FF) as u64, &mut pawn_address) {
         return (false, false);
     }
 
@@ -41,6 +42,10 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
     };
 
     return (true, allow_shoot);
+}
+
+pub fn is_enemy_visible(b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64) -> bool {
+    return b_spotted_by_mask.bitand(1 << local_player_controller_index) != 0 || local_b_spotted_by_mask.bitand(1 << i) != 0;
 }
 
 pub fn is_enemy_in_fov(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32>, view_angle: Vector2<f32>) -> Option<f32> {

@@ -1,3 +1,4 @@
+use std::ops::BitAnd;
 use imgui::{ImColor32, Ui, ColorEditFlags};
 use mint::{Vector2, Vector3, Vector4};
 use mki::{Mouse, Keyboard};
@@ -56,7 +57,7 @@ pub fn color_with_alpha((red, green, blue, _): (u32, u32, u32, u32), alpha: f32)
 }
 
 pub fn color_with_masked_alpha((red, green, blue, _): (u32, u32, u32, u32), alpha: u32) -> (f32, f32, f32) {
-    return ((red & alpha) as f32 / 255.0, (green & alpha) as f32 / 255.0, (blue & alpha) as f32 / 255.0);
+    return (red.bitand(alpha) as f32 / 255.0, green.bitand(alpha) as f32 / 255.0, blue.bitand(alpha) as f32 / 255.0);
 }
 
 pub fn mix_colors(color_1: ImColor32, color_2: ImColor32, t: f32) -> ImColor32 {

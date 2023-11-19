@@ -28,7 +28,7 @@ lazy_static! {
         update_configs: Duration::from_millis(10),
         window_tasks: Duration::from_millis(10),
         io_tasks: Duration::from_millis(1),
-        rpc: Duration::from_millis(100)
+        rpc: Duration::from_millis(10)
     };
 
     pub static ref CHEAT_DELAYS: CheatDelays = CheatDelays {

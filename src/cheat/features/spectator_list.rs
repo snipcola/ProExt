@@ -13,7 +13,7 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
         return false;
     }
 
-    if !read_memory_auto(game_entity_list_entry + 120 * (pawn.bitand(0x1FF)) as u64, &mut cs_player_pawn) {
+    if !read_memory_auto(game_entity_list_entry + 120 * pawn.bitand(0x1FF) as u64, &mut cs_player_pawn) {
         return false;
     }
 
@@ -30,11 +30,11 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
             return false;
         }
 
-        if !read_memory_auto(entity_address + 0x8 * ((observer_target & 0x7FFF) >> 9) as u64 + 0x10, &mut list_entry) {
+        if !read_memory_auto(entity_address + 0x8 * (observer_target.bitand(0x7FFF) >> 9) as u64 + 0x10, &mut list_entry) {
             return false;
         }
 
-        if !read_memory_auto(game_entity_list_entry + 120 * (observer_target.bitand(0x1FF)) as u64, &mut controller) {
+        if !read_memory_auto(game_entity_list_entry + 120 * observer_target.bitand(0x1FF) as u64, &mut controller) {
             return false;
         }
 
