@@ -43,6 +43,9 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 _ => { continue; }
             };
 
+            // [DISABLED]
+            if config.misc.spectator_list_enabled { (*CONFIG.lock().unwrap()).misc.spectator_list_enabled = false; }
+
             let is_game_window_focused = is_window_focused(hwnd);
 
             if !window_hidden_from_capture && (config.misc.enabled && config.misc.bypass_capture) {
