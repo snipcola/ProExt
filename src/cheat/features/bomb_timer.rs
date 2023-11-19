@@ -2,7 +2,7 @@ use std::{sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use lazy_static::lazy_static;
 use mint::Vector4;
-use crate::{utils::config::{Config, CONFIG, WindowPosition}, ui::functions::color_u32_to_f32};
+use crate::{utils::config::{Config, CONFIG, WindowPosition}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}};
 
 lazy_static! {
     pub static ref IS_PLANTED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
@@ -39,14 +39,14 @@ pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<Stri
         }
     };
 
-    ui.window("Bomb Timer")
-        .resizable(false)
+    ui.window("Bomb")
         .collapsible(false)
-        .scroll_bar(false)
-        .title_bar(false)
         .always_auto_resize(true)
         .position([window_position.x, window_position.y], imgui::Condition::Appearing)
         .build(|| {
+            let window_active = ui.is_window_hovered();
+            (*WINDOWS_ACTIVE.lock().unwrap()).insert("bomb_timer".to_string(), window_active);
+
             let window_pos = ui.window_pos();
             let mut config_mut = CONFIG.lock().unwrap();
             (*config_mut).window_positions.bomb_timer = WindowPosition { x: window_pos[0], y: window_pos[1] };
@@ -57,9 +57,6 @@ pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<Stri
 
             let disabled_color = Vector4 { x: disabled.0, y: disabled.1, z: disabled.2, w: disabled.3 };
             let enabled_color = Vector4 { x: enabled.0, y: enabled.1, z: enabled.2, w: enabled.3 };
-
-            ui.text("Bomb Timer");
-            ui.separator();
 
             if *is_planted && remaining_time.is_some() && plant_time.is_some() && bomb_site.is_some() && remaining_time.unwrap() > 0 {
                 ui.text("The bomb has been planted at");

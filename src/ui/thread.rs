@@ -1,96 +1,102 @@
 use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}};
 
-use glium::{glutin::{event_loop::{EventLoop, ControlFlow}, dpi::{PhysicalSize, PhysicalPosition}, event::{Event, DeviceEvent, ElementState, WindowEvent}}, Display, Surface};
+use glow::{HasContext, COLOR_BUFFER_BIT};
+use glutin::{event_loop::{EventLoop, ControlFlow}, dpi::{PhysicalSize, PhysicalPosition}, event::{Event, DeviceEvent, ElementState, WindowEvent}};
 use imgui::Context;
-use imgui_glium_renderer::Renderer;
 use imgui_winit_support::WinitPlatform;
 use windows::Win32::Foundation::HWND;
+use lazy_static::lazy_static;
+use imgui_glow_renderer::AutoRenderer;
 
-use crate::ui::{main::{WINDOW_FOCUSED, WINDOW_INFO, WINDOW_LAST_MOVED, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused, focus_window}, menu::render_menu};
+use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu}, utils::mouse::get_mouse_position};
 use crate::utils::config::THREAD_DELAYS;
 use crate::utils::config::{TOGGLE_KEY_MKI, TOGGLE_KEY};
+use crate::ui::main::WINDOWS_ACTIVE;
+use crate::ui::windows::Window;
+use crate::ui::windows::get_glow_context;
 
-pub fn run_windows_thread(window_hwnd: HWND, self_hwnd: HWND) {
-    let window_focused = WINDOW_FOCUSED.clone();
+lazy_static! {
+    pub static ref MOUSE_POS: Arc<Mutex<Option<(i32, i32)>>> = Arc::new(Mutex::new(None));
+}
+
+pub fn run_windows_thread(window_hwnd: HWND) {
     let window_info = WINDOW_INFO.clone();
-    let window_last_moved = WINDOW_LAST_MOVED.clone();
     let exit = EXIT.clone();
-
-    let mut stored_window_info: ((i32, i32), (i32, i32)) = ((0, 0), (0, 0));
 
     thread::spawn(move || {
         loop {
             if let Some(((x, y), (width, height))) = get_window_info(window_hwnd) {
                 let window_info_var = ((x + 1, y + 1), (width - 2, height - 2));
-    
-                if window_info_var != stored_window_info {
-                    stored_window_info = window_info_var;
-                    *window_info.lock().unwrap() = Some(window_info_var);
-                    *window_last_moved.lock().unwrap() = Instant::now();
-                }
+                *window_info.lock().unwrap() = Some(window_info_var);
             } else {
                 *exit.lock().unwrap() = true;
             }
     
-            *window_focused.lock().unwrap() = is_window_focused(window_hwnd) || is_window_focused(self_hwnd);
             sleep(THREAD_DELAYS.window_tasks);
         }
     });
 }
 
-pub fn bind_ui_keys(window_hwnd: HWND, self_hwnd: HWND) {
+pub fn run_io_thread() {
+    let mouse_pos = MOUSE_POS.clone();
+
+    thread::spawn(move || {
+        loop {
+            if let Some(pos) = get_mouse_position() {
+                *mouse_pos.lock().unwrap() = Some(pos);
+            }
+        }
+    });
+}
+
+pub fn bind_ui_keys(hwnd: HWND) {
     let toggled = TOGGLED.clone();
-    let window_focused = WINDOW_FOCUSED.clone();
 
     (*TOGGLE_KEY_MKI).bind(move | _ | {
-        if !*window_focused.lock().unwrap() {
+        if !is_window_focused(hwnd) {
             return;
         }
 
         let toggled_value = *toggled.lock().unwrap();
         *toggled.lock().unwrap() = !toggled_value;
-        
-        if toggled_value {
-            focus_window(window_hwnd);
-        } else {
-            focus_window(self_hwnd);
-        }
     });
 }
 
-pub fn run_event_loop(event_loop_display: Arc<Mutex<(EventLoop<()>, Display)>>, winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>>, window_hwnd: HWND, self_hwnd: HWND) {
+pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>>, window_hwnd: HWND) {
     let window_info = WINDOW_INFO.clone();
-    let window_last_moved = WINDOW_LAST_MOVED.clone();
-
     let ui_functions = UI_FUNCTIONS.clone();
+
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();
 
-    let (event_loop, display) = Arc::try_unwrap(event_loop_display).unwrap().into_inner().unwrap();
+    let (event_loop, window) = Arc::try_unwrap(event_loop_window).unwrap().into_inner().unwrap();
     let (mut winit_platform, mut imgui_context) = Arc::try_unwrap(winit_platform_imgui_context).unwrap().into_inner().unwrap();
-    let mut renderer = Renderer::init(&mut imgui_context, &display).unwrap();
+
+    let glow_context = get_glow_context(&window);
+    let mut renderer = AutoRenderer::initialize(glow_context, &mut imgui_context).unwrap();
 
     let toggle_key = &*TOGGLE_KEY;
     let mut last_frame = Instant::now();
 
-    run_windows_thread(window_hwnd, self_hwnd);
-
+    run_windows_thread(window_hwnd);
+    run_io_thread();
+    
     event_loop.run(move | event, _, control_flow | {
         let toggled_value = *toggled.lock().unwrap();
-        let window_last_moved = *window_last_moved.lock().unwrap();
-        let gl_window = display.gl_window();
 
-        if window_last_moved.elapsed().as_millis() < 250 {
-            gl_window.window().set_cursor_hittest(false).unwrap();
-        } else {
-            gl_window.window().set_cursor_hittest(toggled_value).unwrap();
-        }
+        let io = imgui_context.io_mut();
+        let mut mouse_pos = MOUSE_POS.lock().unwrap();
+
+        window.window().set_cursor_hittest(toggled_value && (*WINDOWS_ACTIVE.lock().unwrap()).values().any(| val | val == &true)).ok();
 
         if let Some(((x, y), (width, height))) = *window_info.lock().unwrap() {
-            if window_last_moved.elapsed().as_millis() < 10 {
-                gl_window.window().set_inner_size(PhysicalSize::new(width, height));
-                gl_window.window().set_outer_position(PhysicalPosition::new(x, y));
+            if let Some(pos) = *mouse_pos {    
+                *mouse_pos = None;
+                io.add_mouse_pos_event([(pos.0 - x) as f32, (pos.1 - y) as f32]);
             }
+
+            window.window().set_inner_size(PhysicalSize::new(width, height));
+            window.window().set_outer_position(PhysicalPosition::new(x, y));
         }
 
         if *exit.lock().unwrap() {
@@ -104,25 +110,28 @@ pub fn run_event_loop(event_loop_display: Arc<Mutex<(EventLoop<()>, Display)>>, 
                 last_frame = now;
             },
             Event::MainEventsCleared => {
-                winit_platform.prepare_frame(imgui_context.io_mut(), gl_window.window()).unwrap();
-                gl_window.window().request_redraw();
+                winit_platform.prepare_frame(imgui_context.io_mut(), window.window()).unwrap();
+                window.window().request_redraw();
             },
             Event::RedrawRequested(_) => {
-                let ui = imgui_context.frame();
+                unsafe {
+                    renderer.gl_context().clear_color(0.0, 0.0, 0.0, 0.0);
+                    renderer.gl_context().clear(COLOR_BUFFER_BIT);
+                }
+
+                let ui = imgui_context.new_frame();
+
+                if toggled_value {
+                    render_menu(ui);
+                }
 
                 for (_, function) in (*ui_functions.lock().unwrap()).iter() {
                     function(ui);
                 }
 
-                render_menu(ui);
-
-                let mut target = display.draw();
-                target.clear_color_srgb(0.0, 0.0, 0.0, 0.0);
-                winit_platform.prepare_render(ui, gl_window.window());
-
-                let draw_data = imgui_context.render();
-                renderer.render(&mut target, draw_data).unwrap();
-                target.finish().unwrap();
+                winit_platform.prepare_render(ui, window.window());                
+                renderer.render(imgui_context.render()).unwrap();
+                window.swap_buffers().unwrap();
             },
             Event::DeviceEvent {
                 event: DeviceEvent::Key(key),
@@ -131,12 +140,6 @@ pub fn run_event_loop(event_loop_display: Arc<Mutex<(EventLoop<()>, Display)>>, 
                 if let Some(keycode) = key.virtual_keycode {
                     if &keycode == toggle_key && key.state == ElementState::Pressed {
                         *toggled.lock().unwrap() = !toggled_value;
-
-                        if toggled_value {
-                            focus_window(window_hwnd);
-                        } else {
-                            focus_window(self_hwnd);
-                        }
                     }
                 }
             },
@@ -147,7 +150,7 @@ pub fn run_event_loop(event_loop_display: Arc<Mutex<(EventLoop<()>, Display)>>, 
                 *control_flow = ControlFlow::Exit;
             },
             event => {
-                winit_platform.handle_event(imgui_context.io_mut(), gl_window.window(), &event);
+                winit_platform.handle_event(imgui_context.io_mut(), window.window(), &event);
             }
         };
     });
