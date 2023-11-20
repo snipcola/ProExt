@@ -1,5 +1,6 @@
 use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
 use lazy_static::lazy_static;
+use rand::{Rng, thread_rng};
 use crate::utils::{config::Config, mouse::{MOUSE_LOCKED, release_mouse, click_mouse, press_mouse}};
 use crate::ui::functions::hotkey_index_to_io;
 
@@ -49,7 +50,10 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
 
     if let Some(on_entity) = *on_entity {
         if on_entity.elapsed() >= Duration::from_millis(config.triggerbot.delay as u64) {
-            if config.triggerbot.mode == 0 && shot_entity.elapsed() >= Duration::from_millis(config.triggerbot.tap_interval as u64) {
+            let offset = if config.aimbot.smooth_offset == 0.0 { 0.0 } else { (thread_rng().gen_range(-config.aimbot.smooth_offset .. config.aimbot.smooth_offset) * 1000.0).trunc() / 1000.0 };
+            let interval = Duration::from_secs_f32((config.triggerbot.tap_interval as f32 + offset) / 1000.0);
+
+            if config.triggerbot.mode == 0 && shot_entity.elapsed() >= interval {
                 click_mouse();
                 *shot_entity = Instant::now();
             } else if !mouse_locked {

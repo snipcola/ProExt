@@ -2,6 +2,7 @@ use std::{f32::consts::PI, sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use mint::{Vector3, Vector2};
 use lazy_static::lazy_static;
+use rand::{Rng, thread_rng};
 use crate::{utils::{config::{Config, ProgramConfig}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{hotkey_index_to_io, distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::classes::{bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}, view::View}};
 
 lazy_static! {
@@ -49,7 +50,9 @@ pub fn get_aimbot_toggled(config: Config) -> bool {
 }
 
 pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>) {
-    let smooth = config.aimbot.smooth + 1.0;
+    let offset = if config.aimbot.smooth_offset == 0.0 { 0.0 } else { (thread_rng().gen_range(-config.aimbot.smooth_offset .. config.aimbot.smooth_offset) * 1000.0).trunc() / 1000.0 };
+    let smooth = config.aimbot.smooth + 1.0 + offset;
+    
     let (screen_center_x, screen_center_y) = ((window_info.1.0 / 2) as f32, (window_info.1.1 / 2) as f32);
     let mut screen_pos = Vector2 { x: 0.0, y: 0.0 };
 
