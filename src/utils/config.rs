@@ -352,7 +352,7 @@ impl Default for Config {
                 health_bar_second_color: (255, 255, 0, 255),
                 health_bar_third_color: (255, 0, 0, 255),
                 health_bar_mode: 0,
-                health_bar_rounding: 25,
+                health_bar_rounding: 15,
                 name_enabled: true,
                 name_color: (0, 255, 255, 255),
                 weapon_name_enabled: true,
