@@ -440,17 +440,20 @@ pub fn render_menu(ui: &mut Ui) {
 
                     // Current Configs
                     for config in &*configs {
-                        if ui.selectable_config(config).build() {
-                            *selected_config = Some(config.to_string());
+                        let mut selected = false;
+
+                        if let Some(selected_config) = &*selected_config {
+                            if config == selected_config {
+                                selected = true;
+                            }
+                        }
+
+                        if ui.selectable_config(if selected { format!("{} (selected)", config) } else { config.to_string() }).build() {
+                            *selected_config = if selected { None } else { Some(config.to_string()) };
                         };
                     };
 
                     ui.separator();
-
-                    if let Some(config) = &*selected_config {
-                        ui.text(format!("Selected: {}", config));
-                        ui.separator();
-                    };
 
                     if ui.button("Load##Config") {
                         if let Some(config_name) = &*selected_config {
