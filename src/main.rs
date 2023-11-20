@@ -11,12 +11,12 @@ use crate::cheat::classes::offsets::update_offsets;
 use crate::cheat::classes::game::init_game_address;
 use crate::ui::main::init_gui;
 use crate::utils::pause::pause;
-use crate::utils::config::{setup_config, update_configs, PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_AUTHORS, PROCESS_EXECUTABLE, THREAD_DELAYS};
+use crate::utils::config::{setup_config, update_configs, ProgramConfig};
 use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists, open_update_url};
 
 fn main() {
     set_virtual_terminal(true).unwrap();
-    println!("{} {} | {} | {}", "[ INFO ]".bold().cyan(), (*PACKAGE_NAME).bold(), (*PACKAGE_AUTHORS).bold(), format!("v{}", (*PACKAGE_VERSION)).bold());
+    println!("{} {} | {} | {}", "[ INFO ]".bold().cyan(), ProgramConfig::Package::Name.bold(), ProgramConfig::Package::Authors.replace(":", " & ").bold(), format!("v{}", ProgramConfig::Package::Version).bold());
 
     if !cfg!(debug_assertions) && update_exists() {
         let own_md5 = get_own_md5();
@@ -43,7 +43,7 @@ fn main() {
             thread::spawn(|| {
                 loop {
                     update_configs();
-                    sleep(THREAD_DELAYS.update_configs);
+                    sleep(ProgramConfig::ThreadDelays::UpdateConfigs);
                 }
             });
             
@@ -56,9 +56,9 @@ fn main() {
     };
 
     match attach_process_manager() {
-        None =>  println!("{} Attached {} process", "[ OKAY ]".bold().green(), PROCESS_EXECUTABLE.bold()),
+        None =>  println!("{} Attached {} process", "[ OKAY ]".bold().green(), ProgramConfig::TargetProcess::Executable.bold()),
         Some(error) => {
-            println!("{} Failed to attach {} process {}", "[ FAIL ]".bold().red(), PROCESS_EXECUTABLE.bold(), format!("({})", error).bold());
+            println!("{} Failed to attach {} process {}", "[ FAIL ]".bold().red(), ProgramConfig::TargetProcess::Executable.bold(), format!("({})", error).bold());
             return pause();
         }
     }

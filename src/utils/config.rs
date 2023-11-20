@@ -1,54 +1,64 @@
-use glutin::event::VirtualKeyCode;
-use mki::Keyboard;
 use serde::{Deserialize, Serialize};
-use std::{env, fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file}, sync::{Arc, Mutex}, path::PathBuf, time::Duration};
+use std::{fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file}, sync::{Arc, Mutex}, path::PathBuf};
 use directories::UserDirs;
 use lazy_static::lazy_static;
 
+#[allow(non_snake_case, non_upper_case_globals)]
+pub mod ProgramConfig {
+    pub mod Package {
+        pub const Name: &str = "ProExt";
+        pub const Version: &str = env!("CARGO_PKG_VERSION");
+        pub const Authors: &str = &env!("CARGO_PKG_AUTHORS");
+    }
+
+    pub mod Update {
+        pub const URL: &str = "https://github.com/vytrol/ProExt/raw/main/bin/proext.exe";
+        pub const HashURL: &str = "https://github.com/vytrol/ProExt/raw/main/bin/hash.txt";
+    }
+
+    pub mod RPC {
+        pub const ClientID: u64 = 1174845327099048018;
+        pub const State: &str = "An open-source, external CS2 cheat.";
+        pub const ImageAsset: &str = "cs2";
+    }
+
+    pub mod Toggle {
+        use glutin::event::VirtualKeyCode;
+        use mki::Keyboard;
+
+        pub const Key: VirtualKeyCode = VirtualKeyCode::Insert;
+        pub const KeyMKI: Keyboard = Keyboard::Insert;
+    }
+
+    pub mod TargetProcess {
+        pub const Executable: &str = "cs2.exe";
+
+        pub mod Window {
+            pub const Title: &str = "Counter-Strike 2";
+            pub const Class: &str = "SDL_app";
+        }
+    }
+
+    pub mod ThreadDelays {
+        use std::time::Duration;
+
+        pub const UpdateConfigs: Duration = Duration::from_millis(10);
+        pub const WindowTasks: Duration = Duration::from_millis(10);
+        pub const IOTasks: Duration = Duration::from_millis(1);
+        pub const RPC: Duration = Duration::from_millis(10);
+    }
+
+    pub mod CheatDelays {
+        use std::time::Duration;
+
+        pub const Aimbot: Duration = Duration::from_millis(10);
+    }
+}
+
 lazy_static! {
-    pub static ref PACKAGE_NAME: String = "ProExt".to_string();
-    pub static ref PACKAGE_VERSION: String = env!("CARGO_PKG_VERSION").to_string();
-    pub static ref PACKAGE_AUTHORS: String = env!("CARGO_PKG_AUTHORS").replace(":", " & ").to_string();
-
-    pub static ref UPDATE_URL: String = "https://github.com/vytrol/ProExt/raw/main/bin/proext.exe".to_string();
-    pub static ref UPDATE_HASH_URL: String = "https://github.com/vytrol/ProExt/raw/main/bin/hash.txt".to_string();
-
-    pub static ref RPC_CLIENT_ID: u64 = 1174845327099048018;
-    pub static ref RPC_STATE: String = "An open-source, external CS2 cheat.".to_string();
-    pub static ref RPC_IMAGE_ASSET: String = "cs2".to_string();
-
-    pub static ref TOGGLE_KEY: VirtualKeyCode = VirtualKeyCode::Insert;
-    pub static ref TOGGLE_KEY_MKI: Keyboard = Keyboard::Insert;
-
-    pub static ref PROCESS_EXECUTABLE: String = "cs2.exe".to_string();
-    pub static ref PROCESS_TITLE: String = "Counter-Strike 2".to_string();
-    pub static ref PROCESS_CLASS: String = "SDL_app".to_string();
-
-    pub static ref THREAD_DELAYS: ThreadDelays = ThreadDelays {
-        update_configs: Duration::from_millis(10),
-        window_tasks: Duration::from_millis(10),
-        io_tasks: Duration::from_millis(1),
-        rpc: Duration::from_millis(10)
-    };
-
-    pub static ref CHEAT_DELAYS: CheatDelays = CheatDelays {
-        aimbot: Duration::from_millis(10)
-    };
-
     pub static ref CONFIG_DIR: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
     pub static ref CONFIGS: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
     pub static ref CONFIG: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::default()));
-}
-
-pub struct ThreadDelays {
-    pub update_configs: Duration,
-    pub window_tasks: Duration,
-    pub io_tasks: Duration,
-    pub rpc: Duration
-}
-
-pub struct CheatDelays {
-    pub aimbot: Duration
 }
 
 pub fn get_directory_dir(name: &str) -> Option<String> {
@@ -89,8 +99,7 @@ pub fn update_configs() -> Option<String> {
 }
 
 pub fn setup_config() -> Option<String> {
-    let name = &*PACKAGE_NAME;
-    let directory_path = match get_directory_dir(name) {
+    let directory_path = match get_directory_dir(ProgramConfig::Package::Name) {
         Some(path) => path,
         _ => { return Some("FindDirectory".to_string()); }
     };

@@ -3,7 +3,7 @@ use mint::{Vector2, Vector3};
 
 use crate::utils::process_manager::{get_address_with_offset, read_memory, read_memory_auto, trace_address};
 use crate::cheat::classes::bone::Bone;
-use crate::cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS};
+use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::game::GAME;
 use crate::cheat::classes::bone::BoneJointPos;
 use crate::cheat::classes::view::View;
@@ -162,21 +162,21 @@ impl Entity {
 
 impl PlayerController {
     pub fn get_team_id(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*ENTITY_OFFSETS.lock().unwrap()).team_id, &mut self.team_id);
+        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_iTeamNum as u32, &mut self.team_id);
     }
 
     pub fn get_health(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*ENTITY_OFFSETS.lock().unwrap()).health, &mut self.health);
+        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_iHealth as u32, &mut self.health);
     }
 
     pub fn get_is_alive(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*ENTITY_OFFSETS.lock().unwrap()).is_alive, &mut self.alive_status);
+        return get_address_with_offset(self.address, Offsets::CCSPlayerController::m_bPawnIsAlive as u32, &mut self.alive_status);
     }
 
     pub fn get_player_name(&mut self) -> bool {
         let mut buffer: [u8; 260] = [0; 260];
         
-        if !read_memory(self.address + (*ENTITY_OFFSETS.lock().unwrap()).is_player_name as u64, &mut buffer, 260) {
+        if !read_memory(self.address + Offsets::CBasePlayerController::m_iszPlayerName as u64, &mut buffer, 260) {
             return false;
         }
 
@@ -193,7 +193,7 @@ impl PlayerController {
         let mut entity_pawn_list_entry = 0;
         let mut entity_pawn_address = 0;
 
-        if !get_address_with_offset(self.address, (*ENTITY_OFFSETS.lock().unwrap()).player_pawn, &mut self.pawn) {
+        if !get_address_with_offset(self.address, Offsets::CCSPlayerController::m_hPlayerPawn as u32, &mut self.pawn) {
             return 0;
         }
 
@@ -215,19 +215,19 @@ impl PlayerController {
 
 impl PlayerPawn {
     pub fn get_view_angle(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).ang_eye_angles, &mut self.view_angle);
+        return get_address_with_offset(self.address, Offsets::C_CSPlayerPawnBase::m_angEyeAngles as u32, &mut self.view_angle);
     }
 
     pub fn get_camera_pos(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).vec_last_clip_camera_pos, &mut self.camera_pos);
+        return get_address_with_offset(self.address, Offsets::C_CSPlayerPawnBase::m_vecLastClipCameraPos as u32, &mut self.camera_pos);
     }
 
     pub fn get_spotted(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).spotted_by_mask, &mut self.spotted_by_mask);
+        return get_address_with_offset(self.address, Offsets::EntitySpottedState_t::m_bSpottedByMask as u32, &mut self.spotted_by_mask);
     }
 
     pub fn get_weapon_name(&mut self) -> bool {
-        let weapon_name_address = trace_address(self.address + (*PAWN_OFFSETS.lock().unwrap()).clipping_weapon as u64, &[0x10, 0x20, 0x0]);
+        let weapon_name_address = trace_address(self.address + Offsets::C_CSPlayerPawnBase::m_pClippingWeapon as u64, &[0x10, 0x20, 0x0]);
         let mut buffer: [u8; 40] = [0; 40];
 
         if weapon_name_address == 0 {
@@ -250,29 +250,29 @@ impl PlayerPawn {
     }
 
     pub fn get_team_id(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).team_num, &mut self.team_id);
+        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_iTeamNum as u32, &mut self.team_id);
     }
 
     pub fn get_pos(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).pos, &mut self.pos);
+        return get_address_with_offset(self.address, Offsets::C_BasePlayerPawn::m_vOldOrigin as u32, &mut self.pos);
     }
 
     pub fn get_health(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).current_health, &mut self.health);
+        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_iHealth as u32, &mut self.health);
     }
 
     pub fn get_fov(&mut self) -> bool {
         let mut camera_services = 0;
 
-        if !read_memory_auto(self.address + (*PAWN_OFFSETS.lock().unwrap()).camera_services as u64, &mut camera_services) {
+        if !read_memory_auto(self.address + Offsets::C_BasePlayerPawn::m_pCameraServices as u64, &mut camera_services) {
             return false;
         }
 
-        return get_address_with_offset(camera_services, (*PAWN_OFFSETS.lock().unwrap()).fov_start, &mut self.fov);
+        return get_address_with_offset(camera_services, Offsets::CCSPlayerBase_CameraServices::m_iFOVStart as u32, &mut self.fov);
     }
 
     pub fn get_f_flags(&mut self) -> bool {
-        return get_address_with_offset(self.address, (*PAWN_OFFSETS.lock().unwrap()).flags, &mut self.flags);
+        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_fFlags as u32, &mut self.flags);
     }
 
     pub fn has_flag(&mut self, flag: Flags) -> bool {

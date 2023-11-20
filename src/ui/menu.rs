@@ -5,7 +5,7 @@ use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
 use lazy_static::lazy_static;
 use mint::Vector4;
 
-use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, TOGGLE_KEY, WindowPosition};
+use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, WindowPosition, ProgramConfig};
 use crate::ui::functions::color_edit_u32_tuple;
 use crate::ui::main::WINDOWS_ACTIVE;
 
@@ -15,7 +15,7 @@ lazy_static! {
 }
 
 pub fn render_menu(ui: &mut Ui) {
-    let toggle_key = *TOGGLE_KEY;
+    let toggle_key = ProgramConfig::Toggle::Key;
 
     let mut config = CONFIG.lock().unwrap();
     let configs = CONFIGS.lock().unwrap().clone();
@@ -35,6 +35,7 @@ pub fn render_menu(ui: &mut Ui) {
     ui.window("Menu")
         .collapsible(false)
         .always_auto_resize(true)
+        .focus_on_appearing(true)
         .position([window_position.x, window_position.y], imgui::Condition::Appearing)
         .build(|| {
             let window_active = ui.is_window_hovered_with_flags(WindowHoveredFlags::ALLOW_WHEN_BLOCKED_BY_ACTIVE_ITEM | WindowHoveredFlags::ALLOW_WHEN_BLOCKED_BY_POPUP) || ui.is_any_item_hovered();

@@ -1,17 +1,16 @@
 use std::ops::BitAnd;
 use mint::{Vector3, Vector2};
-use crate::cheat::classes::{entity::Entity, offsets::PAWN_OFFSETS, view::View};
+use crate::cheat::classes::{entity::Entity, offsets::Offsets, view::View};
 use crate::utils::{config::Config, process_manager::{read_memory_auto, trace_address}};
-use crate::cheat::classes::offsets::BOMB_OFFSETS;
 
 pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity_pawn_address: u64, local_entity_pawn_team_id: i32, game_address_entity_list: u64, game_view: View, config: Config) -> (bool, bool) {
     let mut u_handle: u32 = 0;
     
-    if !read_memory_auto(local_entity_pawn_address + (*PAWN_OFFSETS.lock().unwrap()).ent_index as u64, &mut u_handle) {
+    if !read_memory_auto(local_entity_pawn_address + Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
         return (false, false);
     }
 
-    if !read_memory_auto(local_entity_pawn_address + (*PAWN_OFFSETS.lock().unwrap()).ent_index as u64, &mut u_handle) {
+    if !read_memory_auto(local_entity_pawn_address + Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
         return (false, false);
     }
 
@@ -89,7 +88,7 @@ pub fn get_bomb_planted(bomb_address: u64) -> bool {
 pub fn get_bomb_site(planted_bomb: u64) -> Option<String> {
     let mut site: u32 = 0;
 
-    if !read_memory_auto(planted_bomb + (*BOMB_OFFSETS.lock().unwrap()).bomb_site as u64, &mut site) {
+    if !read_memory_auto(planted_bomb + Offsets::C_PlantedC4::m_nBombSite as u64, &mut site) {
         return None;
     }
 
@@ -103,13 +102,13 @@ pub fn get_bomb_site(planted_bomb: u64) -> Option<String> {
 pub fn get_bomb_position(planted_bomb: u64) -> Option<Vector3<f32>> {
     let mut bomb_node = 0;
 
-    if !read_memory_auto(planted_bomb + (*PAWN_OFFSETS.lock().unwrap()).game_scene_node as u64, &mut bomb_node) {
+    if !read_memory_auto(planted_bomb + Offsets::C_BaseEntity::m_pGameSceneNode as u64, &mut bomb_node) {
         return None;
     }
 
     let mut bomb_pos = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
 
-    if !read_memory_auto(bomb_node + (*PAWN_OFFSETS.lock().unwrap()).vec_abs_origin as u64, &mut bomb_pos) {
+    if !read_memory_auto(bomb_node + Offsets::CGameSceneNode::m_vecAbsOrigin as u64, &mut bomb_pos) {
         return None;
     }
 

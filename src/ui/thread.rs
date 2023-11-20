@@ -1,5 +1,5 @@
 use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}};
-
+use colored::Colorize;
 use glow::{HasContext, COLOR_BUFFER_BIT};
 use glutin::{event_loop::{EventLoop, ControlFlow}, dpi::{PhysicalSize, PhysicalPosition}, event::{Event, DeviceEvent, ElementState, WindowEvent}};
 use imgui::Context;
@@ -9,8 +9,7 @@ use lazy_static::lazy_static;
 use imgui_glow_renderer::AutoRenderer;
 
 use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu}, utils::mouse::get_mouse_position};
-use crate::utils::config::THREAD_DELAYS;
-use crate::utils::config::{TOGGLE_KEY_MKI, TOGGLE_KEY};
+use crate::utils::config::ProgramConfig;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::windows::Window;
 use crate::ui::windows::get_glow_context;
@@ -32,7 +31,7 @@ pub fn run_windows_thread(hwnd: HWND) {
                 *exit.lock().unwrap() = true;
             }
     
-            sleep(THREAD_DELAYS.window_tasks);
+            sleep(ProgramConfig::ThreadDelays::WindowTasks);
         }
     });
 }
@@ -46,7 +45,7 @@ pub fn run_io_thread() {
                 *mouse_pos.lock().unwrap() = Some(pos);
             }
 
-            sleep(THREAD_DELAYS.io_tasks);
+            sleep(ProgramConfig::ThreadDelays::IOTasks);
         }
     });
 }
@@ -54,7 +53,7 @@ pub fn run_io_thread() {
 pub fn bind_ui_keys(hwnd: HWND) {
     let toggled = TOGGLED.clone();
 
-    (*TOGGLE_KEY_MKI).bind(move | _ | {
+    ProgramConfig::Toggle::KeyMKI.bind(move | _ | {
         if !is_window_focused(hwnd) {
             return;
         }
@@ -77,13 +76,14 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
     let glow_context = get_glow_context(&window);
     let mut renderer = AutoRenderer::initialize(glow_context, &mut imgui_context).unwrap();
 
-    let toggle_key = &*TOGGLE_KEY;
+    let toggle_key = &ProgramConfig::Toggle::Key;
     let mut last_frame = Instant::now();
 
     run_windows_thread(hwnd);
     run_io_thread();
 
     window.window().set_visible(true);
+    println!("{} Rendering GUI (toggle: {})", "[ OKAY ]".bold().green(), format!("{:?}", toggle_key).bold());
     
     event_loop.run(move | event, _, control_flow | {
         let toggled_value = *toggled.lock().unwrap();

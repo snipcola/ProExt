@@ -6,7 +6,7 @@ use imgui_winit_support::WinitPlatform;
 use lazy_static::lazy_static;
 
 use crate::{ui::thread::{bind_ui_keys, run_event_loop}, cheat::thread::run_cheats_thread, utils::rpc::initialize_rpc};
-use crate::utils::config::{PACKAGE_NAME, PROCESS_TITLE, PROCESS_CLASS};
+use crate::utils::config::ProgramConfig;
 use crate::ui::windows::{create_window, find_window, init_imgui};
 use crate::ui::windows::Window;
 use crate::ui::windows::set_window_brush_to_transparent;
@@ -21,9 +21,9 @@ lazy_static! {
 }
 
 pub fn init_gui() {
-    let title = (*PACKAGE_NAME).as_str();
-    let window_title = &*PROCESS_TITLE;
-    let window_class = &*PROCESS_CLASS;
+    let title = ProgramConfig::Package::Name;
+    let window_title = ProgramConfig::TargetProcess::Window::Title;
+    let window_class = ProgramConfig::TargetProcess::Window::Class;
 
     let hwnd = match find_window(window_title, Some(window_class)) {
         Some(hwnd) => hwnd,

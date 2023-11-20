@@ -10,7 +10,7 @@ use windows::Win32::System::Diagnostics::ToolHelp::{CreateToolhelp32Snapshot, CR
 use windows::Win32::System::Threading::{OpenProcess, PROCESS_ALL_ACCESS, PROCESS_CREATE_THREAD};
 use windows::Win32::System::Memory::{VirtualQueryEx, MEMORY_BASIC_INFORMATION};
 
-use crate::utils::config::PROCESS_EXECUTABLE;
+use crate::utils::config::ProgramConfig;
 
 lazy_static! {
     pub static ref PROCESS_MANAGER: Arc<Mutex<ProcessManager>> = Arc::new(Mutex::new(ProcessManager {
@@ -29,7 +29,7 @@ pub struct ProcessManager {
 }
 
 pub fn attach_process_manager() -> Option<String> {
-    let process_name = &*PROCESS_EXECUTABLE;
+    let process_name = ProgramConfig::TargetProcess::Executable;
     let process_manager = PROCESS_MANAGER.clone();
     let mut process_manager = process_manager.lock().unwrap();
 

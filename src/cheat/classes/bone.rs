@@ -1,7 +1,7 @@
 use mint::{Vector3, Vector2};
 
 use crate::utils::process_manager::read_memory_auto;
-use crate::cheat::classes::offsets::PAWN_OFFSETS;
+use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::view::View;
 
 #[derive(Clone, Copy)]
@@ -65,11 +65,11 @@ impl Bone {
         let mut game_scene_node: u64 = 0;
         let mut bone_array_address: u64 = 0;
 
-        if !read_memory_auto(entity_pawn_address + PAWN_OFFSETS.lock().unwrap().game_scene_node as u64, &mut game_scene_node) {
+        if !read_memory_auto(entity_pawn_address + Offsets::C_BaseEntity::m_pGameSceneNode as u64, &mut game_scene_node) {
             return false;
         }
 
-        if !read_memory_auto(game_scene_node + PAWN_OFFSETS.lock().unwrap().bone_array as u64, &mut bone_array_address) {
+        if !read_memory_auto(game_scene_node + Offsets::CompositeMaterialEditorPoint_t::m_vecCompositeMaterialAssemblyProcedures as u64, &mut bone_array_address) {
             return false;
         }
 

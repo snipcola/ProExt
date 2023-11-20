@@ -1,5 +1,5 @@
-use crate::{utils::process_manager::write_memory_auto, cheat::classes::offsets::PAWN_OFFSETS};
+use crate::{utils::process_manager::write_memory_auto, cheat::classes::offsets::Offsets};
 
 pub fn run_no_flash(pawn_address: u64) {
-    write_memory_auto(pawn_address + (*PAWN_OFFSETS.lock().unwrap()).flash_duration as u64, &mut 0.0);
+    write_memory_auto(pawn_address + Offsets::C_CSPlayerPawnBase::m_flFlashDuration as u64, &mut 0.0);
 }

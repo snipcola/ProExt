@@ -43,9 +43,6 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 _ => { continue; }
             };
 
-            // [DISABLED]
-            if config.misc.spectator_list_enabled { (*CONFIG.lock().unwrap()).misc.spectator_list_enabled = false; }
-
             let is_game_window_focused = is_window_focused(hwnd);
 
             if !window_hidden_from_capture && (config.misc.enabled && config.misc.bypass_capture) {
@@ -237,7 +234,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Spectator Check
-                if !no_pawn && (config.misc.enabled && config.misc.spectator_list_enabled) && is_spectating(entity.controller.address, game.address.entity_list_entry, local_entity.pawn.address, entity_address) {
+                if !no_pawn && (config.misc.enabled && config.misc.spectator_list_enabled) && is_spectating(entity.controller.address, game.address.entity_list_entry, local_entity.pawn.address) {
                     spectators.push(entity.controller.player_name.clone());
                 }
 
