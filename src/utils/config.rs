@@ -134,8 +134,9 @@ pub struct Triggerbot {
     pub mode: usize,
     pub tap_interval: u32,
     pub tap_interval_offset: u32,
+    pub delay: u32,
+    pub delay_offset: u32,
     pub always_activated: bool,
-    pub delay: u32
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -322,10 +323,11 @@ impl Default for Config {
                 enabled:  false,
                 key: 0,
                 mode: 0,
-                tap_interval: 150,
+                tap_interval: 100,
                 tap_interval_offset: 20,
+                delay: 100,
+                delay_offset: 20,
                 always_activated: false,
-                delay: 250
             },
             crosshair: Crosshair {
                 enabled: true,

@@ -268,12 +268,13 @@ pub fn render_menu(ui: &mut Ui) {
 
                         ui.separator();
 
-                        // Always Activated
-                        ui.checkbox("Always##Triggerbot", &mut (*config).triggerbot.always_activated);
-                        ui.separator();
-
                         // Delay
                         ui.slider_config("Delay##Triggerbot", 15, 500).display_format("%d").build(&mut (*config).triggerbot.delay);
+                        ui.slider_config("Delay Offset##Aimbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.delay_offset);
+                        ui.separator();
+
+                        // Always Activated
+                        ui.checkbox("Always##Triggerbot", &mut (*config).triggerbot.always_activated);
                     }
                 });
 
