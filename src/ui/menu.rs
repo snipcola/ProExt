@@ -235,10 +235,14 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.checkbox("Only Grounded##Aimbot", &mut (*config).aimbot.only_grounded);
                         ui.separator();
 
-                        // Bone, FOV, & Smooth
+                        // Bone, FOV
                         ui.combo_simple_string("Bone##Aimbot", &mut (*config).aimbot.bone, &["Head", "Neck", "Spine"]);
                         ui.slider_config("Fov##Aimbot", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aimbot.fov);
+                        ui.separator();
+
+                        // Smooth
                         ui.slider_config("Smooth##Aimbot", 0.0, 5.0).display_format("%.1f").build(&mut (*config).aimbot.smooth);
+                        ui.slider_config("Smooth Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).aimbot.smooth_offset);
                         ui.separator();
                     }
                 });
@@ -258,7 +262,8 @@ pub fn render_menu(ui: &mut Ui) {
 
                         if (*config).triggerbot.mode == 0 {
                             // Interval
-                            ui.slider_config("Interval##Triggerbot", 100, 500).display_format("%d").build(&mut (*config).triggerbot.tap_interval);
+                            ui.slider_config("Interval##Triggerbot", 50, 500).display_format("%d").build(&mut (*config).triggerbot.tap_interval);
+                            ui.slider_config("Interval Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).triggerbot.tap_interval_offset);
                         }
 
                         ui.separator();
