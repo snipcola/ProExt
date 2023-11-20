@@ -8,7 +8,7 @@ use windows::Win32::Foundation::HWND;
 use lazy_static::lazy_static;
 use imgui_glow_renderer::AutoRenderer;
 
-use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu}, utils::mouse::get_mouse_position};
+use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu, functions::apply_style}, utils::mouse::get_mouse_position};
 use crate::utils::config::ProgramConfig;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::windows::Window;
@@ -122,6 +122,8 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
                     renderer.gl_context().clear_color(0.0, 0.0, 0.0, 0.0);
                     renderer.gl_context().clear(COLOR_BUFFER_BIT);
                 }
+
+                apply_style(imgui_context.style_mut());
 
                 let ui = imgui_context.new_frame();
 

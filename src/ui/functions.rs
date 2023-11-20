@@ -1,7 +1,9 @@
 use std::ops::BitAnd;
-use imgui::{ImColor32, Ui, ColorEditFlags};
+use imgui::{Style, ImColor32, Ui, ColorEditFlags, StyleColor};
 use mint::{Vector2, Vector3, Vector4};
 use mki::{Mouse, Keyboard};
+
+use crate::utils::config::CONFIG;
 
 pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<Mouse, Keyboard> {
     if hotkey_index == 1 {
@@ -101,4 +103,86 @@ pub fn stroke_text(ui: &mut Ui, _text: String, pos: Vector2<f32>, color: ImColor
     text(ui, _text.clone(), Vector2 { x: pos.x + 1.0, y: pos.y + 1.0 }, ImColor32::from_rgb(0, 0, 0), keep_center);
     text(ui, _text.clone(), Vector2 { x: pos.x + 1.0, y: pos.y - 1.0 }, ImColor32::from_rgb(0, 0, 0), keep_center);
     text(ui, _text, pos, color, keep_center);
+}
+
+fn color_to_style_color(color: (u32, u32, u32, u32)) -> [f32; 4] {
+    return [color.0 as f32 / 255.0, color.1 as f32 / 255.0, color.2 as f32 / 255.0, color.3 as f32 / 255.0];
+}
+
+pub fn apply_style(style: &mut Style) {
+    let config = CONFIG.clone().lock().unwrap().clone();
+
+    // Alpha
+    style.alpha = config.style.alpha;
+
+    // Window
+    style.window_padding = config.style.window_padding;
+    style.window_rounding = config.style.window_rounding;
+    style.window_border_size = config.style.window_border_size;
+    style.window_title_align = config.style.window_title_align;
+
+    // Frame
+    style.frame_padding = config.style.frame_padding;
+    style.frame_rounding = config.style.frame_rounding;
+    style.frame_border_size = config.style.frame_border_size;
+
+    // Tab
+    style.tab_rounding = config.style.tab_rounding;
+    style.tab_border_size = config.style.tab_border_size;
+
+    // Scrollbar
+    style.scrollbar_rounding = config.style.scrollbar_rounding;
+    style.scrollbar_size = config.style.scrollbar_size;
+
+    // Popup
+    style.popup_rounding = config.style.popup_rounding;
+    style.popup_border_size = config.style.popup_border_size;
+
+    // Item
+    style.item_spacing = config.style.item_spacing;
+    style.item_inner_spacing = config.style.item_inner_spacing;
+    style.indent_spacing = config.style.indent_spacing;
+
+    // Grab
+    style.grab_rounding = config.style.grab_rounding;
+
+    // Colors
+    style.colors[StyleColor::Text as usize] = color_to_style_color(config.style.colors.text);
+    style.colors[StyleColor::TextDisabled as usize] = color_to_style_color(config.style.colors.text_disabled);
+    
+    style.colors[StyleColor::WindowBg as usize] = color_to_style_color(config.style.colors.window_bg);
+    style.colors[StyleColor::ChildBg as usize] = color_to_style_color(config.style.colors.child_bg);
+    style.colors[StyleColor::PopupBg as usize] = color_to_style_color(config.style.colors.popup_bg);
+
+    style.colors[StyleColor::Border as usize] = color_to_style_color(config.style.colors.border);
+    style.colors[StyleColor::BorderShadow as usize] = color_to_style_color(config.style.colors.border_shadow);
+
+    style.colors[StyleColor::FrameBg as usize] = color_to_style_color(config.style.colors.frame_bg);
+    style.colors[StyleColor::FrameBgHovered as usize] = color_to_style_color(config.style.colors.frame_bg_hovered);
+    style.colors[StyleColor::FrameBgActive as usize] = color_to_style_color(config.style.colors.frame_bg_active);
+
+    style.colors[StyleColor::TitleBg as usize] = color_to_style_color(config.style.colors.title_bg);
+    style.colors[StyleColor::TitleBgCollapsed as usize] = color_to_style_color(config.style.colors.title_bg_collapsed);
+    style.colors[StyleColor::TitleBgActive as usize] = color_to_style_color(config.style.colors.title_bg_active);
+
+    style.colors[StyleColor::TextSelectedBg as usize] = color_to_style_color(config.style.colors.text_selected_bg);
+    style.colors[StyleColor::CheckMark as usize] = color_to_style_color(config.style.colors.checkmark);
+
+    style.colors[StyleColor::ScrollbarBg as usize] = color_to_style_color(config.style.colors.scrollbar_bg);
+    style.colors[StyleColor::ScrollbarGrab as usize] = color_to_style_color(config.style.colors.scrollbar_grab);
+    style.colors[StyleColor::ScrollbarGrabHovered as usize] = color_to_style_color(config.style.colors.scrollbar_grab_hovered);
+    style.colors[StyleColor::ScrollbarGrabActive as usize] = color_to_style_color(config.style.colors.scrollbar_grab_active);
+
+    style.colors[StyleColor::SliderGrab as usize] = color_to_style_color(config.style.colors.slider_grab);
+    style.colors[StyleColor::SliderGrabActive as usize] = color_to_style_color(config.style.colors.slider_grab_active);
+
+    style.colors[StyleColor::Button as usize] = color_to_style_color(config.style.colors.button);
+    style.colors[StyleColor::ButtonHovered as usize] = color_to_style_color(config.style.colors.button_hovered);
+    style.colors[StyleColor::ButtonActive as usize] = color_to_style_color(config.style.colors.button_active);
+
+    style.colors[StyleColor::Tab as usize] = color_to_style_color(config.style.colors.tab);
+    style.colors[StyleColor::TabHovered as usize] = color_to_style_color(config.style.colors.tab_hovered);
+    style.colors[StyleColor::TabActive as usize] = color_to_style_color(config.style.colors.tab_active);
+
+    style.colors[StyleColor::Separator as usize] = color_to_style_color(config.style.colors.seperator);
 }

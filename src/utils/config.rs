@@ -63,7 +63,8 @@ pub struct Config {
     pub crosshair: Crosshair,
     pub radar: Radar,
     pub misc: Misc,
-    pub window_positions: WindowPositions
+    pub window_positions: WindowPositions,
+    pub style: Style
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -203,6 +204,61 @@ pub struct WindowPositions {
     pub spectator_list: WindowPosition
 }
 
+#[derive(Clone, Copy, Serialize, Deserialize)]
+pub struct StyleColors {
+    pub text: (u32, u32, u32, u32),
+    pub text_disabled: (u32, u32, u32, u32),
+    pub window_bg: (u32, u32, u32, u32),
+    pub child_bg: (u32, u32, u32, u32),
+    pub popup_bg: (u32, u32, u32, u32),
+    pub border: (u32, u32, u32, u32),
+    pub border_shadow: (u32, u32, u32, u32),
+    pub frame_bg: (u32, u32, u32, u32),
+    pub frame_bg_hovered: (u32, u32, u32, u32),
+    pub frame_bg_active: (u32, u32, u32, u32),
+    pub title_bg: (u32, u32, u32, u32),
+    pub title_bg_collapsed: (u32, u32, u32, u32),
+    pub title_bg_active: (u32, u32, u32, u32),
+    pub text_selected_bg: (u32, u32, u32, u32),
+    pub checkmark: (u32, u32, u32, u32),
+    pub scrollbar_bg: (u32, u32, u32, u32),
+    pub scrollbar_grab: (u32, u32, u32, u32),
+    pub scrollbar_grab_hovered: (u32, u32, u32, u32),
+    pub scrollbar_grab_active: (u32, u32, u32, u32),
+    pub slider_grab: (u32, u32, u32, u32),
+    pub slider_grab_active: (u32, u32, u32, u32),
+    pub button: (u32, u32, u32, u32),
+    pub button_hovered: (u32, u32, u32, u32),
+    pub button_active: (u32, u32, u32, u32),
+    pub tab: (u32, u32, u32, u32),
+    pub tab_hovered: (u32, u32, u32, u32),
+    pub tab_active: (u32, u32, u32, u32),
+    pub seperator: (u32, u32, u32, u32)
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize)]
+pub struct Style {
+    pub alpha: f32,
+    pub window_padding: [f32; 2],
+    pub window_rounding: f32,
+    pub window_border_size: f32,
+    pub window_title_align: [f32; 2],
+    pub frame_padding: [f32; 2],
+    pub frame_rounding: f32,
+    pub frame_border_size: f32,
+    pub tab_rounding: f32,
+    pub tab_border_size: f32,
+    pub scrollbar_rounding: f32,
+    pub scrollbar_size: f32,
+    pub popup_rounding: f32,
+    pub popup_border_size: f32,
+    pub item_spacing: [f32; 2],
+    pub item_inner_spacing: [f32; 2],
+    pub indent_spacing: f32,
+    pub grab_rounding: f32,
+    pub colors: StyleColors
+}
+
 impl Default for Config {
     fn default() -> Self {
         return Config {
@@ -322,6 +378,56 @@ impl Default for Config {
                 cheat_list: WindowPosition { x: 300.0, y: 58.0 },
                 bomb_timer: WindowPosition { x: 30.0, y: 330.0 },
                 spectator_list: WindowPosition { x: 460.0, y: 58.0 }
+            },
+            style: Style {
+                alpha: 1.0,
+                window_padding: [5.0, 5.0],
+                window_rounding: 5.0,
+                window_border_size: 0.0,
+                window_title_align: [0.5, 0.5],
+                frame_padding: [2.5, 2.5],
+                frame_rounding: 2.5,
+                frame_border_size: 0.0,
+                tab_rounding: 2.5,
+                tab_border_size: 0.0,
+                scrollbar_rounding: 2.5,
+                scrollbar_size: 3.0,
+                popup_rounding: 2.5,
+                popup_border_size: 0.0,
+                item_spacing: [5.0, 5.0],
+                item_inner_spacing: [2.5, 2.5],
+                indent_spacing: 2.5,
+                grab_rounding: 2.5,
+                colors: StyleColors {
+                    text: (225, 225, 225, 255),
+                    text_disabled: (200, 200, 200, 255),
+                    window_bg: (25, 25, 25, 245),
+                    child_bg: (25, 25, 25, 245),
+                    popup_bg: (35, 35, 35, 245),
+                    border: (51, 128, 245, 255),
+                    border_shadow: (15, 15, 15, 255),
+                    frame_bg: (51, 128, 245, 50),
+                    frame_bg_hovered: (51, 128, 245, 100),
+                    frame_bg_active: (51, 128, 245, 150),
+                    title_bg: (25, 25, 25, 250),
+                    title_bg_collapsed: (25, 25, 25, 250),
+                    title_bg_active: (15, 15, 15, 250),
+                    text_selected_bg: (51, 128, 245, 255),
+                    checkmark: (51, 128, 245, 255),
+                    scrollbar_bg: (25, 25, 25, 255),
+                    scrollbar_grab: (45, 45, 45, 255),
+                    scrollbar_grab_hovered: (45, 45, 45, 225),
+                    scrollbar_grab_active: (45, 45, 45, 200),
+                    slider_grab: (51, 128, 245, 255),
+                    slider_grab_active: (51, 128, 245, 225),
+                    button: (51, 128, 245, 255),
+                    button_hovered: (51, 128, 245, 225),
+                    button_active: (51, 128, 245, 200),
+                    tab: (51, 128, 245, 255),
+                    tab_hovered: (51, 128, 245, 225),
+                    tab_active: (51, 128, 245, 200),
+                    seperator: (175, 175, 175, 125)
+                }
             }
         };
     }
