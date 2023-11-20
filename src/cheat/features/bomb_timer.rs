@@ -1,5 +1,5 @@
 use std::{sync::{Arc, Mutex}, time::{Instant, Duration}};
-use imgui::{Ui, StyleColor};
+use imgui::Ui;
 use lazy_static::lazy_static;
 use mint::Vector4;
 use crate::{utils::config::{Config, CONFIG, WindowPosition}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}};
@@ -39,8 +39,6 @@ pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<Stri
         }
     };
 
-    let titlebar_color = ui.push_style_color(StyleColor::TitleBgActive, [0.01, 0.01, 0.01, 1.0]);
-
     ui.window("Bomb")
         .collapsible(false)
         .always_auto_resize(true)
@@ -72,6 +70,4 @@ pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<Stri
                 ui.text_colored(disabled_color, "The bomb has not been planted.")
             }
         });
-
-    titlebar_color.end();
 }

@@ -105,7 +105,7 @@ pub fn stroke_text(ui: &mut Ui, _text: String, pos: Vector2<f32>, color: ImColor
     text(ui, _text, pos, color, keep_center);
 }
 
-fn color_to_style_color(color: (u32, u32, u32, u32)) -> [f32; 4] {
+pub fn color_to_style_color(color: (u32, u32, u32, u32)) -> [f32; 4] {
     return [color.0 as f32 / 255.0, color.1 as f32 / 255.0, color.2 as f32 / 255.0, color.3 as f32 / 255.0];
 }
 
