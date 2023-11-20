@@ -133,7 +133,7 @@ pub struct Triggerbot {
     pub key: usize,
     pub mode: usize,
     pub tap_interval: u32,
-    pub tap_interval_offset: f32,
+    pub tap_interval_offset: u32,
     pub always_activated: bool,
     pub delay: u32
 }
@@ -323,7 +323,7 @@ impl Default for Config {
                 key: 0,
                 mode: 0,
                 tap_interval: 150,
-                tap_interval_offset: 0.2,
+                tap_interval_offset: 20,
                 always_activated: false,
                 delay: 250
             },
