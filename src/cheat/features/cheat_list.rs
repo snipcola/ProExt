@@ -1,14 +1,6 @@
-use std::sync::{Arc, Mutex};
-
 use imgui::{Ui, StyleColor};
 use mint::Vector4;
 use crate::{utils::config::{CONFIG, WindowPosition, Config}, ui::main::WINDOWS_ACTIVE};
-use lazy_static::lazy_static;
-
-lazy_static! {
-    pub static ref CHEAT_LIST_WINDOW_WIDTH: Arc<Mutex<f32>> = Arc::new(Mutex::new(0.0));
-    pub static ref CHEAT_LIST_WINDOW_HEIGHT: Arc<Mutex<f32>> = Arc::new(Mutex::new(0.0));
-}
 
 pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled: bool, triggerbot_toggled: bool) {
     let window_position = config.window_positions.cheat_list;

@@ -2,8 +2,7 @@ use std::{io::Read, env, fs::File, process::Command};
 use ureq::get;
 use md5::compute;
 
-use crate::utils::config::UPDATE_URL;
-use crate::utils::config::UPDATE_HASH_URL;
+use crate::utils::config::ProgramConfig;
 
 pub fn get_own_md5() -> Option<String> {
     let exe_path = match env::current_exe() {
@@ -26,7 +25,7 @@ pub fn get_own_md5() -> Option<String> {
 }
 
 pub fn get_latest_md5() -> Option<String> {
-    let response = match get(&UPDATE_HASH_URL.clone()).call() {
+    let response = match get(ProgramConfig::Update::HashURL).call() {
         Ok(response) => response,
         _ => { return None; }
     };
@@ -38,7 +37,7 @@ pub fn get_latest_md5() -> Option<String> {
 }
 
 pub fn update_exists() -> bool {
-    match get(&UPDATE_URL.clone()).call() {
+    match get(ProgramConfig::Update::URL).call() {
         Ok(response) => { return response.status() == 200; },
         Err(_) => { return false; }
     }
@@ -46,7 +45,7 @@ pub fn update_exists() -> bool {
 
 pub fn open_update_url() {
     Command::new("cmd.exe")
-        .args(["/C", "start", &UPDATE_URL.clone()])
+        .args(["/C", "start", ProgramConfig::Update::URL])
         .spawn()
         .ok();
 }

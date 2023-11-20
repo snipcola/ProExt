@@ -2,7 +2,7 @@ use std::time::SystemTime;
 use imgui::{Ui, StyleColor};
 use mint::Vector4;
 
-use crate::{utils::config::{PACKAGE_NAME, WindowPosition, CONFIG, Config, PACKAGE_VERSION}, ui::main::WINDOWS_ACTIVE};
+use crate::{utils::config::{CONFIG, Config, ProgramConfig, WindowPosition}, ui::main::WINDOWS_ACTIVE};
 
 pub fn get_current_time() -> String {
     let now = SystemTime::now();
@@ -19,7 +19,7 @@ pub fn render_watermark(ui: &mut Ui, config: Config) {
     let window_position = config.window_positions.watermark;
     let titlebar_color = ui.push_style_color(StyleColor::TitleBgActive, [0.01, 0.01, 0.01, 1.0]);
 
-    ui.window(format!("{} v{}", PACKAGE_NAME.to_string(), PACKAGE_VERSION.to_string()))
+    ui.window(format!("{} v{}", ProgramConfig::Package::Name, ProgramConfig::Package::Version))
         .collapsible(false)
         .always_auto_resize(true)
         .position([window_position.x, window_position.y], imgui::Condition::Appearing)

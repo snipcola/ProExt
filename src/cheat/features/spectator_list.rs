@@ -2,14 +2,14 @@ use std::ops::BitAnd;
 use imgui::{Ui, StyleColor};
 use mint::Vector4;
 
-use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}, cheat::classes::offsets::{ENTITY_OFFSETS, PAWN_OFFSETS}};
+use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}, cheat::classes::offsets::Offsets};
 
-pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64, local_entity_pawn_address: u64, entity_address: u64) -> bool {
+pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64, local_entity_pawn_address: u64) -> bool {
     let mut pawn: u32 = 0;
     let mut cs_player_pawn: usize = 0;
     let mut observer_services: usize = 0;
 
-    if !read_memory_auto(entity_controller_address + (*ENTITY_OFFSETS.lock().unwrap()).player_pawn as u64, &mut pawn) {
+    if !read_memory_auto(entity_controller_address + Offsets::CBasePlayerController::m_hPawn as u64, &mut pawn) {
         return false;
     }
 
@@ -17,20 +17,15 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
         return false;
     }
 
-    if !read_memory_auto(cs_player_pawn as u64 + (*PAWN_OFFSETS.lock().unwrap()).observer_services as u64, &mut observer_services) {
+    if !read_memory_auto(cs_player_pawn as u64 + Offsets::C_BasePlayerPawn::m_pObserverServices as u64, &mut observer_services) {
         return false;
     }
 
     if observer_services != 0 {
         let mut observer_target: u32 = 0;
-        let mut list_entry: usize = 0;
         let mut controller: usize = 0;
         
-        if !read_memory_auto(observer_services as u64 + 0x44, &mut observer_target) {
-            return false;
-        }
-
-        if !read_memory_auto(entity_address + 0x8 * (observer_target.bitand(0x7FFF) >> 9) as u64 + 0x10, &mut list_entry) {
+        if !read_memory_auto(observer_services as u64 + Offsets::CPlayer_ObserverServices::m_hObserverTarget as u64, &mut observer_target) {
             return false;
         }
 

@@ -2,7 +2,7 @@ use std::{f32::consts::PI, sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use mint::{Vector3, Vector2};
 use lazy_static::lazy_static;
-use crate::{utils::{config::{Config, CHEAT_DELAYS}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{hotkey_index_to_io, distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::classes::{bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}, view::View}};
+use crate::{utils::{config::{Config, ProgramConfig}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{hotkey_index_to_io, distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::classes::{bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}, view::View}};
 
 lazy_static! {
     pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
@@ -53,7 +53,7 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     let (screen_center_x, screen_center_y) = ((window_info.1.0 / 2) as f32, (window_info.1.1 / 2) as f32);
     let mut screen_pos = Vector2 { x: 0.0, y: 0.0 };
 
-    if (*LAST_MOVED.lock().unwrap()).elapsed().as_millis() < CHEAT_DELAYS.aimbot.as_millis() || !game_view.world_to_screen(aim_pos, &mut screen_pos, window_info) || ((screen_center_x - screen_pos.x).abs() <= 1.0 && (screen_center_y - screen_pos.y).abs() <= 1.0)  {
+    if (*LAST_MOVED.lock().unwrap()).elapsed().as_millis() < ProgramConfig::CheatDelays::Aimbot.as_millis() || !game_view.world_to_screen(aim_pos, &mut screen_pos, window_info) || ((screen_center_x - screen_pos.x).abs() <= 1.0 && (screen_center_y - screen_pos.y).abs() <= 1.0)  {
         return;
     }
 
