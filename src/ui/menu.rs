@@ -263,7 +263,7 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).triggerbot.mode == 0 {
                             // Interval
                             ui.slider_config("Interval##Triggerbot", 50, 500).display_format("%d").build(&mut (*config).triggerbot.tap_interval);
-                            ui.slider_config("Interval Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).triggerbot.tap_interval_offset);
+                            ui.slider_config("Interval Offset##Aimbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.tap_interval_offset);
                         }
 
                         ui.separator();
