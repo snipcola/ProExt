@@ -15,7 +15,7 @@
 - ...and more to come!
 ## 💬 Q&A:
 **🤔  Is this detectable?** <br>
-**Yes, this is detectable**, it is a user-mode cheat afterall. Although the project may look into the kernel, for now everything is done in user mode. *It is important to note that even if it is detectable, you might not be detected. The cheat uses only RPM by default - with WPM features flagged under "Risky". Other factors such as suspicious gameplay also are important to consider.*<br><br>
+**Yes, this can be detectable**, it is a user-mode cheat afterall. Although the project may look into the kernel, for now everything is done in user mode. *It is important to note that you might not be detected. The cheat uses only RPM by default - with WPM features labeled under "Risky". Other factors such as suspicious gameplay also are important to consider.*<br><br>
 **🤔  How can I get support for this software?** <br>
 **Feel free to reach out to me personally**, if you have any questions or need help with something related to the software. *My discord username is @Vytrol, I also have a Twitter under the same handle.*<br><br>
 **🤔  My antivirus says "X", is this a virus?** <br>
