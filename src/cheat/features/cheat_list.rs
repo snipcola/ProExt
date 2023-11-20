@@ -1,10 +1,9 @@
-use imgui::{Ui, StyleColor};
+use imgui::Ui;
 use mint::Vector4;
 use crate::{utils::config::{CONFIG, WindowPosition, Config}, ui::main::WINDOWS_ACTIVE};
 
 pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled: bool, triggerbot_toggled: bool) {
     let window_position = config.window_positions.cheat_list;
-    let titlebar_color = ui.push_style_color(StyleColor::TitleBgActive, [0.01, 0.01, 0.01, 1.0]);
 
     ui.window("Cheats")
         .collapsible(false)
@@ -81,6 +80,4 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
                 }
             }
         });
-
-    titlebar_color.end();
 }

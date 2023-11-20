@@ -1,7 +1,6 @@
 use std::time::SystemTime;
-use imgui::{Ui, StyleColor};
+use imgui::Ui;
 use mint::Vector4;
-
 use crate::{utils::config::{CONFIG, Config, ProgramConfig, WindowPosition}, ui::main::WINDOWS_ACTIVE};
 
 pub fn get_current_time() -> String {
@@ -17,7 +16,6 @@ pub fn get_current_time() -> String {
 
 pub fn render_watermark(ui: &mut Ui, config: Config) {
     let window_position = config.window_positions.watermark;
-    let titlebar_color = ui.push_style_color(StyleColor::TitleBgActive, [0.01, 0.01, 0.01, 1.0]);
 
     ui.window(format!("{} v{}", ProgramConfig::Package::Name, ProgramConfig::Package::Version))
         .collapsible(false)
@@ -36,6 +34,4 @@ pub fn render_watermark(ui: &mut Ui, config: Config) {
             ui.same_line();
             ui.text_colored(Vector4 { x: 0.0, y: 255.0, z: 0.0, w: 255.0 }, format!("{} FPS", ui.io().framerate.floor()));
         });
-
-    titlebar_color.end();
 }
