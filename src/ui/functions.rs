@@ -3,7 +3,7 @@ use imgui::{Style, ImColor32, Ui, ColorEditFlags, StyleColor};
 use mint::{Vector2, Vector3, Vector4};
 use mki::{Mouse, Keyboard};
 
-use crate::utils::config::CONFIG;
+use crate::{utils::config::{CONFIG, WindowPositions}, cheat::features::{watermark::WATERMARK_RESET_POSITION, cheat_list::CHEAT_LIST_RESET_POSITION, spectator_list::SPECTATOR_LIST_RESET_POSITION, bomb_timer::BOMB_TIMER_RESET_POSITION}, ui::menu::MENU_RESET_POSITION};
 
 pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<Mouse, Keyboard> {
     if hotkey_index == 1 {
@@ -109,8 +109,13 @@ pub fn color_to_style_color(color: (u32, u32, u32, u32)) -> [f32; 4] {
     return [color.0 as f32 / 255.0, color.1 as f32 / 255.0, color.2 as f32 / 255.0, color.3 as f32 / 255.0];
 }
 
-pub fn apply_style(style: &mut Style) {
+pub fn apply_style(style: &mut Style, default: Style) {
     let config = CONFIG.clone().lock().unwrap().clone();
+
+    if !config.style.enabled {
+        *style = default;
+        return;
+    }
 
     // Alpha
     style.alpha = config.style.alpha;
@@ -141,6 +146,8 @@ pub fn apply_style(style: &mut Style) {
     // Item
     style.item_spacing = config.style.item_spacing;
     style.item_inner_spacing = config.style.item_inner_spacing;
+
+    // Indent
     style.indent_spacing = config.style.indent_spacing;
 
     // Grab
@@ -184,5 +191,13 @@ pub fn apply_style(style: &mut Style) {
     style.colors[StyleColor::TabHovered as usize] = color_to_style_color(config.style.colors.tab_hovered);
     style.colors[StyleColor::TabActive as usize] = color_to_style_color(config.style.colors.tab_active);
 
-    style.colors[StyleColor::Separator as usize] = color_to_style_color(config.style.colors.seperator);
+    style.colors[StyleColor::Separator as usize] = color_to_style_color(config.style.colors.separator);
+}
+
+pub fn reset_window_positions(window_positions: WindowPositions) {
+    *MENU_RESET_POSITION.lock().unwrap() = Some(window_positions.menu);
+    *WATERMARK_RESET_POSITION.lock().unwrap() = Some(window_positions.watermark);
+    *CHEAT_LIST_RESET_POSITION.lock().unwrap() = Some(window_positions.cheat_list);
+    *SPECTATOR_LIST_RESET_POSITION.lock().unwrap() = Some(window_positions.spectator_list);
+    *BOMB_TIMER_RESET_POSITION.lock().unwrap() = Some(window_positions.bomb_timer);
 }

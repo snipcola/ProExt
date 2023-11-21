@@ -78,6 +78,7 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
 
     let toggle_key = &ProgramConfig::Toggle::Key;
     let mut last_frame = Instant::now();
+    let default_style = *imgui_context.style();
 
     run_windows_thread(hwnd);
     run_io_thread();
@@ -123,7 +124,7 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
                     renderer.gl_context().clear(COLOR_BUFFER_BIT);
                 }
 
-                apply_style(imgui_context.style_mut());
+                apply_style(imgui_context.style_mut(), default_style);
 
                 let ui = imgui_context.new_frame();
 

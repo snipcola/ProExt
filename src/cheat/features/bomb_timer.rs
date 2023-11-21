@@ -2,15 +2,24 @@ use std::{sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use lazy_static::lazy_static;
 use mint::Vector4;
-use crate::{utils::config::{Config, CONFIG, WindowPosition}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}};
+use crate::{utils::config::{Config, CONFIG}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}};
 
 lazy_static! {
     pub static ref IS_PLANTED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref PLANT_TIME: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None));
+    pub static ref BOMB_TIMER_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
 }
 
 pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<String>, config: Config) {
-    let window_position = config.window_positions.bomb_timer;
+    let mut reset_position = BOMB_TIMER_RESET_POSITION.lock().unwrap();
+    let (window_position, condition) = if let Some(position) = *reset_position {
+        *reset_position = None;
+        (position, imgui::Condition::Always)
+    } else {
+        (config.window_positions.bomb_timer, imgui::Condition::Once)
+    };
+
+    drop(reset_position);
 
     let mut is_planted = IS_PLANTED.lock().unwrap();
     let mut plant_time = PLANT_TIME.lock().unwrap();
@@ -42,15 +51,10 @@ pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<Stri
     ui.window("Bomb")
         .collapsible(false)
         .always_auto_resize(true)
-        .position([window_position.x, window_position.y], imgui::Condition::Appearing)
+        .position(window_position, condition)
         .build(|| {
-            let window_active = ui.is_window_hovered();
-            (*WINDOWS_ACTIVE.lock().unwrap()).insert("bomb_timer".to_string(), window_active);
-
-            let window_pos = ui.window_pos();
-            let mut config_mut = CONFIG.lock().unwrap();
-            (*config_mut).window_positions.bomb_timer = WindowPosition { x: window_pos[0], y: window_pos[1] };
-            drop(config_mut);
+            (*WINDOWS_ACTIVE.lock().unwrap()).insert("bomb_timer".to_string(), ui.is_window_hovered());
+            (*CONFIG.lock().unwrap()).window_positions.bomb_timer = ui.window_pos();
 
             let disabled = color_u32_to_f32(config.misc.bomb_timer_color_disabled);
             let enabled = color_u32_to_f32(config.misc.bomb_timer_color_enabled);

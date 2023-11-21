@@ -16,7 +16,7 @@ use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists, open_upd
 
 fn main() {
     set_virtual_terminal(true).unwrap();
-    println!("{} {} | {} | {}", "[ INFO ]".bold().cyan(), ProgramConfig::Package::Name.bold(), ProgramConfig::Package::Authors.replace(":", " & ").bold(), format!("v{}", ProgramConfig::Package::Version).bold());
+    println!("{} {} {} | {}", "[ INFO ]".bold().cyan(), ProgramConfig::Package::Name.bold(), format!("v{}", ProgramConfig::Package::Version).bold(), ProgramConfig::Package::Authors.replace(":", " & ").bold());
 
     if !cfg!(debug_assertions) && update_exists() {
         let own_md5 = get_own_md5();
