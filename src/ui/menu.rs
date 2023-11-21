@@ -207,9 +207,9 @@ pub fn render_menu(ui: &mut Ui) {
                     }
                 });
 
-                // AimBot
+                // Aimbot
                 TabItem::new("Aimbot").build(&ui, || {
-                    // Aimbot
+                    // Enabled
                     ui.checkbox("Aimbot", &mut (*config).aimbot.enabled);
 
                     if (*config).aimbot.enabled {
@@ -239,9 +239,10 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.separator();
                         }
 
-                        // Only Visible & Only Grounded
+                        // Only Visible, Only Grounded, & Only Weapon
                         ui.checkbox("Only Visible##Aimbot", &mut (*config).aimbot.only_visible);
                         ui.checkbox("Only Grounded##Aimbot", &mut (*config).aimbot.only_grounded);
+                        ui.checkbox("Only Weapon##Aimbot", &mut (*config).aimbot.only_weapon);
                         ui.separator();
 
                         // Bone, FOV
@@ -256,15 +257,17 @@ pub fn render_menu(ui: &mut Ui) {
                     }
                 });
 
-                // TriggerBot
+                // Triggerbot
                 TabItem::new("Triggerbot").build(&ui, || {
-                    // Triggerbot
+                    // Enabled
                     ui.checkbox("Triggerbot", &mut (*config).triggerbot.enabled);
                     
                     if (*config).triggerbot.enabled {
                         // Trigger Key
-                        ui.same_line();
-                        ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
+                        if !(*config).triggerbot.always_activated {
+                            ui.same_line();
+                            ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
+                        }
                         
                         // Mode
                         ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Tap", "Hold"]);
@@ -284,12 +287,15 @@ pub fn render_menu(ui: &mut Ui) {
 
                         // Always Activated
                         ui.checkbox("Always##Triggerbot", &mut (*config).triggerbot.always_activated);
+
+                        // Only Weapon
+                        ui.checkbox("Only Weapon##Triggerbot", &mut (*config).triggerbot.only_weapon);
                     }
                 });
 
                 // Crosshair
                 TabItem::new("Crosshair").build(&ui, || {
-                    // Crosshair
+                    // Enabled
                     ui.checkbox("Crosshair", &mut (*config).crosshair.enabled);
                     
                     if (*config).crosshair.enabled {
@@ -334,11 +340,17 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.slider_config("Space##CrosshairLines", 1, 10).display_format("%d").build(&mut (*config).crosshair.lines_space);
                             ui.slider_config("Thickness##CrosshairLines", 1, 10).display_format("%d").build(&mut (*config).crosshair.lines_thickness);
                         }
+
+                        ui.separator();
+
+                        // Only Weapon
+                        ui.checkbox("Only Weapon##Crosshair", &mut (*config).crosshair.only_weapon);
                     }
                 });
 
+                // Radar
                 TabItem::new("Radar").build(&ui, || {
-                    // Radar
+                    // Enabled
                     ui.checkbox("Radar", &mut (*config).radar.enabled);
                     
                     if (*config).radar.enabled {
@@ -369,8 +381,9 @@ pub fn render_menu(ui: &mut Ui) {
                     }
                 });
 
+                // Misc
                 TabItem::new("Misc").build(&ui, || {
-                    // Misc
+                    // Enabled
                     ui.checkbox("Misc", &mut (*config).misc.enabled);
 
                     if (*config).misc.enabled {
@@ -436,8 +449,9 @@ pub fn render_menu(ui: &mut Ui) {
                     }
                 });
 
+                // Style
                 TabItem::new("Style").build(&ui, || {
-                    // Style
+                    // Enabled
                     ui.checkbox("Style", &mut (*config).style.enabled);
                     
                     if (*config).style.enabled {
@@ -561,8 +575,9 @@ pub fn render_menu(ui: &mut Ui) {
                     }
                 });
 
+                // Config
                 TabItem::new("Config").build(&ui, || {
-                    // New Config Input & Button
+                    // Config Input & Create Button
                     ui.input_text("##NameConfig", &mut *new_config_name).build();
                     ui.same_line();
 
@@ -588,57 +603,45 @@ pub fn render_menu(ui: &mut Ui) {
                             }
                         }
 
-                        if ui.selectable_config(if selected { format!("{} (selected)", config) } else { config.to_string() }).build() {
+                        let config_str = config.replace(".conf.json", "");
+
+                        if ui.selectable_config(if selected { format!("{} (selected)", config_str) } else { config_str }).build() {
                             *selected_config = if selected { None } else { Some(config.to_string()) };
                         };
                     };
 
-                    ui.separator();
+                    if let Some(config_name) = &*selected_config {                
+                        if let Some(config_path) = PathBuf::from(&*config_dir).join(config_name).to_str() {
+                            ui.separator();
 
-                    if ui.button("Load##Config") {
-                        if let Some(config_name) = &*selected_config {
-                            let directory_pathbuf = PathBuf::from(&*config_dir);
-                        
-                            if let Some(config_path) = directory_pathbuf.join(config_name).to_str() {
+                            if ui.button("Load##Config") {
                                 match load_config(config_path) {
                                     Ok(new_config) => { *config = new_config; reset_window_positions(new_config.window_positions); },
                                     Err(str) => { println!("{} Failed to load config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); }
                                 }
-                            }
-                        };
-                    };
+                            };
 
-                    ui.same_line();
+                            ui.same_line();
 
-                    if ui.button("Save##Config") {
-                        if let Some(config_name) = &*selected_config {
-                            let directory_pathbuf = PathBuf::from(&*config_dir);
-                        
-                            if let Some(config_path) = directory_pathbuf.join(config_name).to_str() {
+                            if ui.button("Save##Config") {
                                 match (*config).save_config(config_path) {
                                     Err(str) => { println!("{} Failed to save config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
                                     _ => {}
                                 }
-                            }
-                        };
-                    };
+                            };
 
-                    ui.same_line();
-
-                    if ui.button("Delete##Config") {
-                        if let Some(config_name) = &*selected_config {
                             if config_name != "default.conf.json" {
-                                let directory_pathbuf = PathBuf::from(&*config_dir);
-                        
-                                if let Some(config_path) = directory_pathbuf.join(config_name).to_str() {
+                                ui.same_line();
+
+                                if ui.button("Delete##Config") {
                                     match delete_config(config_path) {
                                         Err(str) => { println!("{} Failed to delete config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
                                         _ => {}
                                     }
-                                }
+                                };
                             }
-                        };
-                    };
+                        }
+                    }
 
                     ui.separator();
                     

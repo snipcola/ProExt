@@ -42,10 +42,10 @@ pub mod ProgramConfig {
     pub mod ThreadDelays {
         use std::time::Duration;
 
-        pub const UpdateConfigs: Duration = Duration::from_millis(10);
-        pub const WindowTasks: Duration = Duration::from_millis(10);
-        pub const IOTasks: Duration = Duration::from_millis(1);
-        pub const RPC: Duration = Duration::from_millis(10);
+        pub const UpdateConfigs: Duration = Duration::from_millis(50);
+        pub const WindowTasks: Duration = Duration::from_millis(25);
+        pub const IOTasks: Duration = Duration::from_millis(5);
+        pub const RPC: Duration = Duration::from_millis(25);
     }
 
     pub mod CheatDelays {
@@ -121,6 +121,7 @@ pub struct Aimbot {
     pub fov_circle_outline_enabled: bool,
     pub only_visible: bool,
     pub only_grounded: bool,
+    pub only_weapon: bool,
     pub bone: usize,
     pub fov: f32,
     pub smooth: f32,
@@ -137,6 +138,7 @@ pub struct Triggerbot {
     pub delay: u32,
     pub delay_offset: u32,
     pub always_activated: bool,
+    pub only_weapon: bool
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -154,7 +156,8 @@ pub struct Crosshair {
     pub lines_width: u32,
     pub lines_height: u32,
     pub lines_space: u32,
-    pub lines_thickness: u32
+    pub lines_thickness: u32,
+    pub only_weapon: bool
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -309,6 +312,7 @@ impl Default for Config {
                 fov_circle_outline_enabled: true,
                 only_visible: true,
                 only_grounded: true,
+                only_weapon: true,
                 bone: 1,
                 fov: 3.5,
                 smooth: 1.5,
@@ -323,6 +327,7 @@ impl Default for Config {
                 delay: 100,
                 delay_offset: 20,
                 always_activated: false,
+                only_weapon: true
             },
             crosshair: Crosshair {
                 enabled: true,
@@ -338,7 +343,8 @@ impl Default for Config {
                 lines_width: 9,
                 lines_height: 9,
                 lines_space: 7,
-                lines_thickness: 1
+                lines_thickness: 1,
+                only_weapon: true
             },
             radar: Radar {
                 enabled: false,

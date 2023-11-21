@@ -19,10 +19,10 @@ lazy_static! {
 }
 
 pub fn run_windows_thread(hwnd: HWND) {
-    let window_info = WINDOW_INFO.clone();
-    let exit = EXIT.clone();
-
     thread::spawn(move || {
+        let window_info = WINDOW_INFO.clone();
+        let exit = EXIT.clone();
+
         loop {
             if let Some(((x, y), (width, height))) = get_window_info(hwnd) {
                 let window_info_var = ((x + 1, y + 1), (width - 2, height - 2));
@@ -37,9 +37,9 @@ pub fn run_windows_thread(hwnd: HWND) {
 }
 
 pub fn run_io_thread() {
-    let mouse_pos = MOUSE_POS.clone();
-
     thread::spawn(move || {
+        let mouse_pos = MOUSE_POS.clone();
+        
         loop {
             if let Some(pos) = get_mouse_position() {
                 *mouse_pos.lock().unwrap() = Some(pos);
