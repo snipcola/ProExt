@@ -1,5 +1,4 @@
 use std::thread;
-
 use mint::{Vector3, Vector2};
 use windows::Win32::Foundation::HWND;
 
@@ -46,10 +45,10 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
             let is_game_window_focused = is_window_focused(hwnd);
 
-            if !window_hidden_from_capture && (config.misc.enabled && config.misc.bypass_capture) {
+            if !window_hidden_from_capture && (config.settings.enabled && config.settings.bypass_capture) {
                 hide_window_from_capture(self_hwnd, true);
                 window_hidden_from_capture = true;
-            } else if window_hidden_from_capture && !(config.misc.enabled && config.misc.bypass_capture) {
+            } else if window_hidden_from_capture && !(config.settings.enabled && config.settings.bypass_capture) {
                 hide_window_from_capture(self_hwnd, false);
                 window_hidden_from_capture = false;
             }

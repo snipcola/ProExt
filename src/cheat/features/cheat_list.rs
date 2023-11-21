@@ -64,16 +64,8 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
             if config.misc.enabled {
                 ui.text_colored(blue, "Misc");
 
-                if config.misc.bypass_capture {
-                    ui.text_colored(green, "- Bypass Capture");
-                }
-
                 if config.misc.exclude_team {
                     ui.text_colored(green, "- Exclude Team");
-                }
-
-                if config.misc.discord_rpc_enabled {
-                    ui.text_colored(green, "- Discord RPC");
                 }
 
                 if pawn && config.misc.no_flash_enabled {
@@ -86,6 +78,18 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
                     ui.text_colored(green, "- Bunny Hop");                    
                     ui.same_line();
                     ui.text_colored(red, "(Risky)");
+                }
+            }
+
+            if config.settings.enabled {
+                ui.text_colored(blue, "Settings");
+
+                if config.settings.bypass_capture {
+                    ui.text_colored(green, "- Bypass Capture");
+                }
+
+                if config.settings.discord_rpc_enabled {
+                    ui.text_colored(green, "- Discord RPC");
                 }
             }
         });

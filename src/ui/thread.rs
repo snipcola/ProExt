@@ -30,7 +30,8 @@ pub fn run_windows_thread(hwnd: HWND) {
             } else {
                 *exit.lock().unwrap() = true;
             }
-    
+            
+            // Delay
             sleep(ProgramConfig::ThreadDelays::WindowTasks);
         }
     });
@@ -45,6 +46,7 @@ pub fn run_io_thread() {
                 *mouse_pos.lock().unwrap() = Some(pos);
             }
 
+            // Delay
             sleep(ProgramConfig::ThreadDelays::IOTasks);
         }
     });

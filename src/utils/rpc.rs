@@ -30,12 +30,13 @@ pub fn initialize_rpc() {
         loop {
             let config = CONFIG.lock().unwrap().clone();
 
-            if config.misc.enabled && config.misc.discord_rpc_enabled {
+            if config.settings.enabled && config.settings.discord_rpc_enabled {
                 set_rpc_activity(&mut client, started);
             } else {
                 clear_rpc_activity(&mut client);
             }
 
+            // Delay
             sleep(ProgramConfig::ThreadDelays::RPC);
         }
     });
