@@ -191,18 +191,12 @@ pub struct Misc {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
-pub struct WindowPosition {
-    pub x: f32,
-    pub y: f32
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct WindowPositions {
-    pub menu: WindowPosition,
-    pub watermark: WindowPosition,
-    pub cheat_list: WindowPosition,
-    pub bomb_timer: WindowPosition,
-    pub spectator_list: WindowPosition
+    pub menu: [f32; 2],
+    pub watermark: [f32; 2],
+    pub cheat_list: [f32; 2],
+    pub bomb_timer: [f32; 2],
+    pub spectator_list: [f32; 2]
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -234,11 +228,12 @@ pub struct StyleColors {
     pub tab: (u32, u32, u32, u32),
     pub tab_hovered: (u32, u32, u32, u32),
     pub tab_active: (u32, u32, u32, u32),
-    pub seperator: (u32, u32, u32, u32)
+    pub separator: (u32, u32, u32, u32)
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Style {
+    pub enabled: bool,
     pub alpha: f32,
     pub window_padding: [f32; 2],
     pub window_rounding: f32,
@@ -375,17 +370,18 @@ impl Default for Config {
                 bunny_hop_enabled: false
             },
             window_positions: WindowPositions {
-                menu: WindowPosition { x: 600.0, y: 150.0 },
-                watermark: WindowPosition { x: 300.0, y: 5.0 },
-                cheat_list: WindowPosition { x: 300.0, y: 58.0 },
-                bomb_timer: WindowPosition { x: 30.0, y: 330.0 },
-                spectator_list: WindowPosition { x: 460.0, y: 58.0 }
+                menu: [600.0, 150.0],
+                watermark: [300.0, 5.0],
+                cheat_list: [300.0, 58.0],
+                bomb_timer: [30.0, 330.0],
+                spectator_list: [460.0, 58.0]
             },
             style: Style {
+                enabled: true,
                 alpha: 1.0,
-                window_padding: [5.0, 5.0],
+                window_padding: [7.5, 7.5],
                 window_rounding: 5.0,
-                window_border_size: 0.0,
+                window_border_size: 1.0,
                 window_title_align: [0.5, 0.5],
                 frame_padding: [2.5, 2.5],
                 frame_rounding: 2.5,
@@ -396,8 +392,8 @@ impl Default for Config {
                 scrollbar_size: 3.0,
                 popup_rounding: 2.5,
                 popup_border_size: 0.0,
-                item_spacing: [5.0, 5.0],
-                item_inner_spacing: [2.5, 2.5],
+                item_spacing: [7.5, 7.5],
+                item_inner_spacing: [5.0, 5.0],
                 indent_spacing: 2.5,
                 grab_rounding: 2.5,
                 colors: StyleColors {
@@ -428,7 +424,7 @@ impl Default for Config {
                     tab: (51, 128, 245, 255),
                     tab_hovered: (51, 128, 245, 225),
                     tab_active: (51, 128, 245, 200),
-                    seperator: (175, 175, 175, 125)
+                    separator: (175, 175, 175, 125)
                 }
             }
         };

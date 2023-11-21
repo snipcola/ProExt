@@ -1,7 +1,12 @@
-use std::ops::BitAnd;
+use std::{sync::{Arc, Mutex}, ops::BitAnd};
 use imgui::Ui;
 use mint::Vector4;
-use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, WindowPosition, Config}}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}, cheat::classes::offsets::Offsets};
+use lazy_static::lazy_static;
+use crate::{utils::{process_manager::read_memory_auto, config::{CONFIG, Config}}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}, cheat::classes::offsets::Offsets};
+
+lazy_static! {
+    pub static ref SPECTATOR_LIST_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
+}
 
 pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64, local_entity_pawn_address: u64) -> bool {
     let mut pawn: u32 = 0;
@@ -41,20 +46,23 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
 }
 
 pub fn render_spectator_list(ui: &mut Ui, spectators: Vec<String>, config: Config) {
-    let window_position = config.window_positions.spectator_list;
+    let mut reset_position = SPECTATOR_LIST_RESET_POSITION.lock().unwrap();
+    let (window_position, condition) = if let Some(position) = *reset_position {
+        *reset_position = None;
+        (position, imgui::Condition::Always)
+    } else {
+        (config.window_positions.spectator_list, imgui::Condition::Once)
+    };
+
+    drop(reset_position);
 
     ui.window("Spectators")
         .collapsible(false)
         .always_auto_resize(true)
-        .position([window_position.x, window_position.y], imgui::Condition::Appearing)
+        .position(window_position, condition)
         .build(|| {
-            let window_active = ui.is_window_hovered();
-            (*WINDOWS_ACTIVE.lock().unwrap()).insert("spectator_list".to_string(), window_active);
-            
-            let window_pos = ui.window_pos();
-            let mut config_mut = CONFIG.lock().unwrap();
-            (*config_mut).window_positions.spectator_list = WindowPosition { x: window_pos[0], y: window_pos[1] };
-            drop(config_mut);
+            (*WINDOWS_ACTIVE.lock().unwrap()).insert("spectator_list".to_string(), ui.is_window_hovered());
+            (*CONFIG.lock().unwrap()).window_positions.spectator_list = ui.window_pos();
 
             let spectator_list_color_f32 = color_u32_to_f32(config.misc.spectator_list_color);
             let spectator_list_color = Vector4 { x: spectator_list_color_f32.0, y: spectator_list_color_f32.1, z: spectator_list_color_f32.2, w: spectator_list_color_f32.3 };

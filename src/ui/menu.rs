@@ -1,17 +1,18 @@
 use std::{sync::{Arc, Mutex}, path::PathBuf};
-
 use colored::Colorize;
 use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
 use lazy_static::lazy_static;
 use mint::Vector4;
 
-use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, WindowPosition, ProgramConfig};
+use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, ProgramConfig};
 use crate::ui::functions::color_edit_u32_tuple;
 use crate::ui::main::WINDOWS_ACTIVE;
+use crate::ui::functions::reset_window_positions;
 
 lazy_static! {
     static ref NEW_CONFIG_NAME: Arc<Mutex<String>> = Arc::new(Mutex::new(String::new()));
     static ref SELECTED_CONFIG: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+    pub static ref MENU_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
 }
 
 pub fn render_menu(ui: &mut Ui) {
@@ -24,7 +25,15 @@ pub fn render_menu(ui: &mut Ui) {
     let mut new_config_name = NEW_CONFIG_NAME.lock().unwrap();
     let mut selected_config = SELECTED_CONFIG.lock().unwrap();
 
-    let window_position = config.window_positions.menu;
+    let mut reset_position = MENU_RESET_POSITION.lock().unwrap();
+    let (window_position, condition) = if let Some(position) = *reset_position {
+        *reset_position = None;
+        (position, imgui::Condition::Always)
+    } else {
+        (config.window_positions.menu, imgui::Condition::Once)
+    };
+
+    drop(reset_position);
 
     if let Some(config_name) = &*selected_config {
         if !(*configs).contains(config_name) {
@@ -36,13 +45,13 @@ pub fn render_menu(ui: &mut Ui) {
         .collapsible(false)
         .always_auto_resize(true)
         .focus_on_appearing(true)
-        .position([window_position.x, window_position.y], imgui::Condition::Appearing)
+        .position(window_position, condition)
         .build(|| {
             let window_active = ui.is_window_hovered_with_flags(WindowHoveredFlags::ALLOW_WHEN_BLOCKED_BY_ACTIVE_ITEM | WindowHoveredFlags::ALLOW_WHEN_BLOCKED_BY_POPUP) || ui.is_any_item_hovered();
             (*WINDOWS_ACTIVE.lock().unwrap()).insert("menu".to_string(), window_active);
 
             let window_pos = ui.window_pos();
-            (*config).window_positions.menu = WindowPosition { x: window_pos[0], y: window_pos[1] };
+            (*config).window_positions.menu = window_pos;
 
             TabBar::new("Cheat").build(&ui, || {
                 // ESP
@@ -427,6 +436,131 @@ pub fn render_menu(ui: &mut Ui) {
                     }
                 });
 
+                TabItem::new("Style").build(&ui, || {
+                    // Style
+                    ui.checkbox("Style", &mut (*config).style.enabled);
+                    
+                    if (*config).style.enabled {
+                        // Alpha
+                        ui.same_line();
+                        ui.slider_config("Alpha##Style", 0.2, 1.0).display_format("%.1f").build(&mut (*config).style.alpha);
+                        ui.separator();
+
+                        // Window
+                        ui.slider_config("Window Padding X##Style", 0.0, 50.0).display_format("%.1f").build(&mut (*config).style.window_padding[0]);
+                        ui.same_line();
+                        ui.slider_config("Window Padding Y##Style", 0.0, 50.0).display_format("%.1f").build(&mut (*config).style.window_padding[1]);
+                        ui.slider_config("Window Rounding##Style", 0.0, 25.0).display_format("%.1f").build(&mut (*config).style.window_rounding);
+                        ui.same_line();
+                        ui.slider_config("Window Border Size##Style", 0.0, 10.0).display_format("%.1f").build(&mut (*config).style.window_border_size);
+                        ui.slider_config("Window Title Align X##Style", 0.0, 1.0).display_format("%.1f").build(&mut (*config).style.window_title_align[0]);
+                        ui.same_line();
+                        ui.slider_config("Window Title Align Y##Style", 0.0, 1.0).display_format("%.1f").build(&mut (*config).style.window_title_align[1]);
+                        ui.separator();
+
+                        // Frame
+                        ui.slider_config("Frame Padding X##Style", 0.0, 50.0).display_format("%.1f").build(&mut (*config).style.frame_padding[0]);
+                        ui.same_line();
+                        ui.slider_config("Frame Padding Y##Style", 0.0, 50.0).display_format("%.1f").build(&mut (*config).style.frame_padding[1]);
+                        ui.slider_config("Frame Rounding##Style", 0.0, 25.0).display_format("%.1f").build(&mut (*config).style.frame_rounding);
+                        ui.same_line();
+                        ui.slider_config("Frame Border Size##Style", 0.0, 10.0).display_format("%.1f").build(&mut (*config).style.frame_border_size);
+                        ui.separator();
+
+                        // Tab
+                        ui.slider_config("Tab Rounding##Style", 0.0, 25.0).display_format("%.1f").build(&mut (*config).style.tab_rounding);
+                        ui.same_line();
+                        ui.slider_config("Tab Border Size##Style", 0.0, 10.0).display_format("%.1f").build(&mut (*config).style.tab_border_size);
+                        ui.separator();
+
+                        // Scrollbar
+                        ui.slider_config("Scrollbar Rounding##Style", 0.0, 25.0).display_format("%.1f").build(&mut (*config).style.scrollbar_rounding);
+                        ui.same_line();
+                        ui.slider_config("Scrollbar Size##Style", 0.0, 15.0).display_format("%.1f").build(&mut (*config).style.scrollbar_size);
+                        ui.separator();
+
+                        // Popup
+                        ui.slider_config("Popup Rounding##Style", 0.0, 25.0).display_format("%.1f").build(&mut (*config).style.popup_rounding);
+                        ui.same_line();
+                        ui.slider_config("Popup Border Size##Style", 0.0, 10.0).display_format("%.1f").build(&mut (*config).style.popup_border_size);
+                        ui.separator();
+
+                        // Item
+                        ui.slider_config("Item Spacing X##Style", 0.0, 50.0).display_format("%.1f").build(&mut (*config).style.item_spacing[0]);
+                        ui.same_line();
+                        ui.slider_config("Item Spacing Y##Style", 0.0, 50.0).display_format("%.1f").build(&mut (*config).style.item_spacing[1]);
+                        ui.slider_config("Item Inner Spacing X##Style", 0.0, 50.0).display_format("%.1f").build(&mut (*config).style.item_inner_spacing[0]);
+                        ui.same_line();
+                        ui.slider_config("Item Inner Spacing Y##Style", 0.0, 50.0).display_format("%.1f").build(&mut (*config).style.item_inner_spacing[1]);
+                        ui.separator();
+
+                        // Indent
+                        ui.slider_config("Indent Spacing##Style", 0.0, 25.0).display_format("%.1f").build(&mut (*config).style.indent_spacing);
+                        ui.same_line();
+
+                        // Grab
+                        ui.slider_config("Grab Rounding##Style", 0.0, 25.0).display_format("%.1f").build(&mut (*config).style.grab_rounding);
+                        ui.separator();
+
+                        // Colors
+                        color_edit_u32_tuple(ui, "Text##Style", &mut (*config).style.colors.text);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Text Disabled##Style", &mut (*config).style.colors.text_disabled);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Window BG##Style", &mut (*config).style.colors.window_bg);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Child Window BG##Style", &mut (*config).style.colors.child_bg);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Popup BG##Style", &mut (*config).style.colors.popup_bg);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Border##Style", &mut (*config).style.colors.border);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Border Shadow##Style", &mut (*config).style.colors.border_shadow);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Frame BG##Style", &mut (*config).style.colors.frame_bg);
+
+                        color_edit_u32_tuple(ui, "Frame BG Hovered##Style", &mut (*config).style.colors.frame_bg_hovered);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Frame BG Active##Style", &mut (*config).style.colors.frame_bg_active);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Title BG##Style", &mut (*config).style.colors.title_bg);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Title BG Collapsed##Style", &mut (*config).style.colors.title_bg_collapsed);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Title BG Active##Style", &mut (*config).style.colors.title_bg_active);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Text Selected BG##Style", &mut (*config).style.colors.text_selected_bg);
+
+                        color_edit_u32_tuple(ui, "Checkmark##Style", &mut (*config).style.colors.checkmark);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Scrollbar BG##Style", &mut (*config).style.colors.scrollbar_bg);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Scrollbar Grab##Style", &mut (*config).style.colors.scrollbar_grab);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Scrollbar Grab Hovered##Style", &mut (*config).style.colors.scrollbar_grab_hovered);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Scrollbar Grab Active##Style", &mut (*config).style.colors.scrollbar_grab_active);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Slider Grab##Style", &mut (*config).style.colors.slider_grab);
+
+                        color_edit_u32_tuple(ui, "Slider Grab Active##Style", &mut (*config).style.colors.slider_grab_active);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Button##Style", &mut (*config).style.colors.button);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Button Hovered##Style", &mut (*config).style.colors.button_hovered);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Button Active##Style", &mut (*config).style.colors.button_active);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Tab##Style", &mut (*config).style.colors.tab);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Tab Hovered##Style", &mut (*config).style.colors.tab_hovered);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Tab Active##Style", &mut (*config).style.colors.tab_active);
+                        ui.same_line();
+                        color_edit_u32_tuple(ui, "Separator##Style", &mut (*config).style.colors.separator);
+                    }
+                });
+
                 TabItem::new("Config").build(&ui, || {
                     // New Config Input & Button
                     ui.input_text("##NameConfig", &mut *new_config_name).build();
@@ -467,7 +601,7 @@ pub fn render_menu(ui: &mut Ui) {
                         
                             if let Some(config_path) = directory_pathbuf.join(config_name).to_str() {
                                 match load_config(config_path) {
-                                    Ok(new_config) => { *config = new_config; },
+                                    Ok(new_config) => { *config = new_config; reset_window_positions(new_config.window_positions); },
                                     Err(str) => { println!("{} Failed to load config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); }
                                 }
                             }
@@ -509,7 +643,10 @@ pub fn render_menu(ui: &mut Ui) {
                     ui.separator();
                     
                     if ui.button("Reset##Config") {
-                        *config = Config::default();
+                        let new_config = Config::default();
+
+                        *config = new_config;
+                        reset_window_positions(new_config.window_positions);
                     };
                 });
             });

@@ -1,22 +1,31 @@
+use std::sync::{Arc, Mutex};
 use imgui::Ui;
 use mint::Vector4;
-use crate::{utils::config::{CONFIG, WindowPosition, Config}, ui::main::WINDOWS_ACTIVE};
+use lazy_static::lazy_static;
+use crate::{utils::config::{CONFIG, Config}, ui::main::WINDOWS_ACTIVE};
+
+lazy_static! {
+    pub static ref CHEAT_LIST_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
+}
 
 pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled: bool, triggerbot_toggled: bool) {
-    let window_position = config.window_positions.cheat_list;
+    let mut reset_position = CHEAT_LIST_RESET_POSITION.lock().unwrap();
+    let (window_position, condition) = if let Some(position) = *reset_position {
+        *reset_position = None;
+        (position, imgui::Condition::Always)
+    } else {
+        (config.window_positions.cheat_list, imgui::Condition::Once)
+    };
+
+    drop(reset_position);
 
     ui.window("Cheats")
         .collapsible(false)
         .always_auto_resize(true)
-        .position([window_position.x, window_position.y], imgui::Condition::Appearing)
+        .position(window_position, condition)
         .build(|| {
-            let window_active = ui.is_window_hovered();
-            (*WINDOWS_ACTIVE.lock().unwrap()).insert("cheat_list".to_string(), window_active);
-
-            let window_pos = ui.window_pos();
-            let mut config_mut = CONFIG.lock().unwrap();
-            (*config_mut).window_positions.cheat_list = WindowPosition { x: window_pos[0], y: window_pos[1] };
-            drop(config_mut);
+            (*WINDOWS_ACTIVE.lock().unwrap()).insert("cheat_list".to_string(), ui.is_window_hovered());
+            (*CONFIG.lock().unwrap()).window_positions.cheat_list = ui.window_pos();
 
             let blue = Vector4 { x: 0.0, y: 255.0, z: 255.0, w: 255.0 };
             let green = Vector4 { x: 0.0, y: 255.0, z: 0.0, w: 255.0 };
