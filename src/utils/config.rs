@@ -271,7 +271,7 @@ impl Default for Config {
                 enabled: true,
                 box_enabled: true,
                 box_color: (0, 255, 255, 255),
-                box_mode: 1,
+                box_mode: 0,
                 box_rounding: 5,
                 box_target_enabled: true,
                 box_target_color: (255, 0, 0, 255),

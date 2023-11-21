@@ -5,9 +5,12 @@ use lazy_static::lazy_static;
 lazy_static! {
     pub static ref MOUSE_LOCKED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref LAST_MOVED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+    pub static ref STARTED: Instant = Instant::now();
 }
 
 pub fn click_mouse() {
+    println!("[MOUSE, {:?}] CLICKED", STARTED.elapsed());
+
     unsafe {
         mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
         mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
@@ -15,11 +18,15 @@ pub fn click_mouse() {
 }
 
 pub fn press_mouse() {
+    println!("[MOUSE, {:?}] PRESSED", STARTED.elapsed());
+
     unsafe { mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0) };
     *MOUSE_LOCKED.lock().unwrap() = true;
 }
 
 pub fn release_mouse() {
+    println!("[MOUSE, {:?}] RELEASED", STARTED.elapsed());
+
     unsafe { mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0) };
     *MOUSE_LOCKED.lock().unwrap() = false;
 }
