@@ -28,11 +28,11 @@ use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bom
 use crate::cheat::functions::is_enemy_visible;
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
-    let mut window_hidden_from_capture = false;
-    let window_info = WINDOW_INFO.clone();
-    let ui_functions = UI_FUNCTIONS.clone();
-
     thread::spawn(move || {
+        let mut window_hidden_from_capture = false;
+        let window_info = WINDOW_INFO.clone();
+        let ui_functions = UI_FUNCTIONS.clone();
+        
         let mut no_pawn = false;
         let mut local_entity = Entity::default();
 
@@ -94,8 +94,8 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             let no_weapon =  local_entity.pawn.weapon_name == "Knife" || local_entity.pawn.weapon_name == "Fists";
-            let is_aimbot_toggled = !no_pawn && get_aimbot_toggled(config) && config.aimbot.enabled && is_game_window_focused && !no_weapon;
-            let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always_activated || get_triggerbot_toggled(config)) && config.triggerbot.enabled && is_game_window_focused && !no_weapon;
+            let is_aimbot_toggled = !no_pawn && get_aimbot_toggled(config) && config.aimbot.enabled && is_game_window_focused && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon);
+            let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always_activated || get_triggerbot_toggled(config)) && config.triggerbot.enabled && is_game_window_focused && (!config.triggerbot.only_weapon || config.triggerbot.only_weapon && !no_weapon);
 
             // Cheat List
             if config.misc.enabled && config.misc.cheat_list_enabled {
@@ -409,7 +409,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             };
 
             // Crosshair
-            if !no_pawn && config.crosshair.enabled && !no_weapon {
+            if !no_pawn && config.crosshair.enabled && (!config.crosshair.only_weapon || config.crosshair.only_weapon && !no_weapon) {
                 (*ui_functions.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
                     render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, aiming_at_enemy && allow_shoot, config);
                 }));
@@ -418,7 +418,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Headshot Line
-            if !no_pawn && config.misc.enabled && config.misc.headshot_line_enabled && !no_weapon {
+            if !no_pawn && config.misc.enabled && config.misc.headshot_line_enabled {
                 (*ui_functions.lock().unwrap()).insert("headshot_line".to_string(), Box::new(move |ui| {
                     render_headshot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
                 }));
@@ -427,7 +427,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // FOV Circle
-            if !no_pawn && config.aimbot.enabled && config.aimbot.fov_circle_enabled && !no_weapon {
+            if !no_pawn && config.aimbot.enabled && config.aimbot.fov_circle_enabled && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon) {
                 (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
                     render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, aimbot_info, config);
                 }));
