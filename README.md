@@ -26,4 +26,5 @@
 ## 🐛 Known Bugs:
 - **⚠️ ESP might not work as expected**, as some players might seem to "teleport" suddenly. I suspect that the data which is being read from the game is sometimes outdated. *Thankfully, this doesn't occur too often - and when it does, it is more times than not the players far away.*
 - **⚠️ The FOV circle might flicker from two different sizes**, this happens mostly when a scope is un(equipped) or the scope's zoom is changed. *An easy workaround is to only enable the FOV circle to adjust your FOV, and then promptly disable it.*
+- **⚠️ The Triggerbot might hold the mouse for too long ([#3](https://github.com/vytrol/ProExt/issues/3))**, this seems to happen more often on tap mode, but could also occur on hold mode. *This issue has so far only been replicated on one machine, and might not occur for you.*
 - **❓ Something missing?** - If you find a bug, you may open an issue on the repository and it will be added here, the bug may also be fixed in a later update.
