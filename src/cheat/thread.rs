@@ -34,6 +34,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
     thread::spawn(move || {
         let mut no_pawn = false;
+        let mut local_entity = Entity::default();
 
         loop {
             let game = GAME.lock().unwrap().clone();
@@ -53,10 +54,10 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 window_hidden_from_capture = false;
             }
 
-
             let matrix_address = game.address.matrix;
             let controller_address = game.address.local_controller;
             let pawn_address = game.address.local_pawn;
+
             
             let remove_esp = |entity: u64| {
                 (*ui_functions.lock().unwrap()).remove(&format!("skeleton_{}", entity));
@@ -92,8 +93,9 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 (*ui_functions.lock().unwrap()).remove("watermark");
             }
 
-            let is_aimbot_toggled = !no_pawn && get_aimbot_toggled(config) && config.aimbot.enabled && is_game_window_focused;
-            let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always_activated || get_triggerbot_toggled(config)) && config.triggerbot.enabled && is_game_window_focused;
+            let no_weapon =  local_entity.pawn.weapon_name == "Knife" || local_entity.pawn.weapon_name == "Fists";
+            let is_aimbot_toggled = !no_pawn && get_aimbot_toggled(config) && config.aimbot.enabled && is_game_window_focused && !no_weapon;
+            let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always_activated || get_triggerbot_toggled(config)) && config.triggerbot.enabled && is_game_window_focused && !no_weapon;
 
             // Cheat List
             if config.misc.enabled && config.misc.cheat_list_enabled {
@@ -123,9 +125,6 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 remove_ui_elements();
                 continue;
             }
-
-            let mut local_entity = Entity::default();
-            let mut local_player_controller_index = 1;
 
             // Update Controller & Pawn
             if !local_entity.update_controller(local_controller_address) {
@@ -204,6 +203,9 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
             // Spectator Data
             let mut spectators: Vec<String> = Vec::new();
+
+            // Local Data
+            let mut local_player_controller_index = 1;
 
             // Entities
             for i in 0 .. 64 {
@@ -407,7 +409,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             };
 
             // Crosshair
-            if !no_pawn && config.crosshair.enabled {
+            if !no_pawn && config.crosshair.enabled && !no_weapon {
                 (*ui_functions.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
                     render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, aiming_at_enemy && allow_shoot, config);
                 }));
@@ -416,7 +418,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Headshot Line
-            if !no_pawn && config.misc.enabled && config.misc.headshot_line_enabled {
+            if !no_pawn && config.misc.enabled && config.misc.headshot_line_enabled && !no_weapon {
                 (*ui_functions.lock().unwrap()).insert("headshot_line".to_string(), Box::new(move |ui| {
                     render_headshot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
                 }));
@@ -425,7 +427,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // FOV Circle
-            if !no_pawn && config.aimbot.enabled && config.aimbot.fov_circle_enabled {
+            if !no_pawn && config.aimbot.enabled && config.aimbot.fov_circle_enabled && !no_weapon {
                 (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
                     render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, aimbot_info, config);
                 }));

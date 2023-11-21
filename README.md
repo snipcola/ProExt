@@ -12,6 +12,7 @@
 - **Radar 📡**
 - **Bomb Timer 💣**
 - **Spectator List 👀**
+- **Styling 🖌️**
 - ...and more to come!
 ## 💬 Q&A:
 **🤔  Is this detectable?** <br>

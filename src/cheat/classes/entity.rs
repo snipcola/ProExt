@@ -7,6 +7,7 @@ use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::game::GAME;
 use crate::cheat::classes::bone::BoneJointPos;
 use crate::cheat::classes::view::View;
+use crate::cheat::functions::parse_weapon_name;
 
 #[derive(Clone, Copy)]
 pub struct CUtlVector {
@@ -243,7 +244,7 @@ impl PlayerPawn {
         if self.weapon_name.is_empty() {
             self.weapon_name = "None".to_string();
         } else {
-            self.weapon_name = self.weapon_name.replace("weapon_", "");
+            self.weapon_name = parse_weapon_name(self.weapon_name.to_lowercase().replace("weapon_", ""));
         }
 
         return true;
