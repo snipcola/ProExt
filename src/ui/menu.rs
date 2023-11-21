@@ -395,7 +395,7 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.checkbox("Cheat List##Misc", &mut (*config).misc.cheat_list_enabled);
                         ui.separator();
 
-                        // Bomb Timer
+                        // Bomb Timer & Spectator List
                         ui.checkbox("Bomb Timer##Misc", &mut (*config).misc.bomb_timer_enabled);
 
                         if (*config).misc.bomb_timer_enabled {
@@ -405,7 +405,6 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##ColorMiscBombTimerEnabled", &mut (*config).misc.bomb_timer_color_enabled);
                         }
 
-                        // Spectator List
                         ui.same_line();
                         ui.checkbox("Spectator List##Misc", &mut (*config).misc.spectator_list_enabled);
 
@@ -422,9 +421,7 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.checkbox("Show On Spectate##Misc", &mut (*config).misc.show_on_spectate);
                         ui.separator();
 
-                        // Bypass Capture & Headshot Line
-                        ui.checkbox("Bypass Capture##Misc", &mut (*config).misc.bypass_capture);
-                        ui.same_line();
+                        // Headshot Line
                         ui.checkbox("Headshot Line##Misc", &mut (*config).misc.headshot_line_enabled);
                         
                         if (*config).misc.headshot_line_enabled {
@@ -432,10 +429,6 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##ColorMiscHeadshotLine", &mut (*config).misc.headshot_line_color);
                         }
 
-                        ui.separator();
-
-                        // Discord RPC
-                        ui.checkbox("Discord RPC##Misc", &mut (*config).misc.discord_rpc_enabled);
                         ui.separator();
 
                         // Risky
@@ -572,6 +565,20 @@ pub fn render_menu(ui: &mut Ui) {
                         color_edit_u32_tuple(ui, "Tab Active##Style", &mut (*config).style.colors.tab_active);
                         ui.same_line();
                         color_edit_u32_tuple(ui, "Separator##Style", &mut (*config).style.colors.separator);
+                    }
+                });
+
+                // Settings
+                TabItem::new("Settings").build(&ui, || {
+                    // Enabled
+                    ui.checkbox("Settings", &mut (*config).settings.enabled);
+
+                    if (*config).settings.enabled {
+                        ui.separator();
+
+                        // Bypass Capture & Discord RPC
+                        ui.checkbox("Bypass Capture##Settings", &mut (*config).settings.bypass_capture);
+                        ui.checkbox("Discord RPC##Settings", &mut (*config).settings.discord_rpc_enabled);
                     }
                 });
 

@@ -64,7 +64,8 @@ pub struct Config {
     pub radar: Radar,
     pub misc: Misc,
     pub window_positions: WindowPositions,
-    pub style: Style
+    pub style: Style,
+    pub settings: Settings
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -185,10 +186,8 @@ pub struct Misc {
     pub spectator_list_color: (u32, u32, u32, u32),
     pub exclude_team: bool,
     pub show_on_spectate: bool,
-    pub bypass_capture: bool,
     pub headshot_line_enabled: bool,
     pub headshot_line_color: (u32, u32, u32, u32),
-    pub discord_rpc_enabled: bool,
     pub no_flash_enabled: bool,
     pub bunny_hop_enabled: bool
 }
@@ -256,6 +255,13 @@ pub struct Style {
     pub indent_spacing: f32,
     pub grab_rounding: f32,
     pub colors: StyleColors
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize)]
+pub struct Settings {
+    pub enabled: bool,
+    pub bypass_capture: bool,
+    pub discord_rpc_enabled: bool
 }
 
 impl Default for Config {
@@ -368,10 +374,8 @@ impl Default for Config {
                 spectator_list_color: (0, 255, 255, 255),
                 exclude_team: true,
                 show_on_spectate: true,
-                bypass_capture: true,
                 headshot_line_enabled: false,
                 headshot_line_color: (255, 255, 255, 255),
-                discord_rpc_enabled: true,
                 no_flash_enabled: false,
                 bunny_hop_enabled: false
             },
@@ -432,6 +436,11 @@ impl Default for Config {
                     tab_active: (51, 128, 245, 200),
                     separator: (175, 175, 175, 125)
                 }
+            },
+            settings: Settings {
+                enabled: true,
+                bypass_capture: true,
+                discord_rpc_enabled: true
             }
         };
     }
