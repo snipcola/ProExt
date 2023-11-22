@@ -24,7 +24,8 @@ pub fn send_input(input: INPUT) {
 }
 
 pub fn click_mouse() {
-    send_input(create_mouse_input(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0));
+    send_input(create_mouse_input(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0));
+    send_input(create_mouse_input(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0));
 }
 
 pub fn press_mouse() {

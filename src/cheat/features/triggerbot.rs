@@ -28,7 +28,7 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
     let mut tries = TRIES.lock().unwrap();
 
     if !aiming_at_enemy {
-        if *tries > 500 {
+        if *tries > 250 {
             if mouse_locked {
                 release_mouse();
             }
@@ -40,9 +40,9 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
         }
 
         return;
+    } else {
+        *tries = 0;
     }
-
-    *tries = 0;
 
     if !allow_shoot {
         return;
@@ -59,7 +59,7 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
             if config.triggerbot.mode == 0 && shot_entity.elapsed() >= interval {
                 click_mouse();
                 *shot_entity = Instant::now();
-            } else if !mouse_locked {
+            } else if config.triggerbot.mode == 1 && !mouse_locked {
                 press_mouse();
             }
         }
