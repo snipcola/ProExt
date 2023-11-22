@@ -7,6 +7,7 @@ use crate::ui::windows::{is_window_focused, hide_window_from_capture};
 use crate::cheat::functions::{is_enemy_at_crosshair, is_enemy_in_fov};
 use crate::utils::config::CONFIG;
 use crate::cheat::classes::game::GAME;
+use crate::utils::mouse::release_mouse;
 use crate::utils::process_manager::{read_memory, read_memory_auto};
 
 use crate::cheat::classes::entity::{Entity, Flags};
@@ -465,6 +466,8 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             // Triggerbot
             if is_triggerbot_toggled {
                 run_triggerbot((aiming_at_enemy, allow_shoot), config);
+            } else {
+                release_mouse();
             }
         }
     });
