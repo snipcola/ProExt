@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 use imgui::{Ui, ImColor32};
 use mint::{Vector3, Vector2, Vector4};
-use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle, distance_between_vec3, stroke_text, mix_colors, color_with_alpha}};
+use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle, distance_between_vec3, stroke_text, mix_colors, color_with_alpha, text}};
 
 pub fn render_bones(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Config) {
     let mut previous: BoneJointPos = BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false };
@@ -18,7 +18,11 @@ pub fn render_bones(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Conf
             }
 
             if previous.is_visible && current.is_visible {
-                ui.get_background_draw_list().add_line(previous.screen_pos, current.screen_pos, color_u32_to_f32(config.esp.skeleton_color)).thickness(1.3).build();
+                if config.esp.outline {
+                    ui.get_background_draw_list().add_line(previous.screen_pos, current.screen_pos, color_with_masked_alpha(config.esp.skeleton_color, 0xFF000000)).thickness(config.esp.thickness + 1.0).build();
+                }
+
+                ui.get_background_draw_list().add_line(previous.screen_pos, current.screen_pos, color_u32_to_f32(config.esp.skeleton_color)).thickness(config.esp.thickness).build();
             }
 
             previous = current;
@@ -37,11 +41,14 @@ pub fn render_head(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Confi
         return;
     }
 
+    if config.esp.outline {
+        ui.get_background_draw_list().add_circle(center_pos, radius, color_with_masked_alpha(config.esp.head_color, 0xFF000000)).thickness(config.esp.thickness + 1.0).build();
+    }
+
     if config.esp.head_mode == 0 {
-        ui.get_background_draw_list().add_circle(center_pos, radius, color_u32_to_f32(config.esp.head_color)).thickness(1.2).build();
+        ui.get_background_draw_list().add_circle(center_pos, radius, color_u32_to_f32(config.esp.head_color)).thickness(config.esp.thickness).build();
     } else {
-        ui.get_background_draw_list().add_circle(center_pos, radius + 1.0, color_with_masked_alpha(config.esp.head_color, 0xFF000000)).filled(true).build();
-        ui.get_background_draw_list().add_circle(center_pos, radius, color_u32_to_f32(config.esp.head_color)).filled(true).build();
+        ui.get_background_draw_list().add_circle(center_pos, radius, color_u32_to_f32(config.esp.head_color)).thickness(config.esp.thickness).filled(true).build();
     }
 }
 
@@ -54,7 +61,11 @@ pub fn render_eye_ray(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], view_angle
         return;
     }
 
-    ui.get_background_draw_list().add_line(head.screen_pos, pos, color_u32_to_f32(config.esp.eye_ray_color)).thickness(1.3).build();
+    if config.esp.outline {
+        ui.get_background_draw_list().add_line(head.screen_pos, pos, color_with_masked_alpha(config.esp.eye_ray_color, 0xFF000000)).thickness(config.esp.thickness + 1.0).build();
+    }
+
+    ui.get_background_draw_list().add_line(head.screen_pos, pos, color_u32_to_f32(config.esp.eye_ray_color)).thickness(config.esp.thickness).build();
 }
 
 fn calculate_size(initial: Vector2<f32>, distance: f32, max_distance: f32) -> Vector2<f32> {
@@ -107,50 +118,78 @@ pub fn render_snap_line(ui: &mut Ui, rect: Vector4<f32>, config: Config, window_
         }
     };
 
-    ui.get_background_draw_list().add_line(from_line, to_line, color_u32_to_f32(config.esp.snap_line_color)).thickness(1.2).build();
+    if config.esp.outline {
+        ui.get_background_draw_list().add_line(from_line, to_line, color_with_masked_alpha(config.esp.snap_line_color, 0xFF000000)).thickness(config.esp.thickness + 1.0).build();
+    }
+
+    ui.get_background_draw_list().add_line(from_line, to_line, color_u32_to_f32(config.esp.snap_line_color)).thickness(config.esp.thickness).build();
 }
 
 pub fn render_box_bomb(ui: &mut Ui, rect: Vector4<f32>, config: Config) {
-    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_masked_alpha(config.esp.bomb_color, 0xFF000000).into(), 3.0, config.esp.bomb_rounding, false);
-    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.esp.bomb_color).into(), 1.3, config.esp.bomb_rounding, false);
+    if config.esp.outline {
+        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_masked_alpha(config.esp.bomb_color, 0xFF000000).into(), config.esp.thickness + 1.0, config.esp.bomb_rounding, false);
+    }
+    
+    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.esp.bomb_color).into(), config.esp.thickness, config.esp.bomb_rounding, false);
 
     if config.esp.filled_bomb_enabled {
-        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_alpha(config.esp.filled_bomb_color, config.esp.filled_bomb_alpha).into(), 1.0, config.esp.bomb_rounding, true);
+        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_alpha(config.esp.filled_bomb_color, config.esp.filled_bomb_alpha).into(), config.esp.thickness - 0.3, config.esp.bomb_rounding, true);
     }
 }
 
 pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, enemy_visible: bool, config: Config) {
-    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_masked_alpha(config.esp.box_color, 0xFF000000).into(), 3.0, config.esp.box_rounding, false);
-    
-    if config.esp.box_target_enabled && enemy_visible {
-        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.esp.box_target_color).into(), 1.3, config.esp.box_rounding, false);
-    } else {
-        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(config.esp.box_color).into(), 1.3, config.esp.box_rounding, false);
+    if config.esp.outline {
+        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_masked_alpha(config.esp.box_color, 0xFF000000).into(), config.esp.thickness + 1.0, config.esp.box_rounding, false);
     }
+    
+    let box_color = if config.esp.box_target_enabled && enemy_visible { config.esp.box_target_color } else { config.esp.box_color };
+    rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(box_color).into(), config.esp.thickness, config.esp.box_rounding, false);
 
     if config.esp.filled_box_enabled {
-        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_alpha(config.esp.filled_box_color, config.esp.filled_box_alpha).into(), 1.0, config.esp.box_rounding, true);
+        let filled_box_color = if config.esp.box_target_enabled && enemy_visible { color_with_alpha(config.esp.box_target_color, config.esp.filled_box_alpha) } else { color_with_alpha(config.esp.filled_box_color, config.esp.filled_box_alpha) };
+        rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, filled_box_color.into(), config.esp.thickness - 0.3, config.esp.box_rounding, true);
     }
 }
 
 pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, rect: Vector4<f32>, config: Config) {
-    stroke_text(ui, weapon_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y + rect.w }, color_u32_to_f32(config.esp.weapon_name_color).into(), true);
+    if config.esp.outline {
+        stroke_text(ui, weapon_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y + rect.w }, color_u32_to_f32(config.esp.weapon_name_color).into(), true);
+    } else {
+        text(ui, weapon_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y + rect.w }, color_u32_to_f32(config.esp.weapon_name_color).into(), true);
+    }
 }
 
 pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, rect: Vector4<f32>, config: Config) {
     let distance = distance_between_vec3(pawn_pos, local_pawn_pos) as u32 / 100;
-    stroke_text(ui, format!("{}m", distance), Vector2 { x: rect.x + rect.z + 4.0, y: rect.y }, color_u32_to_f32(config.esp.distance_color).into(), false);
+
+    if config.esp.outline {
+        stroke_text(ui, format!("{}m", distance), Vector2 { x: rect.x + rect.z + 4.0, y: rect.y }, color_u32_to_f32(config.esp.distance_color).into(), false);
+    } else {
+        text(ui, format!("{}m", distance), Vector2 { x: rect.x + rect.z + 4.0, y: rect.y }, color_u32_to_f32(config.esp.distance_color).into(), false);
+    }
 }
 
 pub fn render_bomb_name(ui: &mut Ui, name: &str, rect: Vector4<f32>, config: Config) {
-    stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.bomb_color).into(), true);
+    if config.esp.outline {
+        stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.bomb_color).into(), true);
+    } else {
+        text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.bomb_color).into(), true);
+    }
 }
 
 pub fn render_name(ui: &mut Ui, name: &str, rect: Vector4<f32>, config: Config) {
     if config.esp.health_bar_enabled && config.esp.health_bar_mode == 1 {
-        stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+        if config.esp.outline {
+            stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+        } else {
+            text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+        }
     } else {
-        stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+        if config.esp.outline {
+            stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+        } else {
+            text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+        }
     }
 }
 
@@ -158,10 +197,10 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect: Vector4<f32>, c
     let (rect_pos, rect_size) = {
         if config.esp.health_bar_mode == 0 {
             // Vertical
-            (Vector2 { x: rect.x - 7.0, y: rect.y }, Vector2 { x: 7.0, y: rect.w })
+            (Vector2 { x: rect.x - 7.0 - (config.esp.thickness * 2.0), y: rect.y }, Vector2 { x: 6.0 + 1.0 * config.esp.thickness, y: rect.w })
         } else {
             // Horizontal
-            (Vector2 { x: rect.x + rect.z / 2.0 - 70.0 / 2.0, y: rect.y - 13.0 }, Vector2 { x: 70.0, y: 8.0 })
+            (Vector2 { x: rect.x, y: rect.y - 7.0 - (config.esp.thickness * 2.0) }, Vector2 { x: rect.z, y: 6.0 + 1.0 * config.esp.thickness })
         }
     };
     
@@ -188,7 +227,7 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect: Vector4<f32>, c
         }
     };
     
-    rectangle(ui, rect_pos, rect_size, background_color, 1.0, config.esp.health_bar_rounding, true);
+    rectangle(ui, rect_pos, rect_size, background_color, config.esp.thickness * 0.4, config.esp.health_bar_rounding, true);
     
     if config.esp.health_bar_mode == 0 {
         // Vertical
@@ -198,7 +237,9 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect: Vector4<f32>, c
         ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + width, y: rect_pos.y + rect_size.y }, color).filled(true).rounding(config.esp.health_bar_rounding as f32).build();
     }
 
-    rectangle(ui, rect_pos, rect_size, frame_color, 1.0, config.esp.health_bar_rounding, false);
+    if config.esp.outline {
+        rectangle(ui, rect_pos, rect_size, frame_color, config.esp.thickness * 0.4, config.esp.health_bar_rounding, false);
+    }
 }
 
 pub fn render_bomb(ui: &mut Ui, pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, screen_pos: Vector2<f32>, bomb_site: &str, config: Config) {

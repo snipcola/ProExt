@@ -116,8 +116,8 @@ pub fn render_fov_circle(ui: &mut Ui, window_width: i32, window_height: i32, fov
     let radius = (config.aimbot.fov / 180.0 * PI / 2.0).tan() / (fov as f32 / 180.0 * PI / 2.0).tan() * window_width as f32;
 
     if config.aimbot.fov_circle_outline_enabled {
-        ui.get_background_draw_list().add_circle(center_point, radius, color_with_masked_alpha(color, 0xFF000000)).thickness(3.0).build();
+        ui.get_background_draw_list().add_circle(center_point, radius, color_with_masked_alpha(color, 0xFF000000)).thickness(config.aimbot.fov_circle_thickness + 1.0).build();
     }
 
-    ui.get_background_draw_list().add_circle(center_point, radius, color_u32_to_f32(color)).build();
+    ui.get_background_draw_list().add_circle(center_point, radius, color_u32_to_f32(color)).thickness(config.aimbot.fov_circle_thickness).build();
 }
