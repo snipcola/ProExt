@@ -60,6 +60,11 @@ pub fn render_menu(ui: &mut Ui) {
                     ui.checkbox("ESP", &mut (*config).esp.enabled);
                     
                     if (*config).esp.enabled {
+                        // Outline
+                        ui.checkbox("Outline##ESP", &mut (*config).esp.outline);
+
+                        // Thickness
+                        ui.slider_config("Thickness##ESP", 0.5, 5.0).display_format("%.1f").build(&mut (*config).esp.thickness);
                         ui.separator();
 
                         // Box
@@ -235,7 +240,10 @@ pub fn render_menu(ui: &mut Ui) {
                             }
 
                             // Outline
-                            ui.checkbox("Outline##Crosshair", &mut (*config).aimbot.fov_circle_outline_enabled);
+                            ui.checkbox("Outline##AimbotCircle", &mut (*config).aimbot.fov_circle_outline_enabled);
+
+                            // Thickness
+                            ui.slider_config("Thickness##AimbotCircle", 0.5, 5.0).display_format("%.1f").build(&mut (*config).aimbot.fov_circle_thickness);
                             ui.separator();
                         }
 
@@ -363,6 +371,9 @@ pub fn render_menu(ui: &mut Ui) {
                         // Radar Alpha
                         ui.slider_config("Alpha##Radar", 0.0, 1.0).display_format("%.1f").build(&mut (*config).radar.alpha);
                         ui.separator();
+
+                        // Radar Outline
+                        ui.checkbox("Outline##Radar", &mut (*config).radar.outline);
 
                         // Cross Line
                         ui.checkbox("Crossline##Radar", &mut (*config).radar.crossline_enabled);

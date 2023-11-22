@@ -66,7 +66,10 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
 
                 if config.radar.mode == 0 {
                     ui.get_window_draw_list().add_circle(point_pos, circle_size, color_u32_to_f32(config.radar.color)).filled(true).build();
-                    ui.get_window_draw_list().add_circle(point_pos, circle_size, color_with_masked_alpha(config.radar.color, 0xFF000000)).thickness(0.1).build();
+                    
+                    if config.radar.outline {
+                        ui.get_window_draw_list().add_circle(point_pos, circle_size, color_with_masked_alpha(config.radar.color, 0xFF000000)).thickness(0.1).build();
+                    }
                 } else if config.radar.mode == 1 {
                     let angle2 = (local_yaw - yaw) + 180.0;
                     let re_point = revolve_coordinates_system(angle2, window_pos, point_pos);
@@ -76,7 +79,10 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
                     let c = revolve_coordinates_system(-angle2, window_pos, Vector2 { x: re_point.x + arrow_size / 1.5, y: re_point.y - arrow_size / 2.0 });
 
                     ui.get_window_draw_list().add_polyline(vec![a, b, point_pos, c], color_u32_to_f32(config.radar.color)).filled(true).build();
-                    ui.get_window_draw_list().add_polyline(vec![a, b, point_pos, c], color_with_masked_alpha(config.radar.color, 0xFF000000)).thickness(0.1).build();
+                    
+                    if config.radar.outline {
+                        ui.get_window_draw_list().add_polyline(vec![a, b, point_pos, c], color_with_masked_alpha(config.radar.color, 0xFF000000)).thickness(0.1).build();
+                    }
                 } else {
                     let angle2 = (local_yaw - yaw) - 90.0;
                     let triangle_point = Vector2 { x: point_pos.x + (arc_arrow_size + arc_arrow_size / 3.0) * (-angle2 * PI / 180.0).cos(), y: point_pos.y - (arc_arrow_size + arc_arrow_size / 3.0) * (-angle2 * PI / 180.0).sin() };
@@ -84,7 +90,11 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
                     let triangle_point_3 = Vector2 { x: point_pos.x + arc_arrow_size * (-(angle2 + 30.0) * PI / 180.0).cos(), y: point_pos.y - arc_arrow_size * (-(angle2 + 30.0) * PI / 180.0).sin() };
 
                     ui.get_window_draw_list().add_circle(point_pos, 0.85 * arc_arrow_size, color_u32_to_f32(config.radar.color)).thickness(30.0).filled(true).build();
-                    ui.get_window_draw_list().add_circle(point_pos, 0.95 * arc_arrow_size, color_with_masked_alpha(config.radar.color, 0xFF000000)).thickness(0.1).build();
+                    
+                    if config.radar.outline {
+                        ui.get_window_draw_list().add_circle(point_pos, 0.95 * arc_arrow_size, color_with_masked_alpha(config.radar.color, 0xFF000000)).thickness(0.1).build();
+                    }
+                    
                     ui.get_window_draw_list().add_polyline(vec![triangle_point, triangle_point_2, triangle_point_3], ImColor32::from_rgba(220, 220, 220, 255)).filled(true).build();
                 }
             }
