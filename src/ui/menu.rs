@@ -2,7 +2,6 @@ use std::{sync::{Arc, Mutex}, path::PathBuf};
 use colored::Colorize;
 use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
 use lazy_static::lazy_static;
-use mint::Vector4;
 
 use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, ProgramConfig};
 use crate::ui::functions::color_edit_u32_tuple;
@@ -439,17 +438,6 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##ColorMiscHeadshotLine", &mut (*config).misc.headshot_line_color);
                         }
-
-                        ui.separator();
-
-                        // Risky
-                        ui.text_colored(Vector4 { x: 255.0, y: 0.0, z: 0.0, w: 255.0 }, "Risky");
-                        ui.separator();
-
-                        // No Flash & Bunny Hop
-                        ui.checkbox("No Flash##Misc", &mut (*config).misc.no_flash_enabled);
-                        ui.same_line();
-                        ui.checkbox("Bunny Hop##Misc", &mut (*config).misc.bunny_hop_enabled);
                     }
                 });
 

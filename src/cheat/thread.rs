@@ -14,10 +14,8 @@ use crate::cheat::classes::entity::{Entity, Flags};
 use crate::cheat::classes::game::update_entity_list_entry;
 use crate::cheat::features::aimbot::{get_aimbot_toggled, aimbot_check, render_fov_circle, run_aimbot};
 use crate::cheat::features::bomb_timer::render_bomb_timer;
-use crate::cheat::features::bunnyhop::{run_bunny_hop, get_bunnyhop_toggled};
 use crate::cheat::features::cheat_list::render_cheat_list;
 use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_weapon_name, render_distance, render_name};
-use crate::cheat::features::no_flash::run_no_flash;
 use crate::cheat::features::radar::render_radar;
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
 use crate::cheat::features::triggerbot::{get_triggerbot_toggled, run_triggerbot};
@@ -442,16 +440,6 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("radar");
-            }
-
-            // No Flash
-            if !no_pawn && config.misc.enabled && config.misc.no_flash_enabled {
-                run_no_flash(local_entity.pawn.address);
-            }
-
-            // Bunnyhop
-            if !no_pawn && config.misc.enabled && config.misc.bunny_hop_enabled && is_game_window_focused {
-                run_bunny_hop(get_bunnyhop_toggled(), local_entity.pawn.has_flag(Flags::InAir));
             }
 
             // Aimbot

@@ -14,7 +14,7 @@
 - ...and more to come!
 ## 💬 Q&A:
 **🤔  Is this detectable?** <br>
-**Yes, this can be detectable**, it is a user-mode cheat afterall. *It is important to note that you might not be detected. The cheat uses only RPM by default - with WPM features labeled under "Risky". Other factors such as suspicious gameplay also are important to consider.*<br><br>
+**Yes, this can be detectable**, it is a user-mode cheat afterall. *It is important to note that you might not be detected, other factors such as suspicious gameplay also are important to consider.*<br><br>
 **🤔  FPS drops when focusing on the menu, any way to fix that?** <br>
 **Yes, there is an actual fix for this.** If you have turned on the developer console, you can simply run the following command to resolve this issue:<br><code>engine_no_focus_sleep 0</code><br><br>
 **🤔  How can I get support for this software?** <br>
