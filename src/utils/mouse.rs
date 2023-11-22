@@ -1,5 +1,5 @@
 use std::{sync::{Arc, Mutex}, time::Instant};
-use windows::Win32::UI::{Input::KeyboardAndMouse::{mouse_event, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, MOUSEEVENTF_MOVE}, WindowsAndMessaging::GetCursorPos};
+use windows::Win32::UI::{Input::KeyboardAndMouse::{SendInput, INPUT, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, MOUSEEVENTF_MOVE, MOUSEINPUT, INPUT_MOUSE, MOUSE_EVENT_FLAGS}, WindowsAndMessaging::GetCursorPos};
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -8,25 +8,41 @@ lazy_static! {
     pub static ref STARTED: Instant = Instant::now();
 }
 
-pub fn click_mouse() {
+pub fn create_mouse_input(flags: MOUSE_EVENT_FLAGS, dx: i32, dy: i32, data: u32, extra_info: usize) -> INPUT {
+    return INPUT {
+        r#type: INPUT_MOUSE,
+        Anonymous: windows::Win32::UI::Input::KeyboardAndMouse::INPUT_0 {
+            mi: MOUSEINPUT { dwFlags: flags, dx, dy, mouseData: data, dwExtraInfo: extra_info, time: 0 }
+        }
+    };
+}
+
+pub fn send_input(input: INPUT) {
     unsafe {
-        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        SendInput(&[input], std::mem::size_of::<INPUT>() as i32);
     }
 }
 
+pub fn click_mouse() {
+    send_input(create_mouse_input(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0));
+}
+
 pub fn press_mouse() {
-    unsafe { mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0) };
+    send_input(create_mouse_input(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0));
     *MOUSE_LOCKED.lock().unwrap() = true;
 }
 
 pub fn release_mouse() {
-    unsafe { mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0) };
-    *MOUSE_LOCKED.lock().unwrap() = false;
+    let mut mouse_locked = MOUSE_LOCKED.lock().unwrap();
+
+    if *mouse_locked {
+        send_input(create_mouse_input(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0));
+        *mouse_locked = false;
+    }
 }
 
 pub fn move_mouse(x: i32, y: i32) {
-    unsafe { mouse_event(MOUSEEVENTF_MOVE, x, y, 0, 0) };
+    send_input(create_mouse_input(MOUSEEVENTF_MOVE, x, y, 0, 0));
     *LAST_MOVED.lock().unwrap() = Instant::now();
 }
 
