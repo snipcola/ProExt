@@ -9,7 +9,6 @@ lazy_static! {
     pub static ref LOCAL_PLAYER_CONTROLLER: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
     pub static ref LOCAL_PLAYER_PAWN: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
     pub static ref BOMB: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
-    pub static ref FORCE_JUMP: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
 }
 
 #[allow(non_snake_case, non_upper_case_globals)]
@@ -41,7 +40,6 @@ pub mod Offsets {
         pub const m_vecLastClipCameraPos: usize = 0x128C; // Vector
         pub const m_angEyeAngles: usize = 0x1510; // QAngle
         pub const m_pClippingWeapon: usize = 0x12A8; // C_CSWeaponBase*
-        pub const m_flFlashDuration: usize = 0x1468; // float
         pub const m_iIDEntIndex: usize = 0x153C; // CEntityIndex
         pub const m_entitySpottedState: usize = 0x1630; // EntitySpottedState_t
     }
@@ -76,7 +74,6 @@ pub mod Offsets {
 #[allow(non_snake_case, non_upper_case_globals)]
 pub mod Signatures {
     pub const dwEntityList: &str = "48 8B 0D ?? ?? ?? ?? 48 89 7C 24 ?? 8B FA C1";
-    pub const dwForceJump: &str = "48 8B 05 ?? ?? ?? ?? 48 8D 1D ?? ?? ?? ?? 48 89 45";
     pub const dwLocalPlayerController: &str = "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 4F";
     pub const dwLocalPlayerPawn: &str = "48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 83 EC ?? 8B 0D";
     pub const dwPlantedC4: &str = "48 8B 15 ?? ?? ?? ?? FF C0 48 8D 4C 24";
@@ -111,7 +108,6 @@ pub fn update_offsets() -> Option<String> {
     let mut matrix = MATRIX.lock().unwrap();
     let mut view_angle = VIEW_ANGLE.lock().unwrap();
     let mut local_player_pawn = LOCAL_PLAYER_PAWN.lock().unwrap();
-    let mut force_jump = FORCE_JUMP.lock().unwrap();
     let mut bomb = BOMB.lock().unwrap();
 
     let client_dll = get_process_module_handle("client.dll") as u64;
@@ -143,11 +139,6 @@ pub fn update_offsets() -> Option<String> {
     match search_offsets(Signatures::dwLocalPlayerPawn, client_dll) {
         Some(address) => *local_player_pawn = (address + 0x138 - client_dll) as u32,
         _ => { return Some("LocalPlayerPawn".to_string()) }
-    };
-
-    match search_offsets(Signatures::dwForceJump, client_dll) {
-        Some(address) => *force_jump = (address + 0x30 - client_dll) as u32,
-        _ => { return Some("ForceJump".to_string()) }
     };
 
     match search_offsets(Signatures::dwPlantedC4, client_dll) {

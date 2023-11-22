@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 use lazy_static::lazy_static;
 
 use windows::Win32::Foundation::{HANDLE, BOOL, CloseHandle};
-use windows::Win32::System::Diagnostics::Debug::{ReadProcessMemory, WriteProcessMemory};
+use windows::Win32::System::Diagnostics::Debug::ReadProcessMemory;
 use windows::Win32::System::Diagnostics::ToolHelp::{CreateToolhelp32Snapshot, CREATE_TOOLHELP_SNAPSHOT_FLAGS, PROCESSENTRY32W, Process32NextW, MODULEENTRY32W, TH32CS_SNAPMODULE, Module32NextW};
 use windows::Win32::System::Threading::{OpenProcess, PROCESS_ALL_ACCESS, PROCESS_CREATE_THREAD};
 use windows::Win32::System::Memory::{VirtualQueryEx, MEMORY_BASIC_INFORMATION};
@@ -83,22 +83,6 @@ pub fn read_memory<ReadType: ?Sized>(address: u64, value: &mut ReadType, size: u
 
 pub fn read_memory_auto<ReadType>(address: u64, value: &mut ReadType) -> bool {
     return read_memory(address, value, mem::size_of::<ReadType>());
-}
-
-pub fn write_memory<WriteType: ?Sized>(address: u64, value: &mut WriteType, size: usize) -> bool {
-    let process_manager = PROCESS_MANAGER.clone();
-    let process_manager = process_manager.lock().unwrap();
-
-    unsafe {
-        match WriteProcessMemory((*process_manager).h_process, address as *mut c_void, value as *mut WriteType as *mut c_void, size, None) {
-            Ok(_) => { return true; },
-            Err(_) => { return false; }
-        };
-    }
-}
-
-pub fn write_memory_auto<WriteType>(address: u64, value: &mut WriteType) -> bool {
-    return write_memory(address, value, mem::size_of::<WriteType>());
 }
 
 pub fn get_address_with_offset<ReadType>(address: u64, offset: u32, value: &mut ReadType) -> bool {

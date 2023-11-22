@@ -29,7 +29,6 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
 
             let blue = Vector4 { x: 0.0, y: 255.0, z: 255.0, w: 255.0 };
             let green = Vector4 { x: 0.0, y: 255.0, z: 0.0, w: 255.0 };
-            let red = Vector4 { x: 255.0, y: 0.0, z: 0.0, w: 255.0 };
 
             if config.esp.enabled {
                 ui.text_colored(blue, "ESP");
@@ -66,18 +65,6 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
 
                 if config.misc.exclude_team {
                     ui.text_colored(green, "- Exclude Team");
-                }
-
-                if pawn && config.misc.no_flash_enabled {
-                    ui.text_colored(green, "- No Flash");
-                    ui.same_line();
-                    ui.text_colored(red, "(Risky)");
-                }
-
-                if pawn && config.misc.bunny_hop_enabled {                    
-                    ui.text_colored(green, "- Bunny Hop");                    
-                    ui.same_line();
-                    ui.text_colored(red, "(Risky)");
                 }
             }
 
