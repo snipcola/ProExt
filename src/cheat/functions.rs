@@ -52,7 +52,7 @@ pub fn is_enemy_in_fov(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector
     let distance = (pos.x.powf(2.0) + pos.y.powf(2.0)).sqrt();
     let yaw = pos.y.atan2(pos.x) * 57.295779513 - view_angle.y;
     let pitch = -(pos.z / distance).atan() * 57.295779513 - view_angle.x;
-    let norm = (yaw.powf(2.0) + pitch.powf(2.0)).sqrt();
+    let norm = (yaw.powf(2.0) + pitch.powf(2.0)).sqrt() * 0.75;
     
     if norm > config.aimbot.fov {
         return None;
