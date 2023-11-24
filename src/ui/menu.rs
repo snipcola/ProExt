@@ -3,14 +3,14 @@ use colored::Colorize;
 use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
 use lazy_static::lazy_static;
 
-use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, load_config, Config, delete_config, ProgramConfig};
+use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG};
 use crate::ui::functions::color_edit_u32_tuple;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::functions::reset_window_positions;
 
 lazy_static! {
     static ref NEW_CONFIG_NAME: Arc<Mutex<String>> = Arc::new(Mutex::new(String::new()));
-    static ref SELECTED_CONFIG: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
+    static ref LOADED_CONFIG: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(Some(DEFAULT_CONFIG.clone())));
     pub static ref MENU_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
 }
 
@@ -18,11 +18,11 @@ pub fn render_menu(ui: &mut Ui) {
     let toggle_key = ProgramConfig::Toggle::Key;
 
     let mut config = CONFIG.lock().unwrap();
-    let configs = CONFIGS.lock().unwrap().clone();
+    let mut configs = CONFIGS.lock().unwrap().clone();
     let config_dir = CONFIG_DIR.lock().unwrap().clone();
 
     let mut new_config_name = NEW_CONFIG_NAME.lock().unwrap();
-    let mut selected_config = SELECTED_CONFIG.lock().unwrap();
+    let loaded_config = LOADED_CONFIG.clone();
 
     let mut reset_position = MENU_RESET_POSITION.lock().unwrap();
     let (window_position, condition) = if let Some(position) = *reset_position {
@@ -33,12 +33,6 @@ pub fn render_menu(ui: &mut Ui) {
     };
 
     drop(reset_position);
-
-    if let Some(config_name) = &*selected_config {
-        if !(*configs).contains(config_name) {
-            *selected_config = None;
-        }
-    };
 
     ui.window("Menu")
         .collapsible(false)
@@ -588,55 +582,82 @@ pub fn render_menu(ui: &mut Ui) {
                     ui.same_line();
 
                     if ui.button("Create##Config") {
-                        let directory_pathbuf = PathBuf::from(&*config_dir);
-                        
-                        if let Some(config_path) = directory_pathbuf.join(format!("{}.conf.json", *new_config_name)).to_str() {
-                            match (*config).save_config(config_path) {
-                                Err(str) => { println!("{} Failed to create new config: {} {}", "[ FAIL ]".bold().red(), format!("{}.conf.json", *new_config_name).bold(), format!("({})", str).bold()); },
-                                _ => {}
+                        if *new_config_name != "" {
+                            let new_config_path = format!("{}.conf.json", *new_config_name);
+                            let directory_pathbuf = PathBuf::from(&*config_dir);
+                            let new_config = config.clone();
+                            
+                            if let Some(config_path) = directory_pathbuf.join(new_config_path.clone()).to_str() {
+                                match new_config.save_config(config_path) {
+                                    Err(str) => { println!("{} Failed to create new config: {} {}", "[ FAIL ]".bold().red(), new_config_path.bold(), format!("({})", str).bold()); },
+                                    Ok(_) => {
+                                        *new_config_name = "".to_string();
+                                        *config = new_config;
+                                        *loaded_config.lock().unwrap() = Some(new_config_path);
+                                    }
+                                }
                             }
                         }
-                    };
+                    }
+
                     ui.separator();
 
-                    // Current Configs
-                    for config in &*configs {
-                        let mut selected = false;
+                    // Loaded Config
+                    let loaded_conf = loaded_config.lock().unwrap().clone();
 
-                        if let Some(selected_config) = &*selected_config {
-                            if config == selected_config {
-                                selected = true;
+                    // Current Configs
+                    for (config_name, config_item) in configs.clone() {
+                        let mut loaded = false;
+
+                        if let Some(loaded_config) = &loaded_conf {
+                            if &config_name == loaded_config {
+                                loaded = true;
                             }
                         }
 
-                        let config_str = config.replace(".conf.json", "");
+                        let mut config_str = config_name.replace(".conf.json", "");
 
-                        if ui.selectable_config(if selected { format!("{} (selected)", config_str) } else { config_str }).build() {
-                            *selected_config = if selected { None } else { Some(config.to_string()) };
-                        };
-                    };
+                        if loaded {
+                            config_str.push_str(" (loaded)");
 
-                    if let Some(config_name) = &*selected_config {                
+                            if let Some(current_config) = configs.get(&config_name) {
+                                if current_config != &*config {
+                                    config_str.push_str(" (modified)");
+                                }
+                            }
+                        }
+
+                        if ui.selectable_config(config_str).build() {                            
+                            *config = config_item;
+                            *loaded_config.lock().unwrap() = Some(config_name.to_string());
+                            reset_window_positions(config_item.window_positions);
+                        }
+                    }
+
+                    configs = CONFIGS.lock().unwrap().clone();
+
+                    if let Some(config_name) = &loaded_conf {
+                        if !configs.contains_key(config_name) {
+                            let default_config_name = &*DEFAULT_CONFIG;
+
+                            if let Some(default_config) = configs.get(default_config_name) {
+                                *config = *default_config;
+                                *loaded_config.lock().unwrap() = Some(default_config_name.to_string());
+                                reset_window_positions(default_config.window_positions);
+                            };
+                        }
+
                         if let Some(config_path) = PathBuf::from(&*config_dir).join(config_name).to_str() {
                             ui.separator();
-
-                            if ui.button("Load##Config") {
-                                match load_config(config_path) {
-                                    Ok(new_config) => { *config = new_config; reset_window_positions(new_config.window_positions); },
-                                    Err(str) => { println!("{} Failed to load config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); }
-                                }
-                            };
-
-                            ui.same_line();
 
                             if ui.button("Save##Config") {
                                 match (*config).save_config(config_path) {
                                     Err(str) => { println!("{} Failed to save config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
                                     _ => {}
                                 }
-                            };
+                            }
 
-                            if config_name != "default.conf.json" {
+                            if config_name != &*DEFAULT_CONFIG {
                                 ui.same_line();
 
                                 if ui.button("Delete##Config") {
@@ -644,19 +665,20 @@ pub fn render_menu(ui: &mut Ui) {
                                         Err(str) => { println!("{} Failed to delete config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
                                         _ => {}
                                     }
-                                };
+                                }
                             }
                         }
                     }
 
-                    ui.separator();
+                    ui.same_line();
                     
                     if ui.button("Reset##Config") {
-                        let new_config = Config::default();
+                        let default_config = Config::default();
 
-                        *config = new_config;
-                        reset_window_positions(new_config.window_positions);
-                    };
+                        *config = default_config;
+                        *loaded_config.lock().unwrap() = Some((*DEFAULT_CONFIG).to_string());
+                        reset_window_positions(default_config.window_positions);
+                    }
                 });
             });
 
