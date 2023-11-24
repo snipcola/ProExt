@@ -594,6 +594,7 @@ pub fn render_menu(ui: &mut Ui) {
                                         *new_config_name = "".to_string();
                                         *config = new_config;
                                         *loaded_config.lock().unwrap() = Some(new_config_path);
+                                        configs = CONFIGS.lock().unwrap().clone();
                                     }
                                 }
                             }
@@ -633,8 +634,6 @@ pub fn render_menu(ui: &mut Ui) {
                             reset_window_positions(config_item.window_positions);
                         }
                     }
-
-                    configs = CONFIGS.lock().unwrap().clone();
 
                     if let Some(config_name) = &loaded_conf {
                         if !configs.contains_key(config_name) {
