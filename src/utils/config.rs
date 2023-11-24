@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::{fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file}, sync::{Arc, Mutex}, path::PathBuf};
 use directories::UserDirs;
+use indexmap::IndexMap;
 use lazy_static::lazy_static;
 
 #[allow(non_snake_case, non_upper_case_globals)]
@@ -55,7 +56,7 @@ pub mod ProgramConfig {
     }
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Config {
     pub esp: ESP,
     pub aimbot: Aimbot,
@@ -68,7 +69,7 @@ pub struct Config {
     pub settings: Settings
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct ESP {
     pub enabled: bool,
     pub outline: bool,
@@ -112,7 +113,7 @@ pub struct ESP {
     pub snap_line_mode: usize
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Aimbot {
     pub enabled: bool,
     pub key: usize,
@@ -132,7 +133,7 @@ pub struct Aimbot {
     pub smooth_offset: f32
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Triggerbot {
     pub enabled: bool,
     pub key: usize,
@@ -145,7 +146,7 @@ pub struct Triggerbot {
     pub only_weapon: bool
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Crosshair {
     pub enabled: bool,
     pub color: (u32, u32, u32, u32),
@@ -164,7 +165,7 @@ pub struct Crosshair {
     pub only_weapon: bool
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Radar {
     pub enabled: bool,
     pub color: (u32, u32, u32, u32),
@@ -178,7 +179,7 @@ pub struct Radar {
     pub range: f32
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Misc {
     pub enabled: bool,
     pub watermark_enabled: bool,
@@ -194,7 +195,7 @@ pub struct Misc {
     pub headshot_line_color: (u32, u32, u32, u32)
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct WindowPositions {
     pub menu: [f32; 2],
     pub watermark: [f32; 2],
@@ -203,7 +204,7 @@ pub struct WindowPositions {
     pub spectator_list: [f32; 2]
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct StyleColors {
     pub text: (u32, u32, u32, u32),
     pub text_disabled: (u32, u32, u32, u32),
@@ -235,7 +236,7 @@ pub struct StyleColors {
     pub separator: (u32, u32, u32, u32)
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Style {
     pub enabled: bool,
     pub alpha: f32,
@@ -259,7 +260,7 @@ pub struct Style {
     pub colors: StyleColors
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
     pub enabled: bool,
     pub bypass_capture: bool,
@@ -462,13 +463,15 @@ impl Config {
             _ => { return Err("WriteFile"); }
         };
 
+        update_configs();
         return Ok(());
     }
 }
 
 lazy_static! {
+    pub static ref DEFAULT_CONFIG: String = "default.conf.json".to_string();
     pub static ref CONFIG_DIR: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
-    pub static ref CONFIGS: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+    pub static ref CONFIGS: Arc<Mutex<IndexMap<String, Config>>> = Arc::new(Mutex::new(IndexMap::new()));
     pub static ref CONFIG: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::default()));
 }
 
@@ -488,24 +491,36 @@ pub fn get_directory_dir(name: &str) -> Option<String> {
 
 pub fn update_configs() -> Option<String> {
     let directory_pathbuf = PathBuf::from(&*CONFIG_DIR.lock().unwrap());
+    let config_dir = CONFIG_DIR.lock().unwrap().clone();
     let paths = match read_dir(directory_pathbuf) {
         Ok(paths) => paths,
         _ => { return Some("DirectoryPath".to_string()); }
     };
 
-    let mut conf_files = Vec::new();
+    let mut configs = IndexMap::new();
 
     for path in paths {
         if let Ok(entry) = path {
             if let Some(file_name) = entry.file_name().to_str() {
                 if file_name.ends_with(".conf.json") {
-                    conf_files.push(file_name.to_string());
+                    if let Some(config_path) = PathBuf::from(&*config_dir).join(file_name).to_str() {
+                        match load_config(config_path) {
+                            Ok(config) => {
+                                let (config_index, _) = configs.insert_full(file_name.to_string(), config);
+                                
+                                if file_name == &*DEFAULT_CONFIG {
+                                    configs.move_index(config_index, 0);
+                                }
+                            },
+                            Err(_) => {}
+                        }
+                    }
                 }
             }
         }
     }
 
-    *CONFIGS.lock().unwrap() = conf_files;
+    *CONFIGS.lock().unwrap() = configs;
     return None;
 }
 
@@ -531,23 +546,17 @@ pub fn setup_config() -> Option<String> {
         _ => {}
     };
 
-    if let Some(default_config_path) = directory_pathbuf.join("default.conf.json").to_str() {
-        if (*CONFIGS.lock().unwrap()).contains(&String::from("default.conf.json")) {
-            match load_config(default_config_path) {
-                Ok(new_config) => { *CONFIG.lock().unwrap() = new_config; }
-                Err(_) => {
-                    match (*CONFIG.lock().unwrap()).save_config(default_config_path) {
-                        Err(_) => { return Some("SaveDefaultConfig".to_string()); },
-                        _ => {}
-                    };
-                }
-            };
-        } else {
+    let default_config_name = &*DEFAULT_CONFIG;
+
+    if let Some(default_config) = (*CONFIGS.lock().unwrap()).get(default_config_name) {
+        *CONFIG.lock().unwrap() = *default_config;
+    } else {
+        if let Some(default_config_path) = directory_pathbuf.join(default_config_name).to_str() {
             match (*CONFIG.lock().unwrap()).save_config(default_config_path) {
                 Err(_) => { return Some("SaveDefaultConfig".to_string()); },
                 _ => {}
             };
-        };
+        }
     };
 
     return None;
