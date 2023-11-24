@@ -3,7 +3,7 @@ use colored::Colorize;
 use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
 use lazy_static::lazy_static;
 
-use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG};
+use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG, CONFIG_EXTENSION};
 use crate::ui::functions::color_edit_u32_tuple;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::functions::reset_window_positions;
@@ -583,12 +583,12 @@ pub fn render_menu(ui: &mut Ui) {
 
                     if ui.button("Create##Config") {
                         if *new_config_name != "" {
-                            let new_config_path = format!("{}.conf.json", *new_config_name);
+                            let new_config_path = format!("{}.{}", *new_config_name, *CONFIG_EXTENSION);
                             let directory_pathbuf = PathBuf::from(&*config_dir);
                             let new_config = config.clone();
                             
                             if let Some(config_path) = directory_pathbuf.join(new_config_path.clone()).to_str() {
-                                match new_config.save_config(config_path) {
+                                match new_config.save_config(config_path, true) {
                                     Err(str) => { println!("{} Failed to create new config: {} {}", "[ FAIL ]".bold().red(), new_config_path.bold(), format!("({})", str).bold()); },
                                     Ok(_) => {
                                         *new_config_name = "".to_string();
@@ -616,19 +616,7 @@ pub fn render_menu(ui: &mut Ui) {
                             }
                         }
 
-                        let mut config_str = config_name.replace(".conf.json", "");
-
-                        if loaded {
-                            config_str.push_str(" (loaded)");
-
-                            if let Some(current_config) = configs.get(&config_name) {
-                                if current_config != &*config {
-                                    config_str.push_str(" (modified)");
-                                }
-                            }
-                        }
-
-                        if ui.selectable_config(config_str).build() {                            
+                        if ui.selectable_config(config_name.replace(&format!(".{}", *CONFIG_EXTENSION), "")).selected(loaded).build() {                            
                             *config = config_item;
                             *loaded_config.lock().unwrap() = Some(config_name.to_string());
                             reset_window_positions(config_item.window_positions);
@@ -650,7 +638,7 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.separator();
 
                             if ui.button("Save##Config") {
-                                match (*config).save_config(config_path) {
+                                match (*config).save_config(config_path, false) {
                                     Err(str) => { println!("{} Failed to save config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
                                     _ => {}
                                 }
@@ -682,6 +670,18 @@ pub fn render_menu(ui: &mut Ui) {
             });
 
             ui.separator();
-            ui.text(format!("[{:?}] Toggle", toggle_key));
+            ui.text(format!("Toggle: {:?}", toggle_key));
+
+            if let Some(loaded_config) = &loaded_config.lock().unwrap().clone() {
+                ui.same_line();
+                ui.text(format!("| Config: \"{}\"", loaded_config.replace(&format!(".{}", *CONFIG_EXTENSION), "")));
+
+                if let Some(current_config) = configs.get(loaded_config) {
+                    if current_config != &*config {
+                        ui.same_line();
+                        ui.text("(modified)");
+                    }
+                }
+            }
         });
 }

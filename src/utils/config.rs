@@ -452,7 +452,7 @@ impl Default for Config {
 }
 
 impl Config {
-    pub fn save_config(&self, file_path: &str) -> Result<(), &str> {
+    pub fn save_config(&self, file_path: &str, update: bool) -> Result<(), &str> {
         let file = match OpenOptions::new().write(true).truncate(true).create(true).open(file_path) {
             Ok(file) => file,
             _ => { return Err("CreateFile"); }
@@ -463,13 +463,17 @@ impl Config {
             _ => { return Err("WriteFile"); }
         };
 
-        update_configs();
+        if update {
+            update_configs();
+        }
+
         return Ok(());
     }
 }
 
 lazy_static! {
-    pub static ref DEFAULT_CONFIG: String = "default.conf.json".to_string();
+    pub static ref CONFIG_EXTENSION: String = "conf.json".to_string();
+    pub static ref DEFAULT_CONFIG: String = format!("Default.{}", CONFIG_EXTENSION.clone());
     pub static ref CONFIG_DIR: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
     pub static ref CONFIGS: Arc<Mutex<IndexMap<String, Config>>> = Arc::new(Mutex::new(IndexMap::new()));
     pub static ref CONFIG: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::default()));
@@ -502,7 +506,7 @@ pub fn update_configs() -> Option<String> {
     for path in paths {
         if let Ok(entry) = path {
             if let Some(file_name) = entry.file_name().to_str() {
-                if file_name.ends_with(".conf.json") {
+                if file_name.ends_with(&format!(".{}", *CONFIG_EXTENSION)) {
                     if let Some(config_path) = PathBuf::from(&*config_dir).join(file_name).to_str() {
                         match load_config(config_path) {
                             Ok(config) => {
@@ -552,7 +556,7 @@ pub fn setup_config() -> Option<String> {
         *CONFIG.lock().unwrap() = *default_config;
     } else {
         if let Some(default_config_path) = directory_pathbuf.join(default_config_name).to_str() {
-            match (*CONFIG.lock().unwrap()).save_config(default_config_path) {
+            match CONFIG.lock().unwrap().clone().save_config(default_config_path, false) {
                 Err(_) => { return Some("SaveDefaultConfig".to_string()); },
                 _ => {}
             };
