@@ -108,6 +108,7 @@ pub fn init_imgui(window: &Window) -> (WinitPlatform, Context) {
 
     let mut winit_platform = WinitPlatform::init(&mut imgui_context);
     winit_platform.attach_window(imgui_context.io_mut(), window.window(), HiDpiMode::Default);
+    
     imgui_context.fonts().add_font(&[FontSource::DefaultFontData { config: None }]);
     imgui_context.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
 
