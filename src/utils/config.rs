@@ -448,7 +448,7 @@ impl Default for Config {
             settings: Settings {
                 enabled: true,
                 bypass_capture: true,
-                discord_rpc_enabled: true
+                discord_rpc_enabled: false
             }
         };
     }
