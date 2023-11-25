@@ -87,6 +87,14 @@ pub fn rectangle(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, color: ImCo
     ui.get_background_draw_list().add_rect(pos, Vector2 { x: pos.x + size.x, y: pos.y + size.y }, color).thickness(thickness).rounding(rounding as f32).filled(filled).build();
 }
 
+pub fn rectangle_gradient(ui: &mut Ui, pos: Vector2<f32>, size: Vector2<f32>, top_color: ImColor32, bottom_color: ImColor32, thickness: f32, rounding: u32, filled: bool) {
+    if rounding <= 0 && top_color != bottom_color {
+        ui.get_background_draw_list().add_rect_filled_multicolor(pos, Vector2 { x: pos.x + size.x, y: pos.y + size.y }, top_color, top_color, bottom_color, bottom_color);
+    } else {
+        rectangle(ui, pos, size, top_color, thickness, rounding, filled);
+    }
+}
+
 pub fn text(ui: &mut Ui, text: String, pos: Vector2<f32>, color: ImColor32, keep_center: bool) {
     if !keep_center {
         ui.get_background_draw_list().add_text(pos, color, text);

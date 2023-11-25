@@ -85,7 +85,9 @@ pub fn render_menu(ui: &mut Ui) {
 
                             if (*config).esp.filled_box_enabled {
                                 ui.same_line();
-                                color_edit_u32_tuple(ui, "##FilledColorESPBox", &mut (*config).esp.filled_box_color);
+                                color_edit_u32_tuple(ui, "##FilledColorOneESPBox", &mut (*config).esp.filled_box_color_one);
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##FilledColorTwoESPBox", &mut (*config).esp.filled_box_color_two);
 
                                 // Filled Box Alpha
                                 ui.same_line();
