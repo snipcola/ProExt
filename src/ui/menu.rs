@@ -256,7 +256,6 @@ pub fn render_menu(ui: &mut Ui) {
                         // Smooth
                         ui.slider_config("Smooth##Aimbot", 0.0, 5.0).display_format("%.1f").build(&mut (*config).aimbot.smooth);
                         ui.slider_config("Smooth Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).aimbot.smooth_offset);
-                        ui.separator();
                     }
                 });
 
