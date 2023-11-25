@@ -52,7 +52,7 @@ pub fn get_aimbot_toggled(config: Config) -> bool {
 pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>) {
     let base_smooth = 1.0;
     let smooth_offset = if config.aimbot.smooth_offset == 0.0 { 0.0 } else { (thread_rng().gen_range(-config.aimbot.smooth_offset .. config.aimbot.smooth_offset) * 1000.0).trunc() / 1000.0 };
-    let smooth = (config.aimbot.smooth + smooth_offset).min(base_smooth + 5.0).max(base_smooth);
+    let smooth = (config.aimbot.smooth + smooth_offset).min(5.0).max(0.0) + base_smooth;
     
     let (screen_center_x, screen_center_y) = ((window_info.1.0 / 2) as f32, (window_info.1.1 / 2) as f32);
     let mut screen_pos = Vector2 { x: 0.0, y: 0.0 };
