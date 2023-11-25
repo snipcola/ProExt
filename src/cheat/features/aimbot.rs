@@ -8,6 +8,9 @@ use crate::{utils::{config::{Config, ProgramConfig}, mouse::{move_mouse, LAST_MO
 lazy_static! {
     pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+
+    pub static ref AB_LOCKED_ENTITY: Arc<Mutex<Option<(Instant, u64)>>> = Arc::new(Mutex::new(None));
+    pub static ref AB_OFF_ENTITY: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None));
 }
 
 pub fn get_aimbot_toggled(config: Config) -> bool {
@@ -49,7 +52,27 @@ pub fn get_aimbot_toggled(config: Config) -> bool {
     }
 }
 
-pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>) {
+pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, index: u64) {
+    let mut locked_entity = AB_LOCKED_ENTITY.lock().unwrap();
+
+    if locked_entity.is_none() {
+        *locked_entity = Some((Instant::now(), index));
+    }
+    
+    if let Some((locked_on, entity_index)) = *locked_entity {
+        if entity_index != index {
+            *locked_entity = None;
+            return;
+        }
+
+        let delay_offset = if config.aimbot.delay_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.aimbot.delay_offset as f32) .. config.aimbot.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
+        let delay = Duration::from_secs_f32((config.aimbot.delay as f32 + delay_offset).min(500.0).max(15.0) / 1000.0);
+        
+        if locked_on.elapsed() < delay {
+            return;
+        }
+    }
+    
     let base_smooth = 1.0;
     let smooth_offset = if config.aimbot.smooth_offset == 0.0 { 0.0 } else { (thread_rng().gen_range(-config.aimbot.smooth_offset .. config.aimbot.smooth_offset) * 1000.0).trunc() / 1000.0 };
     let smooth = (config.aimbot.smooth + smooth_offset).min(5.0).max(0.0) + base_smooth;
@@ -57,7 +80,7 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     let (screen_center_x, screen_center_y) = ((window_info.1.0 / 2) as f32, (window_info.1.1 / 2) as f32);
     let mut screen_pos = Vector2 { x: 0.0, y: 0.0 };
 
-    if (*LAST_MOVED.lock().unwrap()).elapsed().as_millis() < ProgramConfig::CheatDelays::Aimbot.as_millis() || !game_view.world_to_screen(aim_pos, &mut screen_pos, window_info) || ((screen_center_x - screen_pos.x).abs() <= 1.0 && (screen_center_y - screen_pos.y).abs() <= 1.0)  {
+    if (*LAST_MOVED.lock().unwrap()).elapsed() < ProgramConfig::CheatDelays::Aimbot || !game_view.world_to_screen(aim_pos, &mut screen_pos, window_info) || ((screen_center_x - screen_pos.x).abs() <= 1.0 && (screen_center_y - screen_pos.y).abs() <= 1.0)  {
         return;
     }
 
@@ -80,7 +103,7 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     move_mouse(target_x as i32, target_y as i32);
 }
 
-pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, enemy_visible: bool, in_air: bool, config: Config) {
+pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_index: &mut Option<u64>, index: u64, enemy_visible: bool, in_air: bool, config: Config) {
     let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
     let bone_index = aim_position_to_bone_index(config.aimbot.bone);
     let distance_to_sight = distance_between_vec2(bone_pos_list[bone_index].screen_pos, pos);
@@ -93,6 +116,7 @@ pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window
         *max_aim_distance = distance_to_sight;
 
         if !config.aimbot.only_visible || enemy_visible {
+            *entity_index = Some(index);
             *aim_pos = Some(bone_pos_list[bone_index].pos);
 
             if bone_index as usize == BoneIndex::Head as usize {

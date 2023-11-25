@@ -86,8 +86,11 @@ pub fn render_menu(ui: &mut Ui) {
                             if (*config).esp.filled_box_enabled {
                                 ui.same_line();
                                 color_edit_u32_tuple(ui, "##FilledColorOneESPBox", &mut (*config).esp.filled_box_color_one);
-                                ui.same_line();
-                                color_edit_u32_tuple(ui, "##FilledColorTwoESPBox", &mut (*config).esp.filled_box_color_two);
+                                
+                                if (*config).esp.box_rounding <= 0 {
+                                    ui.same_line();
+                                    color_edit_u32_tuple(ui, "##FilledColorTwoESPBox", &mut (*config).esp.filled_box_color_two);
+                                }
 
                                 // Filled Box Alpha
                                 ui.same_line();
@@ -256,6 +259,11 @@ pub fn render_menu(ui: &mut Ui) {
                         // Smooth
                         ui.slider_config("Smooth##Aimbot", 0.0, 5.0).display_format("%.1f").build(&mut (*config).aimbot.smooth);
                         ui.slider_config("Smooth Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).aimbot.smooth_offset);
+                        ui.separator();
+
+                        // Delay
+                        ui.slider_config("Delay##Aimbot", 15, 500).display_format("%d").build(&mut (*config).aimbot.delay);
+                        ui.slider_config("Delay Offset##Aimbot", 0, 100).display_format("%d").build(&mut (*config).aimbot.delay_offset);
                     }
                 });
 
@@ -277,14 +285,14 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).triggerbot.mode == 0 {
                             // Interval
                             ui.slider_config("Interval##Triggerbot", 50, 500).display_format("%d").build(&mut (*config).triggerbot.tap_interval);
-                            ui.slider_config("Interval Offset##Aimbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.tap_interval_offset);
+                            ui.slider_config("Interval Offset##Triggerbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.tap_interval_offset);
                         }
 
                         ui.separator();
 
                         // Delay
                         ui.slider_config("Delay##Triggerbot", 15, 500).display_format("%d").build(&mut (*config).triggerbot.delay);
-                        ui.slider_config("Delay Offset##Aimbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.delay_offset);
+                        ui.slider_config("Delay Offset##Triggerbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.delay_offset);
                         ui.separator();
 
                         // Always Activated

@@ -1,11 +1,12 @@
 use std::thread;
+use std::time::Instant;
 use mint::{Vector3, Vector2};
 use windows::Win32::Foundation::HWND;
 
 use crate::ui::main::{WINDOW_INFO, UI_FUNCTIONS};
 use crate::ui::windows::{is_window_focused, hide_window_from_capture};
 use crate::cheat::functions::{is_enemy_at_crosshair, is_enemy_in_fov};
-use crate::utils::config::CONFIG;
+use crate::utils::config::{CONFIG, ProgramConfig};
 use crate::cheat::classes::game::GAME;
 use crate::utils::mouse::release_mouse;
 use crate::utils::process_manager::{read_memory, read_memory_auto};
@@ -24,6 +25,7 @@ use crate::cheat::features::watermark::render_watermark;
 use crate::cheat::features::esp::render_bomb;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
 use crate::cheat::functions::is_enemy_visible;
+use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY};
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
     thread::spawn(move || {
@@ -195,6 +197,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             // Aimbot Data
             let mut max_aim_distance: f32 = 100000.0;
             let mut aim_pos: Option<Vector3<f32>> = None;
+            let mut aim_entity_index: Option<u64> = None;
 
             // Radar Data
             let mut radar_points: Vec<(Vector3<f32>, f32)> = Vec::new();
@@ -275,7 +278,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 // Aimbot Check
                 if !no_pawn && config.aimbot.enabled {
-                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, enemy_visible, !entity.pawn.has_flag(Flags::InAir), config);
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_index, i, enemy_visible, !entity.pawn.has_flag(Flags::InAir), config);
                 }
 
                 // Skeleton
@@ -446,9 +449,27 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             if is_aimbot_toggled {
                 if let Some(aimbot_info) = aimbot_info {
                     if let Some(aim_pos) = aim_pos {
-                        run_aimbot(config, aimbot_info, window_info, game.view, aim_pos);
+                        if let Some(entity_index) = aim_entity_index {
+                            run_aimbot(config, aimbot_info, window_info, game.view, aim_pos, entity_index);
+                        }
                     }
                 }
+            }
+
+            // Aimbot Lock
+            if !is_aimbot_toggled || aim_entity_index.is_none() || aim_pos.is_none() || aimbot_info.is_none() {
+                let mut locked_entity = AB_LOCKED_ENTITY.lock().unwrap();
+                let mut off_entity = AB_OFF_ENTITY.lock().unwrap();
+                
+                if off_entity.is_none() {
+                    *off_entity = Some(Instant::now());
+                }
+
+                if off_entity.unwrap().elapsed() > ProgramConfig::CheatDelays::AimbotOffEntity {
+                    *locked_entity = None;
+                }
+            } else {
+                *AB_OFF_ENTITY.lock().unwrap() = None;
             }
 
             // Triggerbot
