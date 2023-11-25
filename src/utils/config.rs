@@ -279,7 +279,7 @@ impl Default for Config {
                 box_color: (255, 255, 255, 255),
                 box_mode: 0,
                 box_rounding: 0,
-                box_target_enabled: true,
+                box_target_enabled: false,
                 box_target_color: (255, 0, 0, 255),
                 filled_box_enabled: true,
                 filled_box_color_one: (255, 255, 255, 255),
