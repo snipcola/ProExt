@@ -1,13 +1,13 @@
 use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
 use lazy_static::lazy_static;
 use rand::{Rng, thread_rng};
-use crate::utils::{config::Config, mouse::{MOUSE_LOCKED, release_mouse, click_mouse, press_mouse}};
+use crate::utils::{config::{Config, ProgramConfig}, mouse::{MOUSE_LOCKED, release_mouse, click_mouse, press_mouse}};
 use crate::ui::functions::hotkey_index_to_io;
 
 lazy_static! {
     pub static ref TB_SHOT_ENTITY: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
     pub static ref TB_ON_ENTITY: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None));
-    pub static ref TB_TRIES: Arc<Mutex<u32>> = Arc::new(Mutex::new(0));
+    pub static ref TB_LOCKED_ENTITY: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None));
 }
 
 pub fn get_triggerbot_toggled(config: Config) -> bool {
@@ -25,27 +25,27 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
     let mouse_locked = MOUSE_LOCKED.lock().unwrap().clone();
     let mut shot_entity = TB_SHOT_ENTITY.lock().unwrap();
     let mut on_entity = TB_ON_ENTITY.lock().unwrap();
-    let mut tries = TB_TRIES.lock().unwrap();
+    let mut locked_entity = TB_LOCKED_ENTITY.lock().unwrap();
 
-    if !aiming_at_enemy {
-        if *tries > 250 {
-            if mouse_locked {
-                release_mouse();
-            }
-
-            *on_entity = None;
-            *tries = 0;
-        } else {
-            *tries += 1;
+    if !aiming_at_enemy && (locked_entity.is_none() || locked_entity.is_some() && locked_entity.unwrap().elapsed().as_millis() > ProgramConfig::CheatDelays::TriggerbotOffEntity.as_millis()) {
+        if mouse_locked {
+            release_mouse();
         }
 
+        *on_entity = None;
+        *locked_entity = None;
+
         return;
-    } else {
-        *tries = 0;
     }
 
     if !allow_shoot {
         return;
+    }
+
+    *locked_entity = Some(Instant::now());
+    
+    if on_entity.is_none() {
+        *on_entity = Some(Instant::now());
     }
 
     if let Some(on_entity) = *on_entity {
@@ -63,7 +63,5 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
                 press_mouse();
             }
         }
-    } else {
-        *on_entity = Some(Instant::now());
     }
 }
