@@ -53,6 +53,7 @@ pub mod ProgramConfig {
         use std::time::Duration;
 
         pub const Aimbot: Duration = Duration::from_millis(10);
+        pub const AimbotOffEntity: Duration = Duration::from_millis(500);
         pub const TriggerbotOffEntity: Duration = Duration::from_millis(100);
     }
 }
@@ -132,7 +133,9 @@ pub struct Aimbot {
     pub bone: usize,
     pub fov: f32,
     pub smooth: f32,
-    pub smooth_offset: f32
+    pub smooth_offset: f32,
+    pub delay: u32,
+    pub delay_offset: u32
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -331,7 +334,9 @@ impl Default for Config {
                 bone: 1,
                 fov: 5.0,
                 smooth: 1.0,
-                smooth_offset: 0.2
+                smooth_offset: 0.2,
+                delay: 70,
+                delay_offset: 15
             },
             triggerbot: Triggerbot {
                 enabled:  false,

@@ -27,7 +27,7 @@ pub fn run_triggerbot((aiming_at_enemy, allow_shoot): (bool, bool), config: Conf
     let mut on_entity = TB_ON_ENTITY.lock().unwrap();
     let mut locked_entity = TB_LOCKED_ENTITY.lock().unwrap();
 
-    if !aiming_at_enemy && (locked_entity.is_none() || locked_entity.is_some() && locked_entity.unwrap().elapsed().as_millis() > ProgramConfig::CheatDelays::TriggerbotOffEntity.as_millis()) {
+    if !aiming_at_enemy && (locked_entity.is_none() || locked_entity.is_some() && locked_entity.unwrap().elapsed() > ProgramConfig::CheatDelays::TriggerbotOffEntity) {
         if mouse_locked {
             release_mouse();
         }
