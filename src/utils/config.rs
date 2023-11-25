@@ -53,6 +53,7 @@ pub mod ProgramConfig {
         use std::time::Duration;
 
         pub const Aimbot: Duration = Duration::from_millis(10);
+        pub const TriggerbotOffEntity: Duration = Duration::from_millis(100);
     }
 }
 
