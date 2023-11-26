@@ -514,20 +514,23 @@ pub fn get_directory_dir(name: &str) -> Option<String> {
 }
 
 pub fn update_configs() -> Option<String> {
-    let directory_pathbuf = PathBuf::from(&*CONFIG_DIR.lock().unwrap());
     let config_dir = CONFIG_DIR.lock().unwrap().clone();
-    let paths = match read_dir(directory_pathbuf) {
+    let directory_pathbuf = PathBuf::from(&*config_dir);
+    
+    let mut configs = IndexMap::new();
+    let paths = match read_dir(directory_pathbuf.clone()) {
         Ok(paths) => paths,
         _ => { return Some("DirectoryPath".to_string()); }
     };
 
-    let mut configs = IndexMap::new();
+    let default_config_name = &*DEFAULT_CONFIG;
+    let mut update_default_config = false;
 
     for path in paths {
         if let Ok(entry) = path {
             if let Some(file_name) = entry.file_name().to_str() {
                 if file_name.ends_with(&format!(".{}", *CONFIG_EXTENSION)) {
-                    if let Some(config_path) = PathBuf::from(&*config_dir).join(file_name).to_str() {
+                    if let Some(config_path) = directory_pathbuf.join(file_name).to_str() {
                         match load_config(config_path) {
                             Ok(config) => {
                                 let (config_index, _) = configs.insert_full(file_name.to_string(), Some(config));
@@ -543,6 +546,23 @@ pub fn update_configs() -> Option<String> {
                     }
                 }
             }
+        }
+    }
+
+    if let Some(default_config) = configs.get(default_config_name) {
+        if !default_config.is_some() {
+            update_default_config = true;
+        }
+    } else {
+        update_default_config = true;
+    }
+
+    if update_default_config {
+        if let Some(default_config_path) = directory_pathbuf.join(default_config_name).to_str() {
+            match CONFIG.lock().unwrap().clone().save_config(default_config_path, false) {
+                Err(_) => { return Some("SaveDefaultConfig".to_string()); },
+                _ => {}
+            };
         }
     }
 
@@ -572,25 +592,9 @@ pub fn setup_config() -> Option<String> {
         _ => {}
     };
 
-    let default_config_name = &*DEFAULT_CONFIG;
-    let mut update_default_config = false;
-
-    if let Some(default_config) = (*CONFIGS.lock().unwrap()).get(default_config_name) {
+    if let Some(default_config) = (*CONFIGS.lock().unwrap()).get(&*DEFAULT_CONFIG) {
         if let Some(default_config) = default_config {
             *CONFIG.lock().unwrap() = *default_config;
-        } else {
-            update_default_config = true;
-        }
-    } else {
-        update_default_config = true;
-    }
-
-    if update_default_config {
-        if let Some(default_config_path) = directory_pathbuf.join(default_config_name).to_str() {
-            match CONFIG.lock().unwrap().clone().save_config(default_config_path, false) {
-                Err(_) => { return Some("SaveDefaultConfig".to_string()); },
-                _ => {}
-            };
         }
     }
 
