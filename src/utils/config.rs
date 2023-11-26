@@ -192,6 +192,8 @@ pub struct Radar {
 pub struct Misc {
     pub enabled: bool,
     pub watermark_enabled: bool,
+    pub watermark_color_one: (u32, u32, u32, u32),
+    pub watermark_color_two: (u32, u32, u32, u32),
     pub cheat_list_enabled: bool,
     pub bomb_timer_enabled: bool,
     pub bomb_timer_color_disabled: (u32, u32, u32, u32),
@@ -385,6 +387,8 @@ impl Default for Config {
             misc: Misc {
                 enabled: true,
                 watermark_enabled: true,
+                watermark_color_one: (255, 255, 0, 255),
+                watermark_color_two: (0, 255, 0, 255),
                 cheat_list_enabled: true,
                 bomb_timer_enabled: false,
                 bomb_timer_color_disabled: (0, 255, 255, 255),

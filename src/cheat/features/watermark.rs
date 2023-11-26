@@ -2,7 +2,7 @@ use std::{sync::{Arc, Mutex}, time::SystemTime};
 use imgui::Ui;
 use mint::Vector4;
 use lazy_static::lazy_static;
-use crate::{utils::config::{CONFIG, Config, ProgramConfig}, ui::main::WINDOWS_ACTIVE};
+use crate::{utils::config::{CONFIG, Config, ProgramConfig}, ui::{main::WINDOWS_ACTIVE, functions::color_u32_to_f32}};
 
 lazy_static!{ 
     pub static ref WATERMARK_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
@@ -38,8 +38,14 @@ pub fn render_watermark(ui: &mut Ui, config: Config) {
             (*WINDOWS_ACTIVE.lock().unwrap()).insert("watermark".to_string(), ui.is_window_hovered());
             (*CONFIG.lock().unwrap()).window_positions.watermark = ui.window_pos();
 
-            ui.text_colored(Vector4 { x: 255.0, y: 255.0, z: 0.0, w: 255.0 }, get_current_time());
+            let watermark_one_f32 = color_u32_to_f32(config.misc.watermark_color_one);
+            let watermark_one_color = Vector4 { x: watermark_one_f32.0, y: watermark_one_f32.1, z: watermark_one_f32.2, w: watermark_one_f32.3 };
+
+            let watermark_two_f32 = color_u32_to_f32(config.misc.watermark_color_two);
+            let watermark_two_color = Vector4 { x: watermark_two_f32.0, y: watermark_two_f32.1, z: watermark_two_f32.2, w: watermark_two_f32.3 };
+
+            ui.text_colored(watermark_one_color, get_current_time());
             ui.same_line();
-            ui.text_colored(Vector4 { x: 0.0, y: 255.0, z: 0.0, w: 255.0 }, format!("{} FPS", ui.io().framerate.floor()));
+            ui.text_colored(watermark_two_color, format!("{} FPS", ui.io().framerate.floor()));
         });
 }
