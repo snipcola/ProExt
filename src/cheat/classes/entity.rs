@@ -20,6 +20,7 @@ pub struct PlayerController {
     pub address: u64,
     pub team_id: i32,
     pub health: i32,
+    pub armor: i32,
     pub alive_status: i32,
     pub pawn: u64,
     pub player_name: String
@@ -54,7 +55,7 @@ pub struct Entity {
 impl Default for Entity {
     fn default() -> Self {
         return Entity {
-            controller: PlayerController { address: 0, team_id: 0, health: 0, alive_status: 0, pawn: 0, player_name: "Name_None".to_string() },
+            controller: PlayerController { address: 0, team_id: 0, health: 0, armor: 0, alive_status: 0, pawn: 0, player_name: "None".to_string() },
             pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "Weapon_None".to_string(), health: 0, team_id: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
         }
     }
@@ -75,6 +76,10 @@ impl Entity {
         self.controller.address = player_controller_address;
 
         if !self.controller.get_health() {
+            return false;
+        }
+
+        if !self.controller.get_armor() {
             return false;
         }
 
@@ -168,6 +173,10 @@ impl PlayerController {
 
     pub fn get_health(&mut self) -> bool {
         return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_iHealth as u32, &mut self.health);
+    }
+
+    pub fn get_armor(&mut self) -> bool {
+        return get_address_with_offset(self.address, Offsets::CCSPlayerController::m_iPawnArmor as u32, &mut self.armor);
     }
 
     pub fn get_is_alive(&mut self) -> bool {

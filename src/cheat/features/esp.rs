@@ -180,34 +180,74 @@ pub fn render_bomb_name(ui: &mut Ui, name: &str, rect: Vector4<f32>, config: Con
 }
 
 pub fn render_name(ui: &mut Ui, name: &str, rect: Vector4<f32>, config: Config) {
-    if config.esp.health_bar_enabled && config.esp.health_bar_mode == 1 {
-        if config.esp.outline {
-            stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
-        } else {
-            text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 13.0 - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+    let mut y_offset: f32 = 0.0;
+
+    if config.esp.bar_mode == 1 {
+        if config.esp.health_bar_enabled {
+            y_offset += 8.0;
         }
+
+        if config.esp.armor_bar_enabled {
+            y_offset += 8.0;
+        }
+    }
+
+    y_offset += config.esp.thickness * 2.0;
+
+    if config.esp.outline {
+        stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - y_offset - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
     } else {
-        if config.esp.outline {
-            stroke_text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+        text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - y_offset - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+    }
+}
+
+pub fn render_armor_bar(ui: &mut Ui, armor: f32, rect: Vector4<f32>, config: Config) {
+    let height_horizontal = (rect.w / 100.0).max(4.0).min(6.0) + 1.0 * config.esp.thickness;
+    let (rect_pos, rect_size) = {
+        if config.esp.bar_mode == 0 {
+            // Vertical
+            (Vector2 { x: rect.x - 7.0 * 2.2 - (config.esp.thickness * 2.0), y: rect.y }, Vector2 { x: height_horizontal, y: rect.w })
         } else {
-            text(ui, name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y - 14.0 }, color_u32_to_f32(config.esp.name_color).into(), true);
+            // Horizontal
+            (Vector2 { x: rect.x, y: rect.y - 7.0 * 2.2 - (config.esp.thickness * 2.0) }, Vector2 { x: rect.z, y: height_horizontal })
         }
+    };
+
+    let background_color = ImColor32::from_rgba(90, 90, 90, 220);
+    let frame_color = ImColor32::from_rgba(45, 45, 45, 220);
+    let color = ImColor32::from(color_u32_to_f32(config.esp.armor_bar_color));
+
+    let max_armor = 100.0;
+    let proportion = armor / max_armor;
+    let (height, width) = ((rect_size.y * proportion), (rect_size.x * proportion));
+
+    rectangle(ui, rect_pos, rect_size, background_color, config.esp.thickness * 0.4, config.esp.rounding, true);
+    
+    if config.esp.bar_mode == 0 {
+        // Vertical
+        ui.get_background_draw_list().add_rect(Vector2 { x: rect_pos.x, y: rect_pos.y + rect_size.y - height }, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, color).filled(true).rounding(config.esp.rounding as f32).build();
+    } else {
+        // Horizontal
+        ui.get_background_draw_list().add_rect(rect_pos, Vector2 { x: rect_pos.x + width, y: rect_pos.y + rect_size.y }, color).filled(true).rounding(config.esp.rounding as f32).build();
+    }
+
+    if config.esp.outline {
+        rectangle(ui, rect_pos, rect_size, frame_color, config.esp.thickness * 0.4, config.esp.rounding, false);
     }
 }
 
 pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect: Vector4<f32>, config: Config) {
+    let height_horizontal = (rect.w / 100.0).max(4.0).min(6.0) + 1.0 * config.esp.thickness;
     let (rect_pos, rect_size) = {
-        if config.esp.health_bar_mode == 0 {
+        if config.esp.bar_mode == 0 {
             // Vertical
-            (Vector2 { x: rect.x - 7.0 - (config.esp.thickness * 2.0), y: rect.y }, Vector2 { x: 6.0 + 1.0 * config.esp.thickness, y: rect.w })
+            (Vector2 { x: rect.x - 7.0 - (config.esp.thickness * 2.0), y: rect.y }, Vector2 { x: height_horizontal, y: rect.w })
         } else {
             // Horizontal
-            (Vector2 { x: rect.x, y: rect.y - 7.0 - (config.esp.thickness * 2.0) }, Vector2 { x: rect.z, y: 6.0 + 1.0 * config.esp.thickness })
+            (Vector2 { x: rect.x, y: rect.y - 7.0 - (config.esp.thickness * 2.0) }, Vector2 { x: rect.z, y: height_horizontal })
         }
     };
     
-    let max_health = 100.0;
-
     let background_color = ImColor32::from_rgba(90, 90, 90, 220);
     let frame_color = ImColor32::from_rgba(45, 45, 45, 220);
 
@@ -219,8 +259,10 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect: Vector4<f32>, c
         value > min && value <= max
     };
 
+    let max_health = 100.0;
     let proportion = current_health / max_health;
     let (height, width) = ((rect_size.y * proportion), (rect_size.x * proportion));
+
     let color = {
         if in_range(proportion, 0.5, 1.0) {
             mix_colors(first_stage_color, second_stage_color, proportion.powf(2.5) * 3.0 - 1.0)
@@ -231,7 +273,7 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect: Vector4<f32>, c
     
     rectangle(ui, rect_pos, rect_size, background_color, config.esp.thickness * 0.4, config.esp.rounding, true);
     
-    if config.esp.health_bar_mode == 0 {
+    if config.esp.bar_mode == 0 {
         // Vertical
         ui.get_background_draw_list().add_rect(Vector2 { x: rect_pos.x, y: rect_pos.y + rect_size.y - height }, Vector2 { x: rect_pos.x + rect_size.x, y: rect_pos.y + rect_size.y }, color).filled(true).rounding(config.esp.rounding as f32).build();
     } else {

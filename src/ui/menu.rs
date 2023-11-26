@@ -138,10 +138,18 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##SecondColorESPHealth", &mut (*config).esp.health_bar_second_color);
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##BarThirdColorESPHealth", &mut (*config).esp.health_bar_third_color);
-                            ui.same_line();
-                            ui.combo_simple_string("##ModeESPHealth", &mut (*config).esp.health_bar_mode, &["Vertical", "Horizontal"]);
                         }
 
+                        // Armor
+                        ui.checkbox("Armor##ESP", &mut (*config).esp.armor_bar_enabled);
+
+                        if (*config).esp.armor_bar_enabled {
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##ColorESPArmor", &mut (*config).esp.armor_bar_color);
+                        }
+
+                        // Bar Mode
+                        ui.combo_simple_string("Bar Mode##ESPBar", &mut (*config).esp.bar_mode, &["Vertical", "Horizontal"]);
                         ui.separator();
 
                         // Player Name
