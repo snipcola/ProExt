@@ -28,6 +28,7 @@ pub fn init_imgui(window: &Window) -> (WinitPlatform, Context) {
 
     let mut fonts = vec![FontSource::DefaultFontData { config: None }];
     add_imgui_font(&mut fonts, ProgramConfig::Imgui::FontPaths::Chinese, 13.5, FontGlyphRanges::chinese_full());
+    add_imgui_font(&mut fonts, ProgramConfig::Imgui::FontPaths::Cryillic, 13.5, FontGlyphRanges::cyrillic());
 
     imgui_context.fonts().add_font(&fonts);
     imgui_context.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
