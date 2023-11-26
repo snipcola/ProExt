@@ -5,7 +5,7 @@ use imgui::{Ui, Context};
 use imgui_winit_support::WinitPlatform;
 use lazy_static::lazy_static;
 
-use crate::{ui::thread::{bind_ui_keys, run_event_loop}, cheat::thread::run_cheats_thread, utils::rpc::initialize_rpc};
+use crate::ui::thread::run_event_loop;
 use crate::utils::config::ProgramConfig;
 use crate::ui::windows::{create_window, find_window};
 use crate::ui::windows::Window;
@@ -45,9 +45,6 @@ pub fn init_gui() {
         }
     };
 
-    initialize_rpc();
     set_window_brush_to_transparent(self_hwnd);
-    run_cheats_thread(hwnd, self_hwnd);
-    bind_ui_keys(hwnd);
-    run_event_loop(event_loop_window, winit_platform_imgui_context, hwnd);
+    run_event_loop(event_loop_window, winit_platform_imgui_context, hwnd, self_hwnd);
 }

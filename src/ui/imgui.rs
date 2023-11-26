@@ -14,7 +14,7 @@ pub fn add_imgui_font(fonts: &mut Vec<FontSource>, font_path: &str, font_size: f
     fonts.push(FontSource::TtfData {
         data: slice,
         size_pixels: font_size,
-        config: Some(FontConfig { glyph_ranges: range, ..FontConfig::default() }),
+        config: Some(FontConfig { glyph_ranges: range, ..Default::default() }),
     });
 }
 
