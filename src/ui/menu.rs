@@ -3,7 +3,7 @@ use colored::Colorize;
 use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
 use lazy_static::lazy_static;
 
-use crate::utils::config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG, CONFIG_EXTENSION};
+use crate::utils::{config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG, CONFIG_EXTENSION}, open::open_url};
 use crate::ui::functions::color_edit_u32_tuple;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::functions::reset_window_positions;
@@ -584,10 +584,10 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.checkbox("Bypass Capture##Settings", &mut (*config).settings.bypass_capture);
                         ui.checkbox("Discord RPC##Settings", &mut (*config).settings.discord_rpc_enabled);
                     }
-                });
 
-                // Config
-                TabItem::new("Config").build(&ui, || {
+                    // Config
+                    ui.separator();
+                    
                     // Config Input & Create Button
                     ui.input_text("##NameConfig", &mut *new_config_name).build();
                     ui.same_line();
@@ -677,6 +677,24 @@ pub fn render_menu(ui: &mut Ui) {
                         *loaded_config.lock().unwrap() = Some((*DEFAULT_CONFIG).to_string());
                         reset_window_positions(default_config.window_positions);
                     }
+                });
+
+                // Info
+                TabItem::new("Info").build(&ui, || {
+                    // Title
+                    ui.text(ProgramConfig::Package::Name);
+                    ui.text(ProgramConfig::Package::Description);
+                    ui.separator();
+
+                    // Info
+                    ui.text(format!("Version: {}", ProgramConfig::Package::Version));
+                    ui.text(format!("Author(s): {}", ProgramConfig::Package::Authors.replace(":", " & ")));
+                    ui.separator();
+
+                    // Links
+                    if ui.button("GitHub") {
+                        open_url(ProgramConfig::Links::GitHub);
+                    };
                 });
             });
 

@@ -6,13 +6,14 @@ use std::thread::{self, sleep};
 use colored::{Colorize, control::set_virtual_terminal};
 
 use crate::utils::input::input;
+use crate::utils::open::open_url;
 use crate::utils::process_manager::attach_process_manager;
 use crate::cheat::classes::offsets::update_offsets;
 use crate::cheat::classes::game::init_game_address;
 use crate::ui::main::init_gui;
 use crate::utils::pause::pause;
 use crate::utils::config::{setup_config, update_configs, ProgramConfig};
-use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists, open_update_url};
+use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists};
 
 fn main() {
     set_virtual_terminal(true).unwrap();
@@ -29,7 +30,7 @@ fn main() {
                 let update_confirmation = input(format!("{} Software is not up-to-date. Would you like to update? (y/n):", "[ INFO ]".bold().yellow()));
 
                 if update_confirmation.to_lowercase() == "y" {
-                    open_update_url();
+                    open_url(ProgramConfig::Update::URL);
                     return;
                 }
             }

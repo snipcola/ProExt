@@ -7,7 +7,7 @@ pub fn set_rpc_activity(client: &mut Client, started: u64) {
     client
         .set_activity(| activity | {
             activity
-                .state(ProgramConfig::RPC::State)
+                .state(ProgramConfig::Package::Description)
                 .assets(| assets | assets.large_image(ProgramConfig::RPC::ImageAsset))
                 .timestamps(| timestamps | timestamps.start(started))
         })
