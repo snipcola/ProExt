@@ -17,7 +17,11 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
         return false;
     }
 
-    if !read_memory_auto(game_entity_list_entry + 120 * pawn.bitand(0x1FF) as u64, &mut cs_player_pawn) {
+    if let Some(sum) = (120 as u64).checked_mul(pawn.bitand(0x1FF) as u64) {
+        if !read_memory_auto(game_entity_list_entry + sum, &mut cs_player_pawn) {
+            return false;
+        }
+    } else {
         return false;
     }
 
@@ -33,7 +37,11 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
             return false;
         }
 
-        if !read_memory_auto(game_entity_list_entry + 120 * observer_target.bitand(0x1FF) as u64, &mut controller) {
+        if let Some(sum) = (120 as u64).checked_mul(observer_target.bitand(0x1FF) as u64) {
+            if !read_memory_auto(game_entity_list_entry + sum, &mut controller) {
+                return false;
+            }
+        } else {
             return false;
         }
 

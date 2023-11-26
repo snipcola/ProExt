@@ -221,7 +221,11 @@ pub fn trace_address(base_address: u64, offsets: &[u32]) -> u64 {
     }
 
     for i in 0 .. offsets.len() - 1 {
-        if !read_memory_auto(address + offsets[i] as u64, &mut address) {
+        if let Some(sum) = address.checked_add(offsets[i] as u64) {
+            if !read_memory_auto(sum, &mut address) {
+                return 0;
+            }
+        } else {
             return 0;
         }
     }

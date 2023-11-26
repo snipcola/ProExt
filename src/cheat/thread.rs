@@ -219,7 +219,12 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 let mut entity = Entity::default();
                 let mut entity_address: u64 = 0;
 
-                if !read_memory_auto(game.address.entity_list_entry + (i + 1) * 0x78, &mut entity_address) {
+                if let Some(sum) = ((i + 1) as u64).checked_mul(0x78) {
+                    if !read_memory_auto(game.address.entity_list_entry + sum, &mut entity_address) {
+                        remove_esp(i);
+                        continue;
+                    }
+                } else {
                     remove_esp(i);
                     continue;
                 }
