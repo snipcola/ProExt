@@ -155,9 +155,9 @@ pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, enemy_visible: bool, config: 
 
 pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, rect: Vector4<f32>, config: Config) {
     if config.esp.outline {
-        stroke_text(ui, weapon_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y + rect.w }, color_u32_to_f32(config.esp.weapon_name_color).into(), true);
+        stroke_text(ui, weapon_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y + rect.w + 4.0 }, color_u32_to_f32(config.esp.weapon_name_color).into(), true);
     } else {
-        text(ui, weapon_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y + rect.w }, color_u32_to_f32(config.esp.weapon_name_color).into(), true);
+        text(ui, weapon_name.to_string(), Vector2 { x: rect.x + rect.z / 2.0, y: rect.y + rect.w + 4.0 }, color_u32_to_f32(config.esp.weapon_name_color).into(), true);
     }
 }
 
