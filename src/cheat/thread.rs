@@ -60,7 +60,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let pawn_address = game.address.local_pawn;
 
             
-            let remove_esp = |entity: u64| {
+            let remove_esp = | entity: u64 | {
                 (*ui_functions.lock().unwrap()).remove(&format!("skeleton_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("head_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("eye_ray_{}", entity));
@@ -73,6 +73,12 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 (*ui_functions.lock().unwrap()).remove(&format!("armor_bar_{}", entity));
             };
 
+            let remove_all_esp = || {
+                for i in 0 .. 64 {
+                    remove_esp(i);
+                }
+            };
+
             let remove_ui_elements = || {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
                 (*ui_functions.lock().unwrap()).remove("radar");
@@ -81,9 +87,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 (*ui_functions.lock().unwrap()).remove("spectator_list");
                 (*ui_functions.lock().unwrap()).remove("bomb");
                 
-                for i in 0 .. 64 {
-                    remove_esp(i);
-                }
+                remove_all_esp();
             };
 
             // Watermark

@@ -1,5 +1,3 @@
-use imgui::{Context, FontSource};
-use imgui_winit_support::{WinitPlatform, HiDpiMode};
 use glutin::{event_loop::EventLoop, WindowedContext, PossiblyCurrent, window::WindowBuilder, platform::windows::WindowBuilderExtWindows, ContextBuilder};
 
 use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY, GCLP_HBRBACKGROUND, SetClassLongPtrW}}, core::HSTRING};
@@ -99,20 +97,6 @@ pub fn create_window(title: &str, hwnd: HWND) -> (EventLoop<()>, Window) {
 
 pub fn get_glow_context(window: &Window) -> glow::Context {
     unsafe { glow::Context::from_loader_function(|s| window.get_proc_address(s).cast()) }
-}
-
-pub fn init_imgui(window: &Window) -> (WinitPlatform, Context) {
-    let mut imgui_context = Context::create();
-    imgui_context.set_ini_filename(None);
-    imgui_context.set_log_filename(None);
-
-    let mut winit_platform = WinitPlatform::init(&mut imgui_context);
-    winit_platform.attach_window(imgui_context.io_mut(), window.window(), HiDpiMode::Default);
-    
-    imgui_context.fonts().add_font(&[FontSource::DefaultFontData { config: None }]);
-    imgui_context.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
-
-    return (winit_platform, imgui_context);
 }
 
 pub fn set_window_brush_to_transparent(hwnd: HWND) {

@@ -14,6 +14,12 @@ pub mod ProgramConfig {
         pub const Authors: &str = &env!("CARGO_PKG_AUTHORS");
     }
 
+    pub mod Imgui {
+        pub mod FontPaths {
+            pub const Chinese: &str = "C:/Windows/Fonts/msyh.ttc";
+        }
+    }
+
     pub mod Update {
         pub const URL: &str = "https://github.com/vytrol/ProExt/raw/main/bin/proext.exe";
         pub const HashURL: &str = "https://github.com/vytrol/ProExt/raw/main/bin/hash.txt";
