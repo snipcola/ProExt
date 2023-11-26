@@ -52,15 +52,15 @@ pub fn get_aimbot_toggled(config: Config) -> bool {
     }
 }
 
-pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, index: u64) {
+pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, address: u64) {
     let mut locked_entity = AB_LOCKED_ENTITY.lock().unwrap();
 
     if locked_entity.is_none() {
-        *locked_entity = Some((Instant::now(), index));
+        *locked_entity = Some((Instant::now(), address));
     }
     
-    if let Some((locked_on, entity_index)) = *locked_entity {
-        if entity_index != index {
+    if let Some((locked_on, entity_address)) = *locked_entity {
+        if entity_address != address {
             *locked_entity = None;
             return;
         }
@@ -103,7 +103,7 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     move_mouse(target_x as i32, target_y as i32);
 }
 
-pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_index: &mut Option<u64>, index: u64, enemy_visible: bool, in_air: bool, config: Config) {
+pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_address: &mut Option<u64>, address: u64, enemy_visible: bool, in_air: bool, config: Config) {
     let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
     let bone_index = aim_position_to_bone_index(config.aimbot.bone);
     let distance_to_sight = distance_between_vec2(bone_pos_list[bone_index].screen_pos, pos);
@@ -116,7 +116,7 @@ pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window
         *max_aim_distance = distance_to_sight;
 
         if !config.aimbot.only_visible || enemy_visible {
-            *entity_index = Some(index);
+            *entity_address = Some(address);
             *aim_pos = Some(bone_pos_list[bone_index].pos);
 
             if bone_index as usize == BoneIndex::Head as usize {
