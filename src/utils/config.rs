@@ -46,8 +46,9 @@ pub mod ProgramConfig {
 
     pub mod TargetProcess {
         pub const Executable: &str = "cs2.exe";
-        pub const MaxAttempts: u32 = 15;
-        pub const UpdateOffsetsMaxAttempts: u32 = 15;
+        pub const MaxAttempts: u32 = 60;
+        pub const UpdateOffsetsMaxAttempts: u32 = 60;
+        pub const InitAddressesMaxAttempts: u32 = 60;
 
         pub mod Window {
             pub const Title: &str = "Counter-Strike 2";
@@ -58,8 +59,10 @@ pub mod ProgramConfig {
     pub mod ThreadDelays {
         use std::time::Duration;
 
-        pub const AttachTargetProcess: Duration = Duration::from_millis(2500);
-        pub const UpdateOffsets: Duration = Duration::from_millis(2500);
+        pub const AttachTargetProcess: Duration = Duration::from_millis(1000);
+        pub const UpdateOffsets: Duration = Duration::from_millis(1000);
+        pub const InitAddresses: Duration = Duration::from_millis(1000);
+        
         pub const UpdateConfigs: Duration = Duration::from_millis(50);
         pub const WindowTasks: Duration = Duration::from_millis(25);
         pub const IOTasks: Duration = Duration::from_millis(5);

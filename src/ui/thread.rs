@@ -85,11 +85,12 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
     run_windows_thread(hwnd);
     run_io_thread();
     run_cheats_thread(hwnd, self_hwnd);
+
     bind_ui_keys(hwnd);
     initialize_rpc();
 
     window.window().set_visible(true);
-    println!("{} Rendering GUI (toggle: {})", "[ OKAY ]".bold().green(), format!("{:?}", toggle_key).bold());
+    println!("{} All tasks complete.", "[ INFO ]".bold().green());
     
     event_loop.run(move | event, _, control_flow | {
         let toggled_value = *toggled.lock().unwrap();
