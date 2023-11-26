@@ -5,3 +5,4 @@ pub mod updater;
 pub mod input;
 pub mod rpc;
 pub mod mouse;
+pub mod open;

@@ -1,4 +1,4 @@
-use std::{io::Read, env, fs::File, process::Command};
+use std::{io::Read, env, fs::File};
 use ureq::get;
 use md5::compute;
 
@@ -41,11 +41,4 @@ pub fn update_exists() -> bool {
         Ok(response) => { return response.status() == 200; },
         Err(_) => { return false; }
     }
-}
-
-pub fn open_update_url() {
-    Command::new("cmd.exe")
-        .args(["/C", "start", ProgramConfig::Update::URL])
-        .spawn()
-        .ok();
 }

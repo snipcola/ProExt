@@ -8,6 +8,7 @@ use lazy_static::lazy_static;
 pub mod ProgramConfig {
     pub mod Package {
         pub const Name: &str = "ProExt";
+        pub const Description: &str = "An open-source, external CS2 cheat.";
         pub const Version: &str = env!("CARGO_PKG_VERSION");
         pub const Authors: &str = &env!("CARGO_PKG_AUTHORS");
     }
@@ -19,8 +20,11 @@ pub mod ProgramConfig {
 
     pub mod RPC {
         pub const ClientID: u64 = 1174845327099048018;
-        pub const State: &str = "An open-source, external CS2 cheat.";
         pub const ImageAsset: &str = "cs2";
+    }
+
+    pub mod Links {
+        pub const GitHub: &str = "https://github.com/vytrol/ProExt";
     }
 
     pub mod Toggle {
