@@ -8,7 +8,7 @@ use windows::Win32::Foundation::HWND;
 use lazy_static::lazy_static;
 use imgui_glow_renderer::AutoRenderer;
 
-use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu, functions::apply_style}, utils::mouse::get_mouse_position};
+use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu, functions::apply_style}, utils::{mouse::get_mouse_position, rpc::initialize_rpc}, cheat::thread::run_cheats_thread};
 use crate::utils::config::ProgramConfig;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::windows::Window;
@@ -65,7 +65,7 @@ pub fn bind_ui_keys(hwnd: HWND) {
     });
 }
 
-pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>>, hwnd: HWND) {
+pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>>, hwnd: HWND, self_hwnd: HWND) {
     let window_info = WINDOW_INFO.clone();
     let ui_functions = UI_FUNCTIONS.clone();
 
@@ -84,6 +84,9 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
 
     run_windows_thread(hwnd);
     run_io_thread();
+    run_cheats_thread(hwnd, self_hwnd);
+    bind_ui_keys(hwnd);
+    initialize_rpc();
 
     window.window().set_visible(true);
     println!("{} Rendering GUI (toggle: {})", "[ OKAY ]".bold().green(), format!("{:?}", toggle_key).bold());
