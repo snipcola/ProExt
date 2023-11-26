@@ -56,7 +56,7 @@ impl Default for Entity {
     fn default() -> Self {
         return Entity {
             controller: PlayerController { address: 0, team_id: 0, health: 0, armor: 0, alive_status: 0, pawn: 0, player_name: "None".to_string() },
-            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "Weapon_None".to_string(), health: 0, team_id: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
+            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "None".to_string(), health: 0, team_id: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
         }
     }
 }
@@ -190,10 +190,10 @@ impl PlayerController {
             return false;
         }
 
-        self.player_name = buffer_to_string(&buffer);
+        let player_name = buffer_to_string(&buffer);
 
-        if self.player_name.is_empty() {
-            self.player_name = "None".to_string();
+        if !player_name.is_empty() {
+            self.player_name = player_name;
         }
 
         return true;
@@ -248,12 +248,10 @@ impl PlayerPawn {
             return false;
         }
         
-        self.weapon_name = buffer_to_string(&buffer);
+        let weapon_name = buffer_to_string(&buffer);
 
-        if self.weapon_name.is_empty() {
-            self.weapon_name = "None".to_string();
-        } else {
-            self.weapon_name = parse_weapon_name(self.weapon_name.to_lowercase().replace("weapon_", ""));
+        if !self.weapon_name.is_empty() {
+            self.weapon_name = parse_weapon_name(weapon_name.to_lowercase().replace("weapon_", ""));
         }
 
         return true;
