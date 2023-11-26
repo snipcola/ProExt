@@ -58,6 +58,9 @@ pub fn render_menu(ui: &mut Ui) {
 
                         // Thickness
                         ui.slider_config("Thickness##ESP", 0.5, 5.0).display_format("%.1f").build(&mut (*config).esp.thickness);
+
+                        // Rounding
+                        ui.slider_config("Rounding##ESP", 0, 15).display_format("%d").build(&mut (*config).esp.rounding);
                         ui.separator();
 
                         // Box
@@ -68,9 +71,6 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##ColorESPBox", &mut (*config).esp.box_color);
                             ui.same_line();
                             ui.combo_simple_string("##ModeESPBox", &mut (*config).esp.box_mode, &["Normal", "Dynamic"]);
-                            
-                            // Box Rounding
-                            ui.slider_config("Rounding##ESPBox", 0, 25).display_format("%d").build(&mut (*config).esp.box_rounding);
 
                             // Box Target
                             ui.checkbox("Target##ESPBox", &mut (*config).esp.box_target_enabled);
@@ -87,7 +87,7 @@ pub fn render_menu(ui: &mut Ui) {
                                 ui.same_line();
                                 color_edit_u32_tuple(ui, "##FilledColorOneESPBox", &mut (*config).esp.filled_box_color_one);
                                 
-                                if (*config).esp.box_rounding <= 0 {
+                                if (*config).esp.rounding <= 0 {
                                     ui.same_line();
                                     color_edit_u32_tuple(ui, "##FilledColorTwoESPBox", &mut (*config).esp.filled_box_color_two);
                                 }
@@ -140,9 +140,6 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##BarThirdColorESPHealth", &mut (*config).esp.health_bar_third_color);
                             ui.same_line();
                             ui.combo_simple_string("##ModeESPHealth", &mut (*config).esp.health_bar_mode, &["Vertical", "Horizontal"]);
-
-                            // Health Rounding
-                            ui.slider_config("Rounding##ESPHealth", 0, 25).display_format("%d").build(&mut (*config).esp.health_bar_rounding);
                         }
 
                         ui.separator();
@@ -179,9 +176,6 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).esp.bomb_enabled {
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##ColorESPBomb", &mut (*config).esp.bomb_color);
-
-                            // Bomb Rounding
-                            ui.slider_config("Rounding##ESPBomb", 0, 25).display_format("%d").build(&mut (*config).esp.bomb_rounding);
                             
                             // Filled Bomb
                             ui.checkbox("Filled##ESPBomb", &mut (*config).esp.filled_bomb_enabled);
