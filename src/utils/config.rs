@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::{fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file}, sync::{Arc, Mutex}, path::PathBuf};
 use directories::UserDirs;
 use indexmap::IndexMap;
@@ -475,12 +476,12 @@ impl Config {
     pub fn save_config(&self, file_path: &str, update: bool) -> Result<(), &str> {
         let file = match OpenOptions::new().write(true).truncate(true).create(true).open(file_path) {
             Ok(file) => file,
-            _ => { return Err("CreateFile"); }
+            Err(_) => { return Err("CreateFile"); }
         };
 
         match serde_json::to_writer_pretty(file, &self) {
             Ok(_) => {},
-            _ => { return Err("WriteFile"); }
+            Err(_) => { return Err("WriteFile"); }
         };
 
         if update {
@@ -520,14 +521,14 @@ pub fn update_configs() -> Option<String> {
     if !metadata(&directory_pathbuf).is_ok() {
         match create_dir_all(&directory_pathbuf) {
             Ok(_) => {},
-            _ => { return Some("CreateDirectory".to_string()); }
+            Err(_) => { return Some("CreateDirectory".to_string()); }
         };
     };
     
     let mut configs = IndexMap::new();
     let paths = match read_dir(directory_pathbuf.clone()) {
         Ok(paths) => paths,
-        _ => { return Some("DirectoryPath".to_string()); }
+        Err(_) => { return Some("DirectoryPath".to_string()); }
     };
 
     let default_config_name = &*DEFAULT_CONFIG;
@@ -568,7 +569,7 @@ pub fn update_configs() -> Option<String> {
         if let Some(default_config_path) = directory_pathbuf.join(default_config_name).to_str() {
             match CONFIG.lock().unwrap().clone().save_config(default_config_path, false) {
                 Err(_) => { return Some("SaveDefaultConfig".to_string()); },
-                _ => {}
+                Ok(_) => {}
             };
         }
     }
@@ -580,14 +581,14 @@ pub fn update_configs() -> Option<String> {
 pub fn setup_config() -> Option<String> {
     let directory_path = match get_directory_dir(ProgramConfig::Package::Name) {
         Some(path) => path,
-        _ => { return Some("FindDirectory".to_string()); }
+        None => { return Some("FindDirectory".to_string()); }
     };
 
     *CONFIG_DIR.lock().unwrap() = directory_path.to_string();
 
     match update_configs() {
         Some(str) => { return Some(str); },
-        _ => {}
+        None => {}
     };
 
     if let Some(default_config) = (*CONFIGS.lock().unwrap()).get(&*DEFAULT_CONFIG) {
@@ -599,15 +600,57 @@ pub fn setup_config() -> Option<String> {
     return None;
 }
 
+pub fn merge_config(a: &mut Value, b: &Value) {
+    match (a, b) {
+        (&mut Value::Object(ref mut a), &Value::Object(ref b)) => {
+            for (k, v) in b {
+                merge_config(a.entry(k.clone()).or_insert(Value::Null), v);
+            }
+        }
+        (a, b) => {
+            *a = b.clone();
+        }
+    }
+}
+
 pub fn load_config(file_path: &str) -> Result<Config, &str> {
     let file = match File::open(file_path) {
         Ok(path) => path,
-        _ => { return Err("FilePath"); }
+        Err(_) => { return Err("FilePath"); }
     };
     
     let config: Config = match serde_json::from_reader(file) {
         Ok(config) => config,
-        _ => { return Err("ParseFile"); }
+        Err(_) => {
+            let file = match File::open(file_path) {
+                Ok(path) => path,
+                Err(_) => { return Err("FilePath"); }
+            };
+            
+            let old_config: Value = match serde_json::from_reader(file) {
+                Ok(value) => value,
+                Err(_) => { return Err("ParseFile"); }
+            };
+
+            let mut config = match serde_json::to_value(Config::default()) {
+                Ok(value) => value,
+                Err(_) => { return Err("ParseValue"); }
+            };
+
+            merge_config(&mut config, &old_config);
+
+            let new_config: Config = match serde_json::from_value(config) {
+                Ok(config) => config,
+                Err(_) => { return Err("ParseConfig"); }
+            };
+
+            match new_config.save_config(file_path, false) {
+                Err(_) => { return Err("SaveConfig"); },
+                Ok(_) => {}
+            };
+
+            new_config
+        }
     };
 
     return Ok(config);

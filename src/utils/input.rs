@@ -10,7 +10,7 @@ pub fn input(question: String) -> String {
         Ok(_) => {
             return input.trim().to_string();
         },
-        _ => {
+        Err(_) => {
             return "".to_string();
         }
     }

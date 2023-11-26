@@ -116,17 +116,17 @@ pub fn update_offsets() -> Option<String> {
 
     match search_offsets(Signatures::dwEntityList, client_dll) {
         Some(address) => *entity_list = (address - client_dll) as u32,
-        _ => { return Some("EntityList".to_string()) }
+        None => { return Some("EntityList".to_string()) }
     };
 
     match search_offsets(Signatures::dwLocalPlayerController, client_dll) {
         Some(address) => *local_player_controller = (address - client_dll) as u32,
-        _ => { return Some("LocalPlayerController".to_string()) }
+        None => { return Some("LocalPlayerController".to_string()) }
     };
 
     match search_offsets(Signatures::dwViewMatrix, client_dll) {
         Some(address) => *matrix = (address - client_dll) as u32,
-        _ => { return Some("ViewMatrix".to_string()) }
+        None => { return Some("ViewMatrix".to_string()) }
     };
 
     match search_offsets(Signatures::dwViewAngles, client_dll) {
@@ -134,17 +134,17 @@ pub fn update_offsets() -> Option<String> {
             if !read_memory_auto(address, &mut address) { return Some("ViewAnglesMemory".to_string()) };
             *view_angle = (address + 24896 - client_dll) as u32;
         },
-        _ => { return Some("ViewAngles".to_string()) }
+        None => { return Some("ViewAngles".to_string()) }
     };
 
     match search_offsets(Signatures::dwLocalPlayerPawn, client_dll) {
         Some(address) => *local_player_pawn = (address + 0x138 - client_dll) as u32,
-        _ => { return Some("LocalPlayerPawn".to_string()) }
+        None => { return Some("LocalPlayerPawn".to_string()) }
     };
 
     match search_offsets(Signatures::dwPlantedC4, client_dll) {
         Some(address) => *bomb = (address - client_dll) as u32,
-        _ => { return Some("Bomb".to_string()) }
+        None => { return Some("Bomb".to_string()) }
     };
 
     return None;
