@@ -26,6 +26,7 @@ use crate::cheat::features::esp::render_bomb;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
 use crate::cheat::functions::is_enemy_visible;
 use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY};
+use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY};
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
     thread::spawn(move || {
@@ -390,9 +391,9 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
             
             // Aim Info
-            let (aiming_at_enemy, allow_shoot) = {
+            let (aiming_at_enemy, allow_shoot, aiming_at_address) = {
                 if no_pawn {
-                    (false, false)
+                    (false, false, 0)
                 } else {
                     is_enemy_at_crosshair(window_info, local_entity.pawn.address, local_entity.pawn.team_id, game.address.entity_list, game.view, config)
                 }
@@ -473,10 +474,27 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Triggerbot
-            if is_triggerbot_toggled {
-                run_triggerbot((aiming_at_enemy, allow_shoot), config);
+            if is_triggerbot_toggled && aiming_at_enemy && allow_shoot && aiming_at_address != 0 {
+                run_triggerbot(aiming_at_address, config);
             } else {
                 release_mouse();
+            }
+
+            // Triggerbot Lock
+            if !is_triggerbot_toggled || aiming_at_address == 0 || !aiming_at_enemy || !allow_shoot {
+                let mut locked_entity = TB_LOCKED_ENTITY.lock().unwrap();
+                let mut off_entity = TB_OFF_ENTITY.lock().unwrap();
+
+                if off_entity.is_none() {
+                    *off_entity = Some(Instant::now());
+                }
+
+                if off_entity.unwrap().elapsed() > ProgramConfig::CheatDelays::TriggerbotOffEntity {
+                    *locked_entity = None;
+                    release_mouse();
+                }
+            } else {
+                *TB_OFF_ENTITY.lock().unwrap() = None;
             }
         }
     });
