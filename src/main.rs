@@ -24,18 +24,14 @@ fn main() {
         let latest_md5 = get_latest_md5();
 
         if own_md5.is_some() && latest_md5.is_some() {
-            if own_md5.unwrap() == latest_md5.unwrap() {
-                println!("{} Software is up-to-date", "[ OKAY ]".bold().green());
-            } else {
-                let update_confirmation = input(format!("{} Software is not up-to-date. Would you like to update? (y/n):", "[ INFO ]".bold().yellow()));
+            if own_md5.unwrap() != latest_md5.unwrap() {
+                let update_confirmation = input(format!("{} Software is outdated, would you like to update? (y/n):", "[ INFO ]".bold().yellow()));
 
                 if update_confirmation.to_lowercase() == "y" {
                     open_url(ProgramConfig::Update::URL);
                     return;
                 }
             }
-        } else {
-            println!("{} Couldn't check for updates, continuing anyway", "[ FAIL ]".bold().red());
         }
     }
 
@@ -47,8 +43,6 @@ fn main() {
                     sleep(ProgramConfig::ThreadDelays::UpdateConfigs);
                 }
             });
-            
-            println!("{} Set-up config", "[ OKAY ]".bold().green());
         },
         Some(string) => {
             println!("{} Failed to set-up config {}", "[ FAIL ]".bold().red(), format!("({})", string).bold());
@@ -57,18 +51,14 @@ fn main() {
     };
 
     match attach_process_manager() {
-        None =>  println!("{} Attached {} process", "[ OKAY ]".bold().green(), ProgramConfig::TargetProcess::Executable.bold()),
         Some(_) => {
             let mut failed_attempts: u32 = 0;
-            println!("{} Waiting for {} process...", "[ INFO ]".bold().yellow(), ProgramConfig::TargetProcess::Executable.bold());
+            println!("{} Waiting for {}...", "[ INFO ]".bold().yellow(), ProgramConfig::TargetProcess::Executable.bold());
             
             loop {
                 // Attach
                 match attach_process_manager() {
-                    None => {
-                        println!("{} Attached {} process", "[ OKAY ]".bold().green(), ProgramConfig::TargetProcess::Executable.bold());
-                        break;
-                    },
+                    None => break,
                     Some(error) => {
                         if error != "ProcessId" {
                             failed_attempts += 1;
@@ -76,7 +66,7 @@ fn main() {
 
                         // Check
                         if failed_attempts >= ProgramConfig::TargetProcess::MaxAttempts {
-                            println!("{} Failed to attach {} process {}", "[ FAIL ]".bold().red(), ProgramConfig::TargetProcess::Executable.bold(), format!("({})", error).bold());
+                            println!("{} Failed to attach {} {}", "[ FAIL ]".bold().red(), ProgramConfig::TargetProcess::Executable.bold(), format!("({})", error).bold());
                             return pause();
                         }
                     }
@@ -85,24 +75,18 @@ fn main() {
                 // Delay
                 sleep(ProgramConfig::ThreadDelays::AttachTargetProcess);
             }
-        }
+        },
+        None => {}
     }
 
     match update_offsets() {
-        None => {
-            println!("{} Updated offsets", "[ OKAY ]".bold().green());
-        },
         Some(_) => {
             let mut failed_attempts: u32 = 0;
-            println!("{} Waiting for {}...", "[ INFO ]".bold().yellow(), "ClientDLL".bold());
 
             loop {
                 // Update
                 match update_offsets() {
-                    None => {
-                        println!("{} Updated offsets", "[ OKAY ]".bold().green());
-                        break;
-                    },
+                    None => break,
                     Some(error) => {
                         failed_attempts += 1;
 
@@ -117,13 +101,34 @@ fn main() {
                 // Delay
                 sleep(ProgramConfig::ThreadDelays::UpdateOffsets);
             }
-        }
+        },
+        None => {}
     }
-    
-    if init_game_address() {
-        println!("{} Initialized addresses", "[ OKAY ]".bold().green());
-    } else {
-        println!("{} Failed to initialize addresses", "[ FAIL ]".bold().red());
+
+    match init_game_address() {
+        false => {
+            let mut failed_attempts: u32 = 0;
+
+            loop {
+                // Init
+                match init_game_address() {
+                    true => break,
+                    false => {
+                        failed_attempts += 1;
+
+                        // Check
+                        if failed_attempts >= ProgramConfig::TargetProcess::InitAddressesMaxAttempts {
+                            println!("{} Failed to initialize addresses", "[ FAIL ]".bold().red());
+                            return pause();
+                        }
+                    }
+                }
+
+                // Delay
+                sleep(ProgramConfig::ThreadDelays::InitAddresses);
+            }
+        },
+        true => {}
     }
 
     init_gui();
