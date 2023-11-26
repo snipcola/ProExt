@@ -495,7 +495,7 @@ lazy_static! {
     pub static ref CONFIG_EXTENSION: String = "conf.json".to_string();
     pub static ref DEFAULT_CONFIG: String = format!("Default.{}", CONFIG_EXTENSION.clone());
     pub static ref CONFIG_DIR: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
-    pub static ref CONFIGS: Arc<Mutex<IndexMap<String, Config>>> = Arc::new(Mutex::new(IndexMap::new()));
+    pub static ref CONFIGS: Arc<Mutex<IndexMap<String, Option<Config>>>> = Arc::new(Mutex::new(IndexMap::new()));
     pub static ref CONFIG: Arc<Mutex<Config>> = Arc::new(Mutex::new(Config::default()));
 }
 
@@ -530,13 +530,15 @@ pub fn update_configs() -> Option<String> {
                     if let Some(config_path) = PathBuf::from(&*config_dir).join(file_name).to_str() {
                         match load_config(config_path) {
                             Ok(config) => {
-                                let (config_index, _) = configs.insert_full(file_name.to_string(), config);
+                                let (config_index, _) = configs.insert_full(file_name.to_string(), Some(config));
                                 
                                 if file_name == &*DEFAULT_CONFIG {
                                     configs.move_index(config_index, 0);
                                 }
                             },
-                            Err(_) => {}
+                            Err(_) => {
+                                configs.insert_full(file_name.to_string(), None);
+                            }
                         }
                     }
                 }
@@ -571,17 +573,26 @@ pub fn setup_config() -> Option<String> {
     };
 
     let default_config_name = &*DEFAULT_CONFIG;
+    let mut update_default_config = false;
 
     if let Some(default_config) = (*CONFIGS.lock().unwrap()).get(default_config_name) {
-        *CONFIG.lock().unwrap() = *default_config;
+        if let Some(default_config) = default_config {
+            *CONFIG.lock().unwrap() = *default_config;
+        } else {
+            update_default_config = true;
+        }
     } else {
+        update_default_config = true;
+    }
+
+    if update_default_config {
         if let Some(default_config_path) = directory_pathbuf.join(default_config_name).to_str() {
             match CONFIG.lock().unwrap().clone().save_config(default_config_path, false) {
                 Err(_) => { return Some("SaveDefaultConfig".to_string()); },
                 _ => {}
             };
         }
-    };
+    }
 
     return None;
 }

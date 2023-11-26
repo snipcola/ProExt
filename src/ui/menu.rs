@@ -636,18 +636,22 @@ pub fn render_menu(ui: &mut Ui) {
 
                     // Current Configs
                     for (config_name, config_item) in configs.clone() {
-                        let mut loaded = false;
+                        if let Some(config_item) = config_item {
+                            let mut loaded = false;
 
-                        if let Some(loaded_config) = &loaded_conf {
-                            if &config_name == loaded_config {
-                                loaded = true;
+                            if let Some(loaded_config) = &loaded_conf {
+                                if &config_name == loaded_config {
+                                    loaded = true;
+                                }
                             }
-                        }
 
-                        if ui.selectable_config(config_name.replace(&format!(".{}", *CONFIG_EXTENSION), "")).selected(loaded).build() {                            
-                            *config = config_item;
-                            *loaded_config.lock().unwrap() = Some(config_name.to_string());
-                            reset_window_positions(config_item.window_positions);
+                            if ui.selectable_config(config_name.replace(&format!(".{}", *CONFIG_EXTENSION), "")).selected(loaded).build() {                            
+                                *config = config_item;
+                                *loaded_config.lock().unwrap() = Some(config_name.to_string());
+                                reset_window_positions(config_item.window_positions);
+                            }
+                        } else {
+                            ui.selectable_config(format!("{} (outdated)", config_name.replace(&format!(".{}", *CONFIG_EXTENSION), ""))).disabled(true).build();
                         }
                     }
 
@@ -656,9 +660,11 @@ pub fn render_menu(ui: &mut Ui) {
                             let default_config_name = &*DEFAULT_CONFIG;
 
                             if let Some(default_config) = configs.get(default_config_name) {
-                                *config = *default_config;
-                                *loaded_config.lock().unwrap() = Some(default_config_name.to_string());
-                                reset_window_positions(default_config.window_positions);
+                                if let Some(default_config) = default_config {
+                                    *config = *default_config;
+                                    *loaded_config.lock().unwrap() = Some(default_config_name.to_string());
+                                    reset_window_positions(default_config.window_positions);
+                                }
                             };
                         }
 
@@ -723,9 +729,11 @@ pub fn render_menu(ui: &mut Ui) {
                 ui.text(format!("| Config: \"{}\"", loaded_config.replace(&format!(".{}", *CONFIG_EXTENSION), "")));
 
                 if let Some(current_config) = configs.get(loaded_config) {
-                    if current_config != &*config {
-                        ui.same_line();
-                        ui.text("(modified)");
+                    if let Some(current_config) = current_config {
+                        if current_config != &*config {
+                            ui.same_line();
+                            ui.text("(modified)");
+                        }
                     }
                 }
             }
