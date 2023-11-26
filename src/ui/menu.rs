@@ -417,6 +417,14 @@ pub fn render_menu(ui: &mut Ui) {
                         // Cheat List
                         ui.same_line();
                         ui.checkbox("Cheat List##Misc", &mut (*config).misc.cheat_list_enabled);
+
+                        if (*config).misc.cheat_list_enabled {
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##ColorMiscCheatListOne", &mut (*config).misc.cheat_list_color_one);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##ColorMiscCheatListTwo", &mut (*config).misc.cheat_list_color_two);
+                        }
+
                         ui.separator();
 
                         // Bomb Timer & Spectator List
