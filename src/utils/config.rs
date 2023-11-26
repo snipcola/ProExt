@@ -18,6 +18,7 @@ pub mod ProgramConfig {
         pub mod FontPaths {
             pub const Chinese: &str = "C:/Windows/Fonts/msyh.ttc";
             pub const Cryillic: &str = "C:/Windows/Fonts/calibri.ttf";
+            pub const Arabic: &str = "C:/Windows/Fonts/calibri.ttf";
         }
     }
 
