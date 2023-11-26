@@ -7,12 +7,12 @@ use crate::utils::config::ProgramConfig;
 pub fn get_own_md5() -> Option<String> {
     let exe_path = match env::current_exe() {
         Ok(exe) => exe,
-        _ => { return None; }
+        Err(_) => { return None; }
     };
 
     let mut file = match File::open(exe_path) {
         Ok(file) => file,
-        _ => { return None; }
+        Err(_) => { return None; }
     };
 
     let mut buffer = Vec::new();
@@ -27,12 +27,12 @@ pub fn get_own_md5() -> Option<String> {
 pub fn get_latest_md5() -> Option<String> {
     let response = match get(ProgramConfig::Update::HashURL).call() {
         Ok(response) => response,
-        _ => { return None; }
+        Err(_) => { return None; }
     };
 
     return match response.into_string() {
         Ok(text) => Some(text.trim().to_string()),
-        _ => None
+        Err(_) => None
     };
 }
 

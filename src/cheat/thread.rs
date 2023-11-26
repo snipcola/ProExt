@@ -42,7 +42,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let config = CONFIG.lock().unwrap().clone();
             let window_info = match window_info.lock().unwrap().clone() {
                 Some(window_info) => window_info,
-                _ => { continue; }
+                None => { continue; }
             };
 
             let is_game_window_focused = is_window_focused(hwnd);
@@ -155,12 +155,12 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                     let bomb_site = match planted_bomb {
                         Some(bomb) => get_bomb_site(bomb),
-                        _ => None
+                        None => None
                     };
                     
                     let bomb_pos = match planted_bomb {
                         Some(bomb) => get_bomb_position(bomb),
-                        _ => None
+                        None => None
                     };
 
                     (bomb_planted, bomb_site, bomb_pos)
@@ -269,7 +269,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 // Bone Data
                 let bone = match entity.get_bone() {
                     Some(bone) => bone,
-                    _ => {
+                    None => {
                         remove_esp(i);
                         continue;
                     }

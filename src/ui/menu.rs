@@ -674,7 +674,7 @@ pub fn render_menu(ui: &mut Ui) {
                             if ui.button("Save##Config") {
                                 match (*config).save_config(config_path, false) {
                                     Err(str) => { println!("{} Failed to save config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
-                                    _ => {}
+                                    Ok(_) => {}
                                 }
                             }
 
@@ -684,7 +684,7 @@ pub fn render_menu(ui: &mut Ui) {
                                 if ui.button("Delete##Config") {
                                     match delete_config(config_path) {
                                         Err(str) => { println!("{} Failed to delete config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
-                                        _ => {}
+                                        Ok(_) => {}
                                     }
                                 }
                             }

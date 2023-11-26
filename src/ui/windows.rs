@@ -13,7 +13,7 @@ pub fn find_window(title: &str, class: Option<&str>) -> Option<HWND> {
     unsafe {
         let hwnd = match class {
             Some(class) => FindWindowW(&HSTRING::from(class.to_string()), &HSTRING::from(title.to_string())),
-            _ => FindWindowW(PCWSTR::null(), &HSTRING::from(title.to_string()))
+            None => FindWindowW(PCWSTR::null(), &HSTRING::from(title.to_string()))
         };
         
         if IsWindow(hwnd).into() {
@@ -46,7 +46,7 @@ pub fn get_window_info(hwnd: HWND) -> Option<((i32, i32), (i32, i32))> {
 
                 return Some(((window_rect.left, window_rect.top), (client_width, client_height)));
             },
-            _ => {
+            Err(_) => {
                 return None
             }
         }
