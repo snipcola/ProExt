@@ -16,7 +16,7 @@ use crate::cheat::classes::game::update_entity_list_entry;
 use crate::cheat::features::aimbot::{get_aimbot_toggled, aimbot_check, render_fov_circle, run_aimbot};
 use crate::cheat::features::bomb_timer::render_bomb_timer;
 use crate::cheat::features::cheat_list::render_cheat_list;
-use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_weapon_name, render_distance, render_name};
+use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_weapon_name, render_distance, render_name};
 use crate::cheat::features::radar::render_radar;
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
 use crate::cheat::features::triggerbot::{get_triggerbot_toggled, run_triggerbot};
@@ -70,6 +70,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 (*ui_functions.lock().unwrap()).remove(&format!("distance_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("health_bar_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("armor_bar_{}", entity));
             };
 
             let remove_ui_elements = || {
@@ -351,6 +352,15 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("health_bar_{}", i));
+                }
+
+                // Armor Bar
+                if config.esp.enabled && config.esp.armor_bar_enabled {
+                    (*ui_functions.lock().unwrap()).insert(format!("armor_bar_{}", i), Box::new(move |ui| {
+                        render_armor_bar(ui, entity.controller.armor as f32, rect, config);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("armor_bar_{}", i));
                 }
 
                 // Weapon Name
