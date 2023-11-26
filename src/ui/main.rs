@@ -7,9 +7,10 @@ use lazy_static::lazy_static;
 
 use crate::{ui::thread::{bind_ui_keys, run_event_loop}, cheat::thread::run_cheats_thread, utils::rpc::initialize_rpc};
 use crate::utils::config::ProgramConfig;
-use crate::ui::windows::{create_window, find_window, init_imgui};
+use crate::ui::windows::{create_window, find_window};
 use crate::ui::windows::Window;
 use crate::ui::windows::set_window_brush_to_transparent;
+use crate::ui::imgui::init_imgui;
 
 lazy_static! {
     pub static ref WINDOW_INFO: Arc<Mutex<Option<((i32, i32), (i32, i32))>>> = Arc::new(Mutex::new(None));
