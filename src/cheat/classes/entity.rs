@@ -211,11 +211,19 @@ impl PlayerController {
             return 0;
         }
 
-        if !read_memory_auto(entity_pawn_list_entry + 0x10 + 8 * (self.pawn.bitand(0x7FFF) >> 9), &mut entity_pawn_list_entry) {
+        if let Some(sum) = (8 as u64).checked_mul(self.pawn.bitand(0x7FFF) >> 9) {
+            if !read_memory_auto(entity_pawn_list_entry + 0x10 + sum, &mut entity_pawn_list_entry) {
+                return 0;
+            }
+        } else {
             return 0;
         }
 
-        if !read_memory_auto(entity_pawn_list_entry + 0x78 * (self.pawn & 0x1FF), &mut entity_pawn_address) {
+        if let Some(sum) = (0x78 as u64).checked_mul(self.pawn.bitand(0x1FF)) {
+            if !read_memory_auto(entity_pawn_list_entry + sum, &mut entity_pawn_address) {
+                return 0;
+            }
+        } else {
             return 0;
         }
 
