@@ -410,7 +410,7 @@ impl Default for Config {
                 watermark: [300.0, 5.0],
                 cheat_list: [300.0, 58.0],
                 bomb_timer: [30.0, 330.0],
-                spectator_list: [460.0, 58.0]
+                spectator_list: [460.0, 5.0]
             },
             style: Style {
                 enabled: true,
