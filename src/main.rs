@@ -58,9 +58,33 @@ fn main() {
 
     match attach_process_manager() {
         None =>  println!("{} Attached {} process", "[ OKAY ]".bold().green(), ProgramConfig::TargetProcess::Executable.bold()),
-        Some(error) => {
-            println!("{} Failed to attach {} process {}", "[ FAIL ]".bold().red(), ProgramConfig::TargetProcess::Executable.bold(), format!("({})", error).bold());
-            return pause();
+        Some(_) => {
+            let mut failed_attempts: u32 = 0;
+            println!("{} Waiting for {} process...", "[ INFO ]".bold().yellow(), ProgramConfig::TargetProcess::Executable.bold());
+            
+            loop {
+                // Attach
+                match attach_process_manager() {
+                    None => {
+                        println!("{} Attached {} process", "[ OKAY ]".bold().green(), ProgramConfig::TargetProcess::Executable.bold());
+                        break;
+                    },
+                    Some(error) => {
+                        if error != "ProcessId" {
+                            failed_attempts += 1;
+                        }
+
+                        // Check
+                        if failed_attempts >= ProgramConfig::TargetProcess::MaxAttempts {
+                            println!("{} Failed to attach {} process {}", "[ FAIL ]".bold().red(), ProgramConfig::TargetProcess::Executable.bold(), format!("({})", error).bold());
+                            return pause();
+                        }
+                    }
+                }
+                
+                // Delay
+                sleep(ProgramConfig::ThreadDelays::AttachTargetProcess);
+            }
         }
     }
 
@@ -68,9 +92,31 @@ fn main() {
         None => {
             println!("{} Updated offsets", "[ OKAY ]".bold().green());
         },
-        Some(string) => {
-            println!("{} Failed to update offsets {}", "[ FAIL ]".bold().red(), format!("({})", string).bold());
-            return pause();
+        Some(_) => {
+            let mut failed_attempts: u32 = 0;
+            println!("{} Waiting for {}...", "[ INFO ]".bold().yellow(), "ClientDLL".bold());
+
+            loop {
+                // Update
+                match update_offsets() {
+                    None => {
+                        println!("{} Updated offsets", "[ OKAY ]".bold().green());
+                        break;
+                    },
+                    Some(error) => {
+                        failed_attempts += 1;
+
+                        // Check
+                        if failed_attempts >= ProgramConfig::TargetProcess::UpdateOffsetsMaxAttempts {
+                            println!("{} Failed to update offsets {}", "[ FAIL ]".bold().red(), format!("({})", error).bold());
+                            return pause();
+                        }
+                    }
+                }
+
+                // Delay
+                sleep(ProgramConfig::ThreadDelays::UpdateOffsets);
+            }
         }
     }
     
