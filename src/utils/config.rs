@@ -54,7 +54,7 @@ pub mod ProgramConfig {
 
         pub const Aimbot: Duration = Duration::from_millis(10);
         pub const AimbotOffEntity: Duration = Duration::from_millis(500);
-        pub const TriggerbotOffEntity: Duration = Duration::from_millis(100);
+        pub const TriggerbotOffEntity: Duration = Duration::from_millis(500);
     }
 }
 

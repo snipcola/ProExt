@@ -3,33 +3,33 @@ use mint::{Vector3, Vector2};
 use crate::cheat::classes::{entity::Entity, offsets::Offsets, view::View};
 use crate::utils::{config::Config, process_manager::{read_memory_auto, trace_address}};
 
-pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity_pawn_address: u64, local_entity_pawn_team_id: i32, game_address_entity_list: u64, game_view: View, config: Config) -> (bool, bool) {
+pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity_pawn_address: u64, local_entity_pawn_team_id: i32, game_address_entity_list: u64, game_view: View, config: Config) -> (bool, bool, u64) {
     let mut u_handle: u32 = 0;
     
     if !read_memory_auto(local_entity_pawn_address + Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
-        return (false, false);
+        return (false, false, 0);
     }
 
     if !read_memory_auto(local_entity_pawn_address + Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
-        return (false, false);
+        return (false, false, 0);
     }
 
     let list_entry: u64 = trace_address(game_address_entity_list, &[0x8 * (u_handle >> 9) + 0x10, 0x0]);
 
     if list_entry == 0 {
-        return (false, false);
+        return (false, false, 0);
     }
 
     let mut pawn_address: u64 = 0;
 
     if !read_memory_auto(list_entry + 0x78 * u_handle.bitand(0x1FF) as u64, &mut pawn_address) {
-        return (false, false);
+        return (false, false, 0);
     }
 
     let mut entity = Entity::default();
 
     if !entity.update_pawn(pawn_address, window_info, game_view) {
-        return (false, false);
+        return (false, false, 0);
     }
 
     let allow_shoot = {
@@ -40,7 +40,7 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
         }
     };
 
-    return (true, allow_shoot);
+    return (true, allow_shoot, pawn_address);
 }
 
 pub fn is_enemy_visible(b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64) -> bool {
