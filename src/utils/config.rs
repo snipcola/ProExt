@@ -516,6 +516,13 @@ pub fn get_directory_dir(name: &str) -> Option<String> {
 pub fn update_configs() -> Option<String> {
     let config_dir = CONFIG_DIR.lock().unwrap().clone();
     let directory_pathbuf = PathBuf::from(&*config_dir);
+
+    if !metadata(&directory_pathbuf).is_ok() {
+        match create_dir_all(&directory_pathbuf) {
+            Ok(_) => {},
+            _ => { return Some("CreateDirectory".to_string()); }
+        };
+    };
     
     let mut configs = IndexMap::new();
     let paths = match read_dir(directory_pathbuf.clone()) {
@@ -574,15 +581,6 @@ pub fn setup_config() -> Option<String> {
     let directory_path = match get_directory_dir(ProgramConfig::Package::Name) {
         Some(path) => path,
         _ => { return Some("FindDirectory".to_string()); }
-    };
-
-    let directory_pathbuf = PathBuf::from(&directory_path);
-
-    if !metadata(&directory_pathbuf).is_ok() {
-        match create_dir_all(&directory_pathbuf) {
-            Ok(_) => {},
-            _ => { return Some("CreateDirectory".to_string()); }
-        };
     };
 
     *CONFIG_DIR.lock().unwrap() = directory_path.to_string();
