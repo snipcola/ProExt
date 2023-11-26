@@ -651,7 +651,7 @@ pub fn render_menu(ui: &mut Ui) {
                                 reset_window_positions(config_item.window_positions);
                             }
                         } else {
-                            ui.selectable_config(format!("{} (outdated)", config_name.replace(&format!(".{}", *CONFIG_EXTENSION), ""))).disabled(true).build();
+                            ui.selectable_config(format!("{} (failed)", config_name.replace(&format!(".{}", *CONFIG_EXTENSION), ""))).disabled(true).build();
                         }
                     }
 
