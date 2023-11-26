@@ -404,8 +404,17 @@ pub fn render_menu(ui: &mut Ui) {
                     if (*config).misc.enabled {
                         ui.separator();
 
-                        // Watermark & Cheat List
+                        // Watermark
                         ui.checkbox("Watermark##Misc", &mut (*config).misc.watermark_enabled);
+
+                        if (*config).misc.watermark_enabled {
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##ColorMiscWatermarkOne", &mut (*config).misc.watermark_color_one);
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##ColorMiscWatermarkTwo", &mut (*config).misc.watermark_color_two);
+                        }
+
+                        // Cheat List
                         ui.same_line();
                         ui.checkbox("Cheat List##Misc", &mut (*config).misc.cheat_list_enabled);
                         ui.separator();
