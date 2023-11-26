@@ -310,7 +310,7 @@ impl Default for Config {
                 health_bar_third_color: (255, 0, 0, 255),
                 armor_bar_enabled: true,
                 armor_bar_color: (255, 255, 255, 255),
-                bar_mode: 0,
+                bar_mode: 1,
                 name_enabled: true,
                 name_color: (255, 255, 255, 255),
                 weapon_name_enabled: true,
