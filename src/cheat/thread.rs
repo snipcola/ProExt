@@ -198,7 +198,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             // Aimbot Data
             let mut max_aim_distance: f32 = 100000.0;
             let mut aim_pos: Option<Vector3<f32>> = None;
-            let mut aim_entity_index: Option<u64> = None;
+            let mut aim_entity_address: Option<u64> = None;
 
             // Radar Data
             let mut radar_points: Vec<(Vector3<f32>, f32)> = Vec::new();
@@ -279,7 +279,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 // Aimbot Check
                 if !no_pawn && config.aimbot.enabled {
-                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_index, i, enemy_visible, !entity.pawn.has_flag(Flags::InAir), config);
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, enemy_visible, !entity.pawn.has_flag(Flags::InAir), config);
                 }
 
                 // Skeleton
@@ -450,7 +450,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             if is_aimbot_toggled {
                 if let Some(aimbot_info) = aimbot_info {
                     if let Some(aim_pos) = aim_pos {
-                        if let Some(entity_index) = aim_entity_index {
+                        if let Some(entity_index) = aim_entity_address {
                             run_aimbot(config, aimbot_info, window_info, game.view, aim_pos, entity_index);
                         }
                     }
@@ -458,7 +458,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Aimbot Lock
-            if !is_aimbot_toggled || aim_entity_index.is_none() || aim_pos.is_none() || aimbot_info.is_none() {
+            if !is_aimbot_toggled || aim_entity_address.is_none() || aim_pos.is_none() || aimbot_info.is_none() {
                 let mut locked_entity = AB_LOCKED_ENTITY.lock().unwrap();
                 let mut off_entity = AB_OFF_ENTITY.lock().unwrap();
                 
