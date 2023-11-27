@@ -66,7 +66,7 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
         }
 
         let delay_offset = if config.aimbot.delay_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.aimbot.delay_offset as f32) .. config.aimbot.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
-        let delay = Duration::from_secs_f32((config.aimbot.delay as f32 + delay_offset).min(500.0).max(15.0) / 1000.0);
+        let delay = Duration::from_secs_f32((config.aimbot.delay as f32 + delay_offset).min(500.0).max(0.0) / 1000.0);
         
         if locked_on.elapsed() < delay {
             return;
