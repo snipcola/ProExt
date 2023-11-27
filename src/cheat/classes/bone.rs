@@ -1,6 +1,6 @@
 use mint::{Vector3, Vector2};
 
-use crate::utils::process_manager::read_memory_auto;
+use crate::utils::process_manager::{rpm_offset, rpm_auto};
 use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::view::View;
 
@@ -65,17 +65,17 @@ impl Bone {
         let mut game_scene_node: u64 = 0;
         let mut bone_array_address: u64 = 0;
 
-        if !read_memory_auto(entity_pawn_address + Offsets::C_BaseEntity::m_pGameSceneNode as u64, &mut game_scene_node) {
+        if !rpm_offset(entity_pawn_address, Offsets::C_BaseEntity::m_pGameSceneNode as u64, &mut game_scene_node) {
             return false;
         }
 
-        if !read_memory_auto(game_scene_node + Offsets::CompositeMaterialEditorPoint_t::m_vecCompositeMaterialAssemblyProcedures as u64, &mut bone_array_address) {
+        if !rpm_offset(game_scene_node, Offsets::CompositeMaterialEditorPoint_t::m_vecCompositeMaterialAssemblyProcedures  as u64, &mut bone_array_address) {
             return false;
         }
 
         let mut bone_array: [BoneJointData; 30] = [BoneJointData { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, pad: [0; 0x14] }; 30];
 
-        if !read_memory_auto(bone_array_address, &mut bone_array) {
+        if !rpm_auto(bone_array_address, &mut bone_array) {
             return false;
         }
 

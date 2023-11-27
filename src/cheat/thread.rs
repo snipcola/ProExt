@@ -9,7 +9,7 @@ use crate::cheat::functions::{is_enemy_at_crosshair, is_enemy_in_fov};
 use crate::utils::config::{CONFIG, ProgramConfig};
 use crate::cheat::classes::game::GAME;
 use crate::utils::mouse::release_mouse;
-use crate::utils::process_manager::{read_memory, read_memory_auto};
+use crate::utils::process_manager::{rpm, rpm_offset, rpm_auto};
 
 use crate::cheat::classes::entity::{Entity, Flags};
 use crate::cheat::classes::game::update_entity_list_entry;
@@ -112,7 +112,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 (*ui_functions.lock().unwrap()).remove("cheat_list");
             }
 
-            if !read_memory(matrix_address, &mut (*GAME.lock().unwrap()).view.matrix, 64) {
+            if !rpm(matrix_address, &mut (*GAME.lock().unwrap()).view.matrix, 64) {
                 remove_ui_elements();
                 continue;
             }
@@ -122,12 +122,12 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let mut local_controller_address = 0;
             let mut local_pawn_address = 0;
 
-            if !read_memory_auto(controller_address, &mut local_controller_address) {
+            if !rpm_auto(controller_address, &mut local_controller_address) {
                 remove_ui_elements();
                 continue;
             }
 
-            if !read_memory_auto(pawn_address, &mut local_pawn_address) {
+            if !rpm_auto(pawn_address, &mut local_pawn_address) {
                 remove_ui_elements();
                 continue;
             }
@@ -220,7 +220,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 let mut entity_address: u64 = 0;
 
                 if let Some(sum) = ((i + 1) as u64).checked_mul(0x78) {
-                    if !read_memory_auto(game.address.entity_list_entry + sum, &mut entity_address) {
+                    if !rpm_offset(game.address.entity_list_entry, sum, &mut entity_address) {
                         remove_esp(i);
                         continue;
                     }

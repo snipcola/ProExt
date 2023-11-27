@@ -1,16 +1,17 @@
 use std::ops::BitAnd;
 use mint::{Vector3, Vector2};
 use crate::cheat::classes::{entity::Entity, offsets::Offsets, view::View};
-use crate::utils::{config::Config, process_manager::{read_memory_auto, trace_address}};
+use crate::utils::process_manager::rpm_auto;
+use crate::utils::{config::Config, process_manager::{rpm_offset, trace_address}};
 
 pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity_pawn_address: u64, local_entity_pawn_team_id: i32, game_address_entity_list: u64, game_view: View, config: Config) -> (bool, bool, u64) {
     let mut u_handle: u32 = 0;
     
-    if !read_memory_auto(local_entity_pawn_address + Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
+    if !rpm_offset(local_entity_pawn_address, Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
         return (false, false, 0);
     }
 
-    if !read_memory_auto(local_entity_pawn_address + Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
+    if !rpm_offset(local_entity_pawn_address, Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
         return (false, false, 0);
     }
 
@@ -22,8 +23,10 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
 
     let mut pawn_address: u64 = 0;
 
-    if !read_memory_auto(list_entry + 0x78 * u_handle.bitand(0x1FF) as u64, &mut pawn_address) {
-        return (false, false, 0);
+    if let Some(sum) = (0x78 as u64).checked_mul(u_handle.bitand(0x1FF) as u64) {
+        if !rpm_offset(list_entry, sum, &mut pawn_address) {
+            return (false, false, 0);
+        }
     }
 
     let mut entity = Entity::default();
@@ -64,11 +67,11 @@ pub fn is_enemy_in_fov(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector
 pub fn get_bomb(bomb_address: u64) -> Option<u64> {
     let mut planted_bomb: u64 = 0;
 
-    if !read_memory_auto(bomb_address, &mut planted_bomb) {
+    if !rpm_auto(bomb_address, &mut planted_bomb) {
         return None;
     }
 
-    if !read_memory_auto(planted_bomb, &mut planted_bomb) {
+    if !rpm_auto(planted_bomb, &mut planted_bomb) {
         return None;
     }
 
@@ -77,10 +80,14 @@ pub fn get_bomb(bomb_address: u64) -> Option<u64> {
 
 pub fn get_bomb_planted(bomb_address: u64) -> bool {
     let mut is_bomb_planted: bool = false;
-    
-    if !read_memory_auto(bomb_address - 0x8, &mut is_bomb_planted) {
+
+    if let Some(sum) = bomb_address.checked_sub(0x8) {
+        if !rpm_auto(sum, &mut is_bomb_planted) {
+            return false;
+        }
+    } else {
         return false;
-    };
+    }
 
     return is_bomb_planted;
 }
@@ -88,7 +95,7 @@ pub fn get_bomb_planted(bomb_address: u64) -> bool {
 pub fn get_bomb_site(planted_bomb: u64) -> Option<String> {
     let mut site: u32 = 0;
 
-    if !read_memory_auto(planted_bomb + Offsets::C_PlantedC4::m_nBombSite as u64, &mut site) {
+    if !rpm_offset(planted_bomb, Offsets::C_PlantedC4::m_nBombSite as u64, &mut site) {
         return None;
     }
 
@@ -102,13 +109,13 @@ pub fn get_bomb_site(planted_bomb: u64) -> Option<String> {
 pub fn get_bomb_position(planted_bomb: u64) -> Option<Vector3<f32>> {
     let mut bomb_node = 0;
 
-    if !read_memory_auto(planted_bomb + Offsets::C_BaseEntity::m_pGameSceneNode as u64, &mut bomb_node) {
+    if !rpm_offset(planted_bomb, Offsets::C_BaseEntity::m_pGameSceneNode as u64, &mut bomb_node) {
         return None;
     }
 
     let mut bomb_pos = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
 
-    if !read_memory_auto(bomb_node + Offsets::CGameSceneNode::m_vecAbsOrigin as u64, &mut bomb_pos) {
+    if !rpm_offset(bomb_node, Offsets::CGameSceneNode::m_vecAbsOrigin as u64, &mut bomb_pos) {
         return None;
     }
 
