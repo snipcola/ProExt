@@ -1,4 +1,4 @@
-use std::ops::BitAnd;
+use std::ops::{BitAnd, Shr};
 use mint::{Vector2, Vector3};
 
 use crate::utils::process_manager::{rpm_offset, trace_address, rpm, rpm_auto};
@@ -43,7 +43,7 @@ pub struct PlayerPawn {
 }
 
 pub enum Flags {
-    InAir = 1 << 0
+    InAir = (1 as isize).wrapping_shr(0)
 }
 
 #[derive(Clone)]
@@ -211,7 +211,7 @@ impl PlayerController {
             return 0;
         }
 
-        if let Some(sum) = (8 as u64).checked_mul(self.pawn.bitand(0x7FFF) >> 9) {
+        if let Some(sum) = (8 as u64).checked_mul(self.pawn.bitand(0x7FFF).shr(9)) {
             if !rpm_offset(entity_pawn_list_entry, 0x10 + sum, &mut entity_pawn_list_entry) {
                 return 0;
             }
