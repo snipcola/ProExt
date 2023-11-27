@@ -23,13 +23,15 @@ pub mod ProgramConfig {
     }
 
     pub mod Update {
-        pub const URL: &str = "https://github.com/vytrol/ProExt/raw/main/bin/proext.exe";
-        pub const HashURL: &str = "https://github.com/vytrol/ProExt/raw/main/bin/hash.txt";
+        pub const Enabled: bool = false;
+        pub const URL: &str = "";
+        pub const HashURL: &str = "";
     }
 
     pub mod RPC {
-        pub const ClientID: u64 = 1174845327099048018;
-        pub const ImageAsset: &str = "cs2";
+        pub const Enabled: bool = false;
+        pub const ClientID: u64 = 0;
+        pub const ImageAsset: &str = "";
     }
 
     pub mod Links {
