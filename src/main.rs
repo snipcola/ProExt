@@ -19,7 +19,7 @@ fn main() {
     set_virtual_terminal(true).unwrap();
     println!("{} {} {} | {}", "[ INFO ]".bold().cyan(), ProgramConfig::Package::Name.bold(), format!("v{}", ProgramConfig::Package::Version).bold(), ProgramConfig::Package::Authors.replace(":", " & ").bold());
 
-    if !cfg!(debug_assertions) && update_exists() {
+    if !cfg!(debug_assertions) && ProgramConfig::Update::Enabled && update_exists() {
         let own_md5 = get_own_md5();
         let latest_md5 = get_latest_md5();
 
