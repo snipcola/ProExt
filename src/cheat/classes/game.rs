@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use lazy_static::lazy_static;
 
-use crate::utils::process_manager::{get_process_module_handle, read_memory_auto};
+use crate::utils::process_manager::{get_process_module_handle, rpm_auto, rpm_offset};
 use crate::cheat::classes::offsets::{ENTITY_LIST, MATRIX, VIEW_ANGLE, LOCAL_PLAYER_CONTROLLER, LOCAL_PLAYER_PAWN};
 use crate::cheat::classes::view::View;
 use crate::cheat::classes::offsets::BOMB;
@@ -71,11 +71,11 @@ pub fn update_entity_list_entry() -> bool {
     let mut game = GAME.lock().unwrap();
     let mut entity_list_entry: u64 = 0;
 
-    if !read_memory_auto((*game).address.entity_list, &mut entity_list_entry) {
+    if !rpm_auto((*game).address.entity_list, &mut entity_list_entry) {
         return false;
     }
 
-    if !read_memory_auto(entity_list_entry + 0x10, &mut entity_list_entry) {
+    if !rpm_offset(entity_list_entry, 0x10, &mut entity_list_entry) {
         return false;
     }
 

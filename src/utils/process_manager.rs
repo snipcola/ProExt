@@ -69,7 +69,7 @@ pub fn detach_process_manager(process_manager: &mut ProcessManager) {
     process_manager.attached = false;
 }
 
-pub fn read_memory<ReadType: ?Sized>(address: u64, value: &mut ReadType, size: usize) -> bool {
+pub fn rpm<ReadType: ?Sized>(address: u64, value: &mut ReadType, size: usize) -> bool {
     let process_manager = PROCESS_MANAGER.clone();
     let process_manager = process_manager.lock().unwrap();
 
@@ -81,12 +81,12 @@ pub fn read_memory<ReadType: ?Sized>(address: u64, value: &mut ReadType, size: u
     }
 }
 
-pub fn read_memory_auto<ReadType>(address: u64, value: &mut ReadType) -> bool {
-    return read_memory(address, value, mem::size_of::<ReadType>());
+pub fn rpm_auto<ReadType>(address: u64, value: &mut ReadType) -> bool {
+    return rpm(address, value, mem::size_of::<ReadType>());
 }
 
-pub fn get_address_with_offset<ReadType>(address: u64, offset: u32, value: &mut ReadType) -> bool {
-    return address != 0 && read_memory_auto(address + offset as u64, value);
+pub fn rpm_offset<ReadType>(address: u64, offset: u64, value: &mut ReadType) -> bool {
+    return address != 0 && rpm_auto(address + offset, value);
 }
 
 pub fn search_memory(signature: &str, start_address: u64, end_address: u64, search_num: i32) -> Vec<u64> {
@@ -127,7 +127,7 @@ pub fn search_memory(signature: &str, start_address: u64, end_address: u64, sear
     }
 
     fn search_memory_block(memory_buffer: &mut [u8], next_array: &[i16], signature_array: &[u16], start_address: u64, size: u32, result_array: &mut Vec<u64>) {
-        if !read_memory(start_address, memory_buffer, size as usize) {
+        if !rpm(start_address, memory_buffer, size as usize) {
             return;
         }
 
@@ -216,16 +216,12 @@ pub fn trace_address(base_address: u64, offsets: &[u32]) -> u64 {
         return base_address;
     }
 
-    if !read_memory_auto(base_address, &mut address) {
+    if !rpm_auto(base_address, &mut address) {
         return 0;
     }
 
     for i in 0 .. offsets.len() - 1 {
-        if let Some(sum) = address.checked_add(offsets[i] as u64) {
-            if !read_memory_auto(sum, &mut address) {
-                return 0;
-            }
-        } else {
+        if !rpm_offset(address, offsets[i] as u64, &mut address) {
             return 0;
         }
     }

@@ -1,7 +1,7 @@
 use std::ops::BitAnd;
 use mint::{Vector2, Vector3};
 
-use crate::utils::process_manager::{get_address_with_offset, read_memory, read_memory_auto, trace_address};
+use crate::utils::process_manager::{rpm_offset, trace_address, rpm, rpm_auto};
 use crate::cheat::classes::bone::Bone;
 use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::game::GAME;
@@ -168,25 +168,25 @@ impl Entity {
 
 impl PlayerController {
     pub fn get_team_id(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_iTeamNum as u32, &mut self.team_id);
+        return rpm_offset(self.address, Offsets::C_BaseEntity::m_iTeamNum as u64, &mut self.team_id);
     }
 
     pub fn get_health(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_iHealth as u32, &mut self.health);
+        return rpm_offset(self.address, Offsets::C_BaseEntity::m_iHealth as u64, &mut self.health);
     }
 
     pub fn get_armor(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::CCSPlayerController::m_iPawnArmor as u32, &mut self.armor);
+        return rpm_offset(self.address, Offsets::CCSPlayerController::m_iPawnArmor as u64, &mut self.armor);
     }
 
     pub fn get_is_alive(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::CCSPlayerController::m_bPawnIsAlive as u32, &mut self.alive_status);
+        return rpm_offset(self.address, Offsets::CCSPlayerController::m_bPawnIsAlive as u64, &mut self.alive_status);
     }
 
     pub fn get_player_name(&mut self) -> bool {
         let mut buffer: [u8; 260] = [0; 260];
         
-        if !read_memory(self.address + Offsets::CBasePlayerController::m_iszPlayerName as u64, &mut buffer, 260) {
+        if !rpm(self.address + Offsets::CBasePlayerController::m_iszPlayerName as u64, &mut buffer, 260) {
             return false;
         }
 
@@ -203,16 +203,16 @@ impl PlayerController {
         let mut entity_pawn_list_entry = 0;
         let mut entity_pawn_address = 0;
 
-        if !get_address_with_offset(self.address, Offsets::CCSPlayerController::m_hPlayerPawn as u32, &mut self.pawn) {
+        if !rpm_offset(self.address, Offsets::CCSPlayerController::m_hPlayerPawn as u64, &mut self.pawn) {
             return 0;
         }
 
-        if !read_memory_auto((*GAME.lock().unwrap()).address.entity_list, &mut entity_pawn_list_entry) {
+        if !rpm_auto((*GAME.lock().unwrap()).address.entity_list, &mut entity_pawn_list_entry) {
             return 0;
         }
 
         if let Some(sum) = (8 as u64).checked_mul(self.pawn.bitand(0x7FFF) >> 9) {
-            if !read_memory_auto(entity_pawn_list_entry + 0x10 + sum, &mut entity_pawn_list_entry) {
+            if !rpm_offset(entity_pawn_list_entry, 0x10 + sum, &mut entity_pawn_list_entry) {
                 return 0;
             }
         } else {
@@ -220,7 +220,7 @@ impl PlayerController {
         }
 
         if let Some(sum) = (0x78 as u64).checked_mul(self.pawn.bitand(0x1FF)) {
-            if !read_memory_auto(entity_pawn_list_entry + sum, &mut entity_pawn_address) {
+            if !rpm_offset(entity_pawn_list_entry, sum, &mut entity_pawn_address) {
                 return 0;
             }
         } else {
@@ -233,15 +233,15 @@ impl PlayerController {
 
 impl PlayerPawn {
     pub fn get_view_angle(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::C_CSPlayerPawnBase::m_angEyeAngles as u32, &mut self.view_angle);
+        return rpm_offset(self.address, Offsets::C_CSPlayerPawnBase::m_angEyeAngles as u64, &mut self.view_angle);
     }
 
     pub fn get_camera_pos(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::C_CSPlayerPawnBase::m_vecLastClipCameraPos as u32, &mut self.camera_pos);
+        return rpm_offset(self.address, Offsets::C_CSPlayerPawnBase::m_vecLastClipCameraPos as u64, &mut self.camera_pos);
     }
 
     pub fn get_spotted(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::EntitySpottedState_t::m_bSpottedByMask as u32, &mut self.spotted_by_mask);
+        return rpm_offset(self.address, Offsets::EntitySpottedState_t::m_bSpottedByMask as u64, &mut self.spotted_by_mask);
     }
 
     pub fn get_weapon_name(&mut self) -> bool {
@@ -252,7 +252,7 @@ impl PlayerPawn {
             return false;
         }
         
-        if !read_memory(weapon_name_address, &mut buffer, 40) {
+        if !rpm(weapon_name_address, &mut buffer, 40) {
             return false;
         }
         
@@ -266,29 +266,29 @@ impl PlayerPawn {
     }
 
     pub fn get_team_id(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_iTeamNum as u32, &mut self.team_id);
+        return rpm_offset(self.address, Offsets::C_BaseEntity::m_iTeamNum as u64, &mut self.team_id);
     }
 
     pub fn get_pos(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::C_BasePlayerPawn::m_vOldOrigin as u32, &mut self.pos);
+        return rpm_offset(self.address, Offsets::C_BasePlayerPawn::m_vOldOrigin as u64, &mut self.pos);
     }
 
     pub fn get_health(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_iHealth as u32, &mut self.health);
+        return rpm_offset(self.address, Offsets::C_BaseEntity::m_iHealth as u64, &mut self.health);
     }
 
     pub fn get_fov(&mut self) -> bool {
         let mut camera_services = 0;
 
-        if !read_memory_auto(self.address + Offsets::C_BasePlayerPawn::m_pCameraServices as u64, &mut camera_services) {
+        if !rpm_offset(self.address, Offsets::C_BasePlayerPawn::m_pCameraServices as u64, &mut camera_services) {
             return false;
         }
 
-        return get_address_with_offset(camera_services, Offsets::CCSPlayerBase_CameraServices::m_iFOVStart as u32, &mut self.fov);
+        return rpm_offset(camera_services, Offsets::CCSPlayerBase_CameraServices::m_iFOVStart as u64, &mut self.fov);
     }
 
     pub fn get_f_flags(&mut self) -> bool {
-        return get_address_with_offset(self.address, Offsets::C_BaseEntity::m_fFlags as u32, &mut self.flags);
+        return rpm_offset(self.address, Offsets::C_BaseEntity::m_fFlags as u64, &mut self.flags);
     }
 
     pub fn has_flag(&mut self, flag: Flags) -> bool {
