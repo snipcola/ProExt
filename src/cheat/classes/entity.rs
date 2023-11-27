@@ -35,7 +35,7 @@ pub struct PlayerPawn {
 }
 
 pub enum Flags {
-    InAir = (1 as isize).wrapping_shr(0)
+    InAir = (1 as isize).wrapping_shl(0)
 }
 
 #[derive(Clone)]
