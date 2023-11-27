@@ -264,7 +264,7 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.separator();
 
                         // Delay
-                        ui.slider_config("Delay##Aimbot", 15, 500).display_format("%d").build(&mut (*config).aimbot.delay);
+                        ui.slider_config("Delay##Aimbot", 0, 500).display_format("%d").build(&mut (*config).aimbot.delay);
                         ui.slider_config("Delay Offset##Aimbot", 0, 100).display_format("%d").build(&mut (*config).aimbot.delay_offset);
                     }
                 });
@@ -293,7 +293,7 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.separator();
 
                         // Delay
-                        ui.slider_config("Delay##Triggerbot", 15, 500).display_format("%d").build(&mut (*config).triggerbot.delay);
+                        ui.slider_config("Delay##Triggerbot", 0, 500).display_format("%d").build(&mut (*config).triggerbot.delay);
                         ui.slider_config("Delay Offset##Triggerbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.delay_offset);
                         ui.separator();
 
