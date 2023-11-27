@@ -21,6 +21,10 @@ pub fn clear_rpc_activity(client: &mut Client) {
 }
 
 pub fn initialize_rpc() {
+    if !ProgramConfig::RPC::Enabled {
+        return;
+    }
+    
     thread::spawn(move || {
         let mut client = Client::new(ProgramConfig::RPC::ClientID);
         let started = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
