@@ -1,4 +1,4 @@
-use std::ops::BitAnd;
+use std::ops::{BitAnd, Shr};
 use mint::{Vector3, Vector2};
 use crate::cheat::classes::{entity::Entity, offsets::Offsets, view::View};
 use crate::utils::process_manager::rpm_auto;
@@ -15,7 +15,7 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
         return (false, false, 0);
     }
 
-    let list_entry: u64 = trace_address(game_address_entity_list, &[0x8 * (u_handle >> 9) + 0x10, 0x0]);
+    let list_entry: u64 = trace_address(game_address_entity_list, &[0x8 * u_handle.wrapping_shr(9) + 0x10, 0x0]);
 
     if list_entry == 0 {
         return (false, false, 0);
@@ -47,7 +47,7 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
 }
 
 pub fn is_enemy_visible(b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64) -> bool {
-    return b_spotted_by_mask.bitand(1 << local_player_controller_index) != 0 || local_b_spotted_by_mask.bitand(1 << i) != 0;
+    return b_spotted_by_mask.bitand((1 as u64).shr(local_player_controller_index)) != 0 || local_b_spotted_by_mask.bitand((1 as u64).shr(i)) != 0;
 }
 
 pub fn is_enemy_in_fov(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32>, view_angle: Vector2<f32>) -> Option<f32> {
