@@ -253,7 +253,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Team Check
-                if (config.misc.enabled && config.misc.exclude_team) && entity.controller.team_id == local_entity.controller.team_id {
+                if (config.misc.enabled && config.misc.exclude_team) && entity.pawn.team_id == local_entity.pawn.team_id {
                     remove_esp(i);
                     continue;
                 }
@@ -366,7 +366,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 // Armor Bar
                 if config.esp.enabled && config.esp.armor_bar_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("armor_bar_{}", i), Box::new(move |ui| {
-                        render_armor_bar(ui, entity.controller.armor as f32, rect, config);
+                        render_armor_bar(ui, entity.pawn.armor as f32, rect, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("armor_bar_{}", i));

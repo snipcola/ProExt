@@ -28,7 +28,6 @@ pub mod Offsets {
     pub mod CCSPlayerController { // CBasePlayerController
         pub const m_hPlayerPawn: usize = 0x7EC; // CHandle<C_CSPlayerPawn>
         pub const m_bPawnIsAlive: usize = 0x7F4; // bool
-        pub const m_iPawnArmor: usize = 0x7FC; // int32_t
     }
     
     pub mod C_BasePlayerPawn { // C_BaseCombatCharacter
@@ -43,6 +42,7 @@ pub mod Offsets {
         pub const m_pClippingWeapon: usize = 0x12A8; // C_CSWeaponBase*
         pub const m_iIDEntIndex: usize = 0x153C; // CEntityIndex
         pub const m_entitySpottedState: usize = 0x1630; // EntitySpottedState_t
+        pub const m_ArmorValue: usize = 0x1508; // int32_t
     }
 
     pub mod CGameSceneNode {

@@ -9,18 +9,9 @@ use crate::cheat::classes::bone::BoneJointPos;
 use crate::cheat::classes::view::View;
 use crate::cheat::functions::parse_weapon_name;
 
-#[derive(Clone, Copy)]
-pub struct CUtlVector {
-    pub count: u64,
-    pub data: u64
-}
-
 #[derive(Clone)]
 pub struct PlayerController {
     pub address: u64,
-    pub team_id: i32,
-    pub health: i32,
-    pub armor: i32,
     pub alive_status: i32,
     pub pawn: u64,
     pub player_name: String
@@ -36,6 +27,7 @@ pub struct PlayerPawn {
     pub camera_pos: Vector3<f32>,
     pub weapon_name: String,
     pub health: i32,
+    pub armor: i32,
     pub team_id: i32,
     pub fov: i32,
     pub spotted_by_mask: u64,
@@ -55,8 +47,8 @@ pub struct Entity {
 impl Default for Entity {
     fn default() -> Self {
         return Entity {
-            controller: PlayerController { address: 0, team_id: 0, health: 0, armor: 0, alive_status: 0, pawn: 0, player_name: "None".to_string() },
-            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "None".to_string(), health: 0, team_id: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
+            controller: PlayerController { address: 0, alive_status: 0, pawn: 0, player_name: "None".to_string() },
+            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "None".to_string(), health: 0, armor: 0, team_id: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
         }
     }
 }
@@ -75,19 +67,7 @@ impl Entity {
 
         self.controller.address = player_controller_address;
 
-        if !self.controller.get_health() {
-            return false;
-        }
-
-        if !self.controller.get_armor() {
-            return false;
-        }
-
         if !self.controller.get_is_alive() {
-            return false;
-        }
-
-        if !self.controller.get_team_id() {
             return false;
         }
 
@@ -123,6 +103,10 @@ impl Entity {
         }
 
         if !self.pawn.get_health() {
+            return false;
+        }
+
+        if !self.pawn.get_armor() {
             return false;
         }
 
@@ -167,18 +151,6 @@ impl Entity {
 }
 
 impl PlayerController {
-    pub fn get_team_id(&mut self) -> bool {
-        return rpm_offset(self.address, Offsets::C_BaseEntity::m_iTeamNum as u64, &mut self.team_id);
-    }
-
-    pub fn get_health(&mut self) -> bool {
-        return rpm_offset(self.address, Offsets::C_BaseEntity::m_iHealth as u64, &mut self.health);
-    }
-
-    pub fn get_armor(&mut self) -> bool {
-        return rpm_offset(self.address, Offsets::CCSPlayerController::m_iPawnArmor as u64, &mut self.armor);
-    }
-
     pub fn get_is_alive(&mut self) -> bool {
         return rpm_offset(self.address, Offsets::CCSPlayerController::m_bPawnIsAlive as u64, &mut self.alive_status);
     }
@@ -275,6 +247,10 @@ impl PlayerPawn {
 
     pub fn get_health(&mut self) -> bool {
         return rpm_offset(self.address, Offsets::C_BaseEntity::m_iHealth as u64, &mut self.health);
+    }
+
+    pub fn get_armor(&mut self) -> bool {
+        return rpm_offset(self.address, Offsets::C_CSPlayerPawnBase::m_ArmorValue as u64, &mut self.armor);
     }
 
     pub fn get_fov(&mut self) -> bool {
