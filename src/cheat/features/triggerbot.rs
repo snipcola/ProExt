@@ -37,7 +37,7 @@ pub fn run_triggerbot(address: u64, config: Config) {
         }
 
         let delay_offset = if config.triggerbot.delay_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.triggerbot.delay_offset as f32) .. config.triggerbot.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
-        let delay = Duration::from_secs_f32((config.triggerbot.delay as f32 + delay_offset).min(500.0).max(15.0) / 1000.0);
+        let delay = Duration::from_secs_f32((config.triggerbot.delay as f32 + delay_offset).min(500.0).max(0.0) / 1000.0);
 
         if locked_on.elapsed() < delay {
             return;
