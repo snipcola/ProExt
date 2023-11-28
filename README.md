@@ -1,3 +1,4 @@
+<!--
 ## ⚠️ Notice
 ### 📌 This project has been abandoned and further development is halted.
 Feel free to [fork this repo](https://github.com/vytrol/ProExt/forks) if you'd like to continue this project - ensure that proper credits are included in your fork, as per the MIT license.<br><br>
@@ -5,6 +6,7 @@ In the meanwhile, here are some alternatives:
 - 👉 [@TKazer/CS2_External](https://github.com/TKazer/CS2_External)
 - 👉 [@CowNowK/AimStarCS2](https://github.com/CowNowK/AimStarCS2)
 - 👉 [@Valthrun/Valthrun](https://github.com/Valthrun/Valthrun)
+-->
 
 ## 🎮 ProExt - A game enhancer for CS2
 ![showcase](./Showcase.png)
