@@ -5,9 +5,10 @@ mod ui;
 use std::thread::{self, sleep};
 use colored::{Colorize, control::set_virtual_terminal};
 
+use crate::ui::windows::find_window;
 use crate::utils::input::input;
 use crate::utils::open::open_url;
-use crate::utils::process_manager::attach_process_manager;
+use crate::utils::process_manager::{attach_process_manager, get_process_amount};
 use crate::cheat::classes::offsets::update_offsets;
 use crate::cheat::classes::game::init_game_address;
 use crate::ui::main::init_gui;
@@ -18,7 +19,12 @@ use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists};
 fn main() {
     set_virtual_terminal(true).unwrap();
     println!("{} {} {} | {}", "[ INFO ]".bold().cyan(), ProgramConfig::Package::Name.bold(), format!("v{}", ProgramConfig::Package::Version).bold(), ProgramConfig::Package::Authors.replace(":", " & ").bold());
-
+    
+    if get_process_amount(ProgramConfig::Package::Executable) > 1 || find_window(ProgramConfig::Package::Name, None).is_some() {
+        println!("{} Software already running", "[ FAIL ]".bold().red());
+        return pause();
+    }
+    
     if !cfg!(debug_assertions) && ProgramConfig::Update::Enabled && update_exists() {
         let own_md5 = get_own_md5();
         let latest_md5 = get_latest_md5();

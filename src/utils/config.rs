@@ -10,6 +10,7 @@ pub mod ProgramConfig {
     pub mod Package {
         pub const Name: &str = "ProExt";
         pub const Description: &str = "An open-source, external CS2 cheat.";
+        pub const Executable: &str = "proext.exe";
         pub const Version: &str = env!("CARGO_PKG_VERSION");
         pub const Authors: &str = &env!("CARGO_PKG_AUTHORS");
     }
@@ -422,13 +423,6 @@ impl Default for Config {
                 headshot_line_enabled: false,
                 headshot_line_color: (255, 255, 255, 255)
             },
-            window_positions: WindowPositions {
-                menu: [600.0, 150.0],
-                watermark: [300.0, 5.0],
-                cheat_list: [300.0, 58.0],
-                bomb_timer: [30.0, 330.0],
-                spectator_list: [460.0, 5.0]
-            },
             style: Style {
                 enabled: true,
                 alpha: 1.0,
@@ -484,6 +478,13 @@ impl Default for Config {
                 enabled: true,
                 bypass_capture: true,
                 discord_rpc_enabled: false
+            },
+            window_positions: WindowPositions {
+                menu: [600.0, 150.0],
+                watermark: [300.0, 5.0],
+                cheat_list: [300.0, 58.0],
+                bomb_timer: [30.0, 330.0],
+                spectator_list: [475.0, 5.0]
             }
         };
     }
