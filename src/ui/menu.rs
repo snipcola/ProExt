@@ -712,9 +712,15 @@ pub fn render_menu(ui: &mut Ui) {
                     ui.separator();
 
                     // Links
-                    if ui.button("GitHub") {
-                        open_url(ProgramConfig::Links::GitHub);
-                    };
+                    if ui.button("Source") {
+                        open_url(ProgramConfig::Links::Source);
+                    }
+
+                    ui.same_line();
+
+                    if ui.button("License") {
+                        open_url(ProgramConfig::Links::License);
+                    }
                 });
             });
 
