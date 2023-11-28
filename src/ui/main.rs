@@ -22,7 +22,7 @@ lazy_static! {
 }
 
 pub fn init_gui() {
-    let title = ProgramConfig::Package::Name;
+    let self_title = ProgramConfig::Package::Name;
     let window_title = ProgramConfig::TargetProcess::Window::Title;
     let window_class = ProgramConfig::TargetProcess::Window::Class;
 
@@ -34,13 +34,13 @@ pub fn init_gui() {
         }
     };
 
-    let event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>> = Arc::new(Mutex::new(create_window(title, hwnd)));
+    let event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>> = Arc::new(Mutex::new(create_window(self_title, hwnd)));
     let winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>> = Arc::new(Mutex::new(init_imgui(&event_loop_window.lock().unwrap().1)));
 
-    let self_hwnd = match find_window(title, None) {
+    let self_hwnd = match find_window(self_title, None) {
         Some(hwnd) => hwnd,
         None => {
-            println!("{} Failed to find {} window", "[ FAIL ]".bold().red(), title.bold());
+            println!("{} Failed to find {} window", "[ FAIL ]".bold().red(), self_title.bold());
             return;
         }
     };

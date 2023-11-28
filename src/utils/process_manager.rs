@@ -257,6 +257,30 @@ pub fn get_process_id(process_name: &str) -> u32 {
     }
 }
 
+pub fn get_process_amount(process_name: &str) -> u32 {
+    let mut amount = 0;
+    let mut process_info: PROCESSENTRY32W = PROCESSENTRY32W::default();
+    let h_snapshot = match unsafe { CreateToolhelp32Snapshot(CREATE_TOOLHELP_SNAPSHOT_FLAGS(15), 0) } {
+        Ok(snapshot) => snapshot,
+        Err(_) => { return 0; }
+    };
+
+    process_info.dwSize = mem::size_of::<PROCESSENTRY32W>() as u32;
+
+    unsafe {
+        while Process32NextW(h_snapshot, &mut process_info).is_ok() {
+            let current_name = OsString::from_wide(&process_info.szExeFile[..]).into_string().unwrap().replace("\u{0}", "");
+
+            if current_name == process_name {
+                amount += 1;
+            }
+        }
+
+        CloseHandle(h_snapshot).ok();
+        return amount;
+    }
+}
+
 pub fn get_process_module_handle(module_name: &str) -> u64 {
     let process_manager = PROCESS_MANAGER.clone();
     let process_manager = process_manager.lock().unwrap();
