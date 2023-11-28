@@ -47,8 +47,8 @@ pub mod ProgramConfig {
         pub const ToggleKey: VirtualKeyCode = VirtualKeyCode::Insert;
         pub const ToggleKeyMKI: Keyboard = Keyboard::Insert;
 
-        pub const ExitKey: VirtualKeyCode = VirtualKeyCode::End;
-        pub const ExitKeyMKI: Keyboard = Keyboard::Other(0x23);
+        pub const ExitKey: VirtualKeyCode = VirtualKeyCode::Delete;
+        pub const ExitKeyMKI: Keyboard = Keyboard::Delete;
     }
 
     pub mod TargetProcess {
