@@ -13,6 +13,7 @@ pub mod ProgramConfig {
         pub const Executable: &str = "proext.exe";
         pub const Version: &str = env!("CARGO_PKG_VERSION");
         pub const Authors: &str = &env!("CARGO_PKG_AUTHORS");
+        pub const AskStart: bool = true;
     }
 
     pub mod Imgui {
@@ -39,12 +40,15 @@ pub mod ProgramConfig {
         pub const GitHub: &str = "https://github.com/vytrol/ProExt";
     }
 
-    pub mod Toggle {
+    pub mod Keys {
         use glutin::event::VirtualKeyCode;
         use mki::Keyboard;
 
-        pub const Key: VirtualKeyCode = VirtualKeyCode::Insert;
-        pub const KeyMKI: Keyboard = Keyboard::Insert;
+        pub const ToggleKey: VirtualKeyCode = VirtualKeyCode::Insert;
+        pub const ToggleKeyMKI: Keyboard = Keyboard::Insert;
+
+        pub const ExitKey: VirtualKeyCode = VirtualKeyCode::End;
+        pub const ExitKeyMKI: Keyboard = Keyboard::Other(0x23);
     }
 
     pub mod TargetProcess {

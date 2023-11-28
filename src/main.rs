@@ -22,12 +22,14 @@ fn main() {
         return create_messagebox(MessageBoxStyle::Error, "Already Running", &format!("{} is already running.", ProgramConfig::Package::Name));
     }
 
-    let caption = format!("{} - {}", ProgramConfig::Package::Name, ProgramConfig::Package::Authors.replace(":", ", "));
-    let text = format!("Would you like to start {} v{}?", ProgramConfig::Package::Name, ProgramConfig::Package::Version);
+    if !cfg!(debug_assertions) && ProgramConfig::Package::AskStart {
+        let caption = format!("{} - {}", ProgramConfig::Package::Name, ProgramConfig::Package::Authors.replace(":", ", "));
+        let text = format!("Would you like to start {} v{}?", ProgramConfig::Package::Name, ProgramConfig::Package::Version);
 
-    match create_dialog(MessageBoxStyle::Info, MessageBoxButtons::YesNo, &caption, &text) {
-        MessageBoxResult::No => return,
-        _ => {}
+        match create_dialog(MessageBoxStyle::Info, MessageBoxButtons::YesNo, &caption, &text) {
+            MessageBoxResult::No => return,
+            _ => {}
+        }
     }
     
     if !cfg!(debug_assertions) && ProgramConfig::Update::Enabled && update_exists() {
