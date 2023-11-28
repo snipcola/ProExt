@@ -58,7 +58,6 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let matrix_address = game.address.matrix;
             let controller_address = game.address.local_controller;
             let pawn_address = game.address.local_pawn;
-
             
             let remove_esp = | entity: u64 | {
                 (*ui_functions.lock().unwrap()).remove(&format!("skeleton_{}", entity));
@@ -414,7 +413,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 if no_pawn {
                     (false, false, 0)
                 } else {
-                    is_enemy_at_crosshair(window_info, local_entity.pawn.address, local_entity.controller.team_id, game.address.entity_list, game.view, config)
+                    is_enemy_at_crosshair(local_entity.pawn.address, local_entity.controller.team_id, game.address.entity_list, config)
                 }
             };
 

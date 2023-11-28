@@ -1,10 +1,10 @@
 use std::ops::{BitAnd, Shl};
 use mint::{Vector3, Vector2};
-use crate::cheat::classes::{entity::Entity, offsets::Offsets, view::View};
+use crate::cheat::classes::offsets::Offsets;
 use crate::utils::process_manager::rpm_auto;
 use crate::utils::{config::Config, process_manager::{rpm_offset, trace_address}};
 
-pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity_pawn_address: u64, local_entity_controller_team_id: i32, game_address_entity_list: u64, game_view: View, config: Config) -> (bool, bool, u64) {
+pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_controller_team_id: i32, game_address_entity_list: u64, config: Config) -> (bool, bool, u64) {
     let mut u_handle: u32 = 0;
     
     if !rpm_offset(local_entity_pawn_address, Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
@@ -29,17 +29,22 @@ pub fn is_enemy_at_crosshair(window_info: ((i32, i32), (i32, i32)), local_entity
         }
     }
 
-    let mut entity = Entity::default();
+    let mut entity_team_id = 0;
+    let mut entity_health = 0;
 
-    if !entity.update_pawn(pawn_address, window_info, game_view) {
+    if !rpm_offset(pawn_address, Offsets::C_BaseEntity::m_iTeamNum as u64, &mut entity_team_id) {
+        return (false, false, 0);
+    }
+
+    if !rpm_offset(pawn_address, Offsets::C_BaseEntity::m_iHealth as u64, &mut entity_health) {
         return (false, false, 0);
     }
 
     let allow_shoot = {
         if config.misc.enabled && config.misc.exclude_team {
-            local_entity_controller_team_id != entity.controller.team_id && entity.pawn.health > 0
+            local_entity_controller_team_id != entity_team_id && entity_health > 0
         } else {
-            entity.pawn.health > 0
+            entity_health > 0
         }
     };
 
