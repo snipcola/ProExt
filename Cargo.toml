@@ -6,14 +6,13 @@ edition = "2021"
 
 [dependencies]
 lazy_static = "1.4.0"
-colored = "2.0.4"
 imgui = "0.11.0"
 imgui-winit-support = "0.11.0"
 mint = "0.5.9"
 serde = { version = "1.0.190", features = ["derive"] }
 serde_json = "1.0.108"
 directories = "5.0.1"
-windows = { version = "0.52.0", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_UI_Input_KeyboardAndMouse", "Win32_Graphics_Gdi", "Win32_System_Threading", "Win32_System_Diagnostics_Debug", "Win32_System_Memory", "Win32_System_Diagnostics_ToolHelp", "Win32_System_Console"] }
+windows = { version = "0.52.0", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_UI_Input_KeyboardAndMouse", "Win32_Graphics_Gdi", "Win32_System_Threading", "Win32_System_Diagnostics_Debug", "Win32_System_Memory", "Win32_System_Diagnostics_ToolHelp"] }
 mki = "0.2.3"
 md5 = "0.7.0"
 ureq = "2.8.0"

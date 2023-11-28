@@ -1,6 +1,6 @@
 use glutin::{event_loop::EventLoop, WindowedContext, PossiblyCurrent, window::WindowBuilder, platform::windows::WindowBuilderExtWindows, ContextBuilder};
 
-use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY, GCLP_HBRBACKGROUND, SetClassLongPtrW, ShowWindow, SW_HIDE}, System::Console::{GetConsoleWindow, FreeConsole}}, core::HSTRING};
+use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY, GCLP_HBRBACKGROUND, SetClassLongPtrW}}, core::HSTRING};
 use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetForegroundWindow, FindWindowW};
 use windows::Win32::Graphics::Gdi::ClientToScreen;
 use windows::core::PCWSTR;
@@ -101,26 +101,4 @@ pub fn get_glow_context(window: &Window) -> glow::Context {
 
 pub fn set_window_brush_to_transparent(hwnd: HWND) {
     unsafe { SetClassLongPtrW(hwnd, GCLP_HBRBACKGROUND, 0) };
-}
-
-pub fn get_console_window() -> Option<HWND> {
-    unsafe {
-        let hwnd = GetConsoleWindow();
-
-        if IsWindow(hwnd).into() {
-            return Some(hwnd);
-        }
-    }
-
-    return None;
-}
-
-pub fn hide_console_window() {
-    unsafe {
-        if FreeConsole().is_err() {
-            if let Some(hwnd) = get_console_window() {
-                ShowWindow(hwnd, SW_HIDE);
-            }
-        }
-    }
 }

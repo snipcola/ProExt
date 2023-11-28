@@ -1,11 +1,10 @@
 use std::{sync::{Arc, Mutex}, collections::HashMap};
-use colored::Colorize;
 use glutin::event_loop::EventLoop;
 use imgui::{Ui, Context};
 use imgui_winit_support::WinitPlatform;
 use lazy_static::lazy_static;
 
-use crate::ui::thread::run_event_loop;
+use crate::{ui::thread::run_event_loop, utils::messagebox::{create_messagebox, MessageBoxStyle}};
 use crate::utils::config::ProgramConfig;
 use crate::ui::windows::{create_window, find_window};
 use crate::ui::windows::Window;
@@ -28,10 +27,7 @@ pub fn init_gui() {
 
     let hwnd = match find_window(window_title, Some(window_class)) {
         Some(hwnd) => hwnd,
-        None => {
-            println!("{} Failed to find {} window", "[ FAIL ]".bold().red(), window_title.bold());
-            return;
-        }
+        None => return create_messagebox(MessageBoxStyle::Error, "Error", &format!("Failed to find {} window.", window_title))
     };
 
     let event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>> = Arc::new(Mutex::new(create_window(self_title, hwnd)));
@@ -39,10 +35,7 @@ pub fn init_gui() {
 
     let self_hwnd = match find_window(self_title, None) {
         Some(hwnd) => hwnd,
-        None => {
-            println!("{} Failed to find {} window", "[ FAIL ]".bold().red(), self_title.bold());
-            return;
-        }
+        None => return create_messagebox(MessageBoxStyle::Error, "Error", &format!("Failed to find {} window.", self_title))
     };
 
     set_window_brush_to_transparent(self_hwnd);
