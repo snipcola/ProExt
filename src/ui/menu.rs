@@ -14,8 +14,6 @@ lazy_static! {
 }
 
 pub fn render_menu(ui: &mut Ui) {
-    let toggle_key = ProgramConfig::Toggle::Key;
-
     let mut config = CONFIG.lock().unwrap();
     let mut configs = CONFIGS.lock().unwrap().clone();
     let config_dir = CONFIG_DIR.lock().unwrap().clone();
@@ -721,7 +719,10 @@ pub fn render_menu(ui: &mut Ui) {
             });
 
             ui.separator();
-            ui.text(format!("Toggle: {:?}", toggle_key));
+            ui.text(format!("Toggle: {:?}", ProgramConfig::Keys::ToggleKey));
+
+            ui.same_line();
+            ui.text(format!("| Exit: {:?}", ProgramConfig::Keys::ExitKey));
 
             if let Some(loaded_config) = &loaded_config.lock().unwrap().clone() {
                 ui.same_line();

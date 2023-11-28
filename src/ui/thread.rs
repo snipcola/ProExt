@@ -1,4 +1,4 @@
-use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}};
+use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}, process};
 use glow::{HasContext, COLOR_BUFFER_BIT};
 use glutin::{event_loop::{EventLoop, ControlFlow}, dpi::{PhysicalSize, PhysicalPosition}, event::{Event, DeviceEvent, ElementState, WindowEvent}};
 use imgui::Context;
@@ -54,13 +54,21 @@ pub fn run_io_thread() {
 pub fn bind_ui_keys(hwnd: HWND) {
     let toggled = TOGGLED.clone();
 
-    ProgramConfig::Toggle::KeyMKI.bind(move | _ | {
+    ProgramConfig::Keys::ToggleKeyMKI.bind(move | _ | {
         if !is_window_focused(hwnd) {
             return;
         }
 
         let toggled_value = *toggled.lock().unwrap();
         *toggled.lock().unwrap() = !toggled_value;
+    });
+
+    ProgramConfig::Keys::ExitKeyMKI.bind(move | _ | {
+        if !is_window_focused(hwnd) {
+            return;
+        }
+
+        process::exit(0);
     });
 }
 
@@ -77,7 +85,6 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
     let glow_context = get_glow_context(&window);
     let mut renderer = AutoRenderer::initialize(glow_context, &mut imgui_context).unwrap();
 
-    let toggle_key = &ProgramConfig::Toggle::Key;
     let mut last_frame = Instant::now();
     let default_style = *imgui_context.style();
 
@@ -149,8 +156,10 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
                 ..
             } => {
                 if let Some(keycode) = key.virtual_keycode {
-                    if &keycode == toggle_key && key.state == ElementState::Pressed {
+                    if keycode == ProgramConfig::Keys::ToggleKey && key.state == ElementState::Pressed {
                         *toggled.lock().unwrap() = !toggled_value;
+                    } else if keycode == ProgramConfig::Keys::ExitKey && key.state == ElementState::Pressed {
+                        process::exit(0);
                     }
                 }
             },
