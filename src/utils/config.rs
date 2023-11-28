@@ -37,7 +37,8 @@ pub mod ProgramConfig {
     }
 
     pub mod Links {
-        pub const GitHub: &str = "https://github.com/vytrol/ProExt";
+        pub const Source: &str = "https://github.com/vytrol/ProExt";
+        pub const License: &str = "https://raw.githubusercontent.com/vytrol/ProExt/main/LICENSE";
     }
 
     pub mod Keys {
