@@ -253,7 +253,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Team Check
-                if (config.misc.enabled && config.misc.exclude_team) && entity.pawn.team_id == local_entity.pawn.team_id {
+                if (config.misc.enabled && config.misc.exclude_team) && entity.controller.team_id == local_entity.controller.team_id {
                     remove_esp(i);
                     continue;
                 }
@@ -414,7 +414,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 if no_pawn {
                     (false, false, 0)
                 } else {
-                    is_enemy_at_crosshair(window_info, local_entity.pawn.address, local_entity.pawn.team_id, game.address.entity_list, game.view, config)
+                    is_enemy_at_crosshair(window_info, local_entity.pawn.address, local_entity.controller.team_id, game.address.entity_list, game.view, config)
                 }
             };
 
