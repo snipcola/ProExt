@@ -34,6 +34,6 @@ jobs:
         run: |
           git config --global user.name "Vytrol"
           git config --global user.email "63375371+vytrol@users.noreply.github.com"
-          git add ./bin
+          git add ./bin -f
           git commit -m "📦 Updated Binaries"
           git push -f
