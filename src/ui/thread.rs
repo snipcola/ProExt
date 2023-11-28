@@ -12,7 +12,6 @@ use crate::utils::config::ProgramConfig;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::windows::Window;
 use crate::ui::windows::get_glow_context;
-use crate::ui::windows::hide_console_window;
 
 lazy_static! {
     pub static ref MOUSE_POS: Arc<Mutex<Option<(i32, i32)>>> = Arc::new(Mutex::new(None));
@@ -90,10 +89,6 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
     initialize_rpc();
 
     window.window().set_visible(true);
-
-    if !cfg!(debug_assertions) {
-        hide_console_window();
-    }
     
     event_loop.run(move | event, _, control_flow | {
         let toggled_value = *toggled.lock().unwrap();

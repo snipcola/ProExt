@@ -1,9 +1,8 @@
 use std::{sync::{Arc, Mutex}, path::PathBuf};
-use colored::Colorize;
 use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
 use lazy_static::lazy_static;
 
-use crate::utils::{config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG, CONFIG_EXTENSION}, open::open_url};
+use crate::utils::{config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG, CONFIG_EXTENSION}, open::open_url, messagebox::{MessageBoxStyle, create_messagebox}};
 use crate::ui::functions::color_edit_u32_tuple;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::functions::reset_window_positions;
@@ -617,7 +616,7 @@ pub fn render_menu(ui: &mut Ui) {
                             
                             if let Some(config_path) = directory_pathbuf.join(new_config_path.clone()).to_str() {
                                 match new_config.save_config(config_path, true) {
-                                    Err(str) => { println!("{} Failed to create new config: {} {}", "[ FAIL ]".bold().red(), new_config_path.bold(), format!("({})", str).bold()); },
+                                    Err(error) => create_messagebox(MessageBoxStyle::Error, "Error", &format!("Failed to create new config: {} ({}).", new_config_path, error)),
                                     Ok(_) => {
                                         *new_config_name = "".to_string();
                                         *config = new_config;
@@ -673,7 +672,7 @@ pub fn render_menu(ui: &mut Ui) {
 
                             if ui.button("Save##Config") {
                                 match (*config).save_config(config_path, false) {
-                                    Err(str) => { println!("{} Failed to save config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
+                                    Err(error) => create_messagebox(MessageBoxStyle::Error, "Error", &format!("Failed to save config: {} ({}).", config_name, error)),
                                     Ok(_) => {}
                                 }
                             }
@@ -683,7 +682,7 @@ pub fn render_menu(ui: &mut Ui) {
 
                                 if ui.button("Delete##Config") {
                                     match delete_config(config_path) {
-                                        Err(str) => { println!("{} Failed to delete config: {} {}", "[ FAIL ]".bold().red(), format!("{}", config_name).bold(), format!("({})", str).bold()); },
+                                        Err(error) => create_messagebox(MessageBoxStyle::Error, "Error", &format!("Failed to delete config: {} ({}).", config_name, error)),
                                         Ok(_) => {}
                                     }
                                 }
@@ -711,7 +710,7 @@ pub fn render_menu(ui: &mut Ui) {
 
                     // Info
                     ui.text(format!("Version: {}", ProgramConfig::Package::Version));
-                    ui.text(format!("Author(s): {}", ProgramConfig::Package::Authors.replace(":", " & ")));
+                    ui.text(format!("Author(s): {}", ProgramConfig::Package::Authors.replace(":", ", ")));
                     ui.separator();
 
                     // Links
