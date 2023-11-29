@@ -29,8 +29,12 @@ pub fn click_mouse() {
 }
 
 pub fn press_mouse() {
-    send_input(create_mouse_input(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0));
-    *MOUSE_LOCKED.lock().unwrap() = true;
+    let mut mouse_locked = MOUSE_LOCKED.lock().unwrap();
+
+    if !*mouse_locked {
+        send_input(create_mouse_input(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0));
+        *mouse_locked = true;
+    }
 }
 
 pub fn release_mouse() {
