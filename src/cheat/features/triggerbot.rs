@@ -5,6 +5,9 @@ use crate::utils::{config::Config, mouse::{MOUSE_LOCKED, click_mouse, press_mous
 use crate::ui::functions::hotkey_index_to_io;
 
 lazy_static! {
+    pub static ref TRIGGERBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+
     pub static ref TB_SHOT_ENTITY: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
     pub static ref TB_LOCKED_ENTITY: Arc<Mutex<Option<(Instant, u64)>>> = Arc::new(Mutex::new(None));
     pub static ref TB_OFF_ENTITY: Arc<Mutex<Option<Instant>>> = Arc::new(Mutex::new(None));
@@ -13,10 +16,38 @@ lazy_static! {
 pub fn get_triggerbot_toggled(config: Config) -> bool {
     match hotkey_index_to_io(config.triggerbot.key) {
         Ok(triggerbot_button) => {
-            return triggerbot_button.is_pressed();
+            if config.triggerbot.mode == 0 {
+                return triggerbot_button.is_pressed();
+            } else {
+                let triggerbot_toggled = *TRIGGERBOT_TOGGLED.lock().unwrap();
+                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
+
+                if triggerbot_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                    *TRIGGERBOT_TOGGLED.lock().unwrap() = !triggerbot_toggled;
+                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
+
+                    return !triggerbot_toggled;
+                } else {
+                    return triggerbot_toggled;
+                }
+            }
         },
         Err(triggerbot_key) => {
-            return triggerbot_key.is_pressed();
+            if config.triggerbot.mode == 0 {
+                return triggerbot_key.is_pressed();
+            } else {
+                let triggerbot_toggled = *TRIGGERBOT_TOGGLED.lock().unwrap();
+                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
+
+                if triggerbot_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                    *TRIGGERBOT_TOGGLED.lock().unwrap() = !triggerbot_toggled;
+                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
+                    
+                    return !triggerbot_toggled;
+                } else {
+                    return triggerbot_toggled;
+                }
+            }
         }
     }
 }
@@ -47,10 +78,10 @@ pub fn run_triggerbot(address: u64, config: Config) {
     let interval_offset = if config.triggerbot.tap_interval_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.triggerbot.tap_interval_offset as f32) .. config.triggerbot.tap_interval_offset as f32) * 1000.0).trunc() / 1000.0 };
     let interval = Duration::from_secs_f32((config.triggerbot.tap_interval as f32 + interval_offset).min(500.0).max(50.0) / 1000.0);
 
-    if config.triggerbot.mode == 0 && shot_entity.elapsed() >= interval {
+    if config.triggerbot.action == 0 && shot_entity.elapsed() >= interval {
         click_mouse();
         *shot_entity = Instant::now();
-    } else if config.triggerbot.mode == 1 && !mouse_locked {
+    } else if config.triggerbot.action == 1 && !mouse_locked {
         press_mouse();
     }
 }
