@@ -200,7 +200,7 @@ pub fn render_name(ui: &mut Ui, name: &str, rect: Vector4<f32>, config: Config) 
 }
 
 pub fn render_armor_bar(ui: &mut Ui, armor: f32, rect: Vector4<f32>, config: Config) {
-    let height_horizontal = (rect.z / 100.0).max(5.0).min(6.0);
+    let height_horizontal = 10.0 - (rect.z / 100.0).max(6.0).min(8.0);
     let (rect_pos, rect_size) = {
         if config.esp.bar_mode == 0 {
             // Vertical
@@ -237,7 +237,7 @@ pub fn render_armor_bar(ui: &mut Ui, armor: f32, rect: Vector4<f32>, config: Con
 }
 
 pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect: Vector4<f32>, config: Config) {
-    let height_horizontal = (rect.z / 100.0).max(5.0).min(6.0);
+    let height_horizontal = 10.0 - (rect.z / 100.0).max(6.0).min(8.0);
     let (rect_pos, rect_size) = {
         if config.esp.bar_mode == 0 {
             // Vertical
