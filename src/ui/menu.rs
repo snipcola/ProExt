@@ -209,21 +209,51 @@ pub fn render_menu(ui: &mut Ui) {
                     }
                 });
 
+                // RCS
+                TabItem::new("RCS").build(&ui, || {
+                    // Enabled
+                    ui.checkbox("RCS", &mut (*config).rcs.enabled);
+                    
+                    if (*config).rcs.enabled {
+                        if !(*config).rcs.always {
+                            // Key
+                            ui.same_line();
+                            ui.combo_simple_string("##KeyRCS", &mut (*config).rcs.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
+
+                            // Mode
+                            ui.combo_simple_string("Mode##RCS", &mut (*config).rcs.mode, &["Hold", "Toggle"]);
+                            ui.separator();
+                        }
+
+                        // Start Bullet, Yaw, Yaw Offset, Pitch, & Pitch Offset
+                        ui.slider_config("Start Bullet##RCS", 1, 6).display_format("%d").build(&mut (*config).rcs.start_bullet);
+                        ui.slider_config("Yaw##RCS", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs.yaw);
+                        ui.slider_config("Yaw Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).rcs.yaw_offset);
+                        ui.slider_config("Pitch##RCS", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs.pitch);
+                        ui.slider_config("Pitch Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).rcs.pitch_offset);
+
+                        // Always
+                        ui.separator();
+                        ui.slider_config("Mouse Sensitivity##RCS", 0.1, 8.0).display_format("%.1f").build(&mut (*config).rcs.sensitivity);
+                        ui.checkbox("Always##RCS", &mut (*config).rcs.always);
+                    }
+                });
+
                 // Aimbot
                 TabItem::new("Aimbot").build(&ui, || {
                     // Enabled
                     ui.checkbox("Aimbot", &mut (*config).aimbot.enabled);
 
                     if (*config).aimbot.enabled {
-                        // Aim Key
                         if !(*config).aimbot.always {
+                            // Key
                             ui.same_line();
                             ui.combo_simple_string("##KeyAimbot", &mut (*config).aimbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
-                        }
 
-                        // Mode
-                        ui.combo_simple_string("Mode##Aimbot", &mut (*config).aimbot.mode, &["Hold", "Toggle"]);
-                        ui.separator();
+                            // Mode
+                            ui.combo_simple_string("Mode##Aimbot", &mut (*config).aimbot.mode, &["Hold", "Toggle"]);
+                            ui.separator();
+                        }
 
                         // Circle
                         ui.checkbox("Circle##Aimbot", &mut (*config).aimbot.fov_circle_enabled);
@@ -277,14 +307,14 @@ pub fn render_menu(ui: &mut Ui) {
                     ui.checkbox("Triggerbot", &mut (*config).triggerbot.enabled);
                     
                     if (*config).triggerbot.enabled {
-                        // Trigger Key
                         if !(*config).triggerbot.always {
+                            // Key
                             ui.same_line();
                             ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
-                        }
 
-                        // Mode
-                        ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Hold", "Toggle"]);
+                            // Mode
+                            ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Hold", "Toggle"]);
+                        }
                         
                         // Action
                         ui.combo_simple_string("Action##Triggerbot", &mut (*config).triggerbot.action, &["Click", "Press"]);

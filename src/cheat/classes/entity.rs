@@ -9,6 +9,12 @@ use crate::cheat::classes::bone::BoneJointPos;
 use crate::cheat::classes::view::View;
 use crate::cheat::functions::parse_weapon_name;
 
+#[derive(Clone, Copy)]
+pub struct CUtlVector {
+    pub count: u64,
+    pub data: u64
+}
+
 #[derive(Clone)]
 pub struct PlayerController {
     pub address: u64,
@@ -27,6 +33,8 @@ pub struct PlayerPawn {
     pub screen_pos: Vector2<f32>,
     pub camera_pos: Vector3<f32>,
     pub weapon_name: String,
+    pub shots_fired: u32,
+    pub aim_punch_cache: CUtlVector,
     pub health: i32,
     pub armor: i32,
     pub fov: i32,
@@ -48,7 +56,7 @@ impl Default for Entity {
     fn default() -> Self {
         return Entity {
             controller: PlayerController { address: 0, alive_status: 0, pawn: 0, team_id: 0, player_name: "None".to_string() },
-            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "None".to_string(), health: 0, armor: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
+            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "None".to_string(), shots_fired: 0, aim_punch_cache: CUtlVector { count: 0, data: 0 }, health: 0, armor: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
         }
     }
 }
@@ -103,6 +111,14 @@ impl Entity {
         }
 
         if !self.pawn.get_weapon_name() {
+            return false;
+        }
+
+        if !self.pawn.get_shots_fired() {
+            return false;
+        }
+
+        if !self.pawn.get_aim_punch_cache() {
             return false;
         }
 
@@ -239,6 +255,14 @@ impl PlayerPawn {
         }
 
         return true;
+    }
+
+    pub fn get_shots_fired(&mut self) -> bool {
+        return rpm_offset(self.address, Offsets::C_CSPlayerPawnBase::m_iShotsFired as u64, &mut self.shots_fired);
+    }
+
+    pub fn get_aim_punch_cache(&mut self) -> bool {
+        return rpm_offset(self.address, Offsets::C_CSPlayerPawn::m_aimPunchCache as u64, &mut self.aim_punch_cache);
     }
 
     pub fn get_pos(&mut self) -> bool {

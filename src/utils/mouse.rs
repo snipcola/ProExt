@@ -46,9 +46,12 @@ pub fn release_mouse() {
     }
 }
 
-pub fn move_mouse(x: i32, y: i32) {
+pub fn move_mouse(x: i32, y: i32, set_last_moved: bool) {
     send_input(create_mouse_input(MOUSEEVENTF_MOVE, x, y, 0, 0));
-    *LAST_MOVED.lock().unwrap() = Instant::now();
+    
+    if set_last_moved {
+        *LAST_MOVED.lock().unwrap() = Instant::now();
+    }
 }
 
 pub fn get_mouse_position() -> Option<(i32, i32)> {

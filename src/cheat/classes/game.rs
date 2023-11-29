@@ -2,9 +2,8 @@ use std::sync::{Arc, Mutex};
 use lazy_static::lazy_static;
 
 use crate::utils::process_manager::{get_process_module_handle, rpm_auto, rpm_offset};
-use crate::cheat::classes::offsets::{ENTITY_LIST, MATRIX, VIEW_ANGLE, LOCAL_PLAYER_CONTROLLER, LOCAL_PLAYER_PAWN};
+use crate::cheat::classes::offsets::{ENTITY_LIST, MATRIX, VIEW_ANGLE, LOCAL_PLAYER_CONTROLLER, LOCAL_PLAYER_PAWN, BOMB};
 use crate::cheat::classes::view::View;
-use crate::cheat::classes::offsets::BOMB;
 
 lazy_static! {
     pub static ref GAME: Arc<Mutex<Game>> = Arc::new(Mutex::new(Game {

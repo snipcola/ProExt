@@ -89,6 +89,7 @@ pub mod ProgramConfig {
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Config {
     pub esp: ESP,
+    pub rcs: RCS,
     pub aimbot: Aimbot,
     pub triggerbot: Triggerbot,
     pub crosshair: Crosshair,
@@ -142,6 +143,20 @@ pub struct ESP {
     pub snap_line_enabled: bool,
     pub snap_line_color: (u32, u32, u32, u32),
     pub snap_line_mode: usize
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct RCS {
+    pub enabled: bool,
+    pub key: usize,
+    pub mode: usize,
+    pub start_bullet: u32,
+    pub yaw: f32,
+    pub yaw_offset: f32,
+    pub pitch: f32,
+    pub pitch_offset: f32,
+    pub sensitivity: f32,
+    pub always: bool
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -352,6 +367,18 @@ impl Default for Config {
                 snap_line_enabled: false,
                 snap_line_color: (255, 255, 255, 255),
                 snap_line_mode: 1
+            },
+            rcs: RCS {
+                enabled: true,
+                key: 0,
+                mode: 0,
+                start_bullet: 1,
+                yaw: 1.0,
+                yaw_offset: 0.2,
+                pitch: 1.0,
+                pitch_offset: 0.2,
+                sensitivity: 3.0,
+                always: true
             },
             aimbot: Aimbot {
                 enabled: true,

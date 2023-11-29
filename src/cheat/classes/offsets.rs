@@ -43,6 +43,11 @@ pub mod Offsets {
         pub const m_iIDEntIndex: usize = 0x153C; // CEntityIndex
         pub const m_entitySpottedState: usize = 0x1630; // EntitySpottedState_t
         pub const m_ArmorValue: usize = 0x1508; // int32_t
+        pub const m_iShotsFired: usize = 0x1418; // int32_t
+    }
+
+    pub mod C_CSPlayerPawn { // C_CSPlayerPawnBase
+        pub const m_aimPunchCache: usize = 0x1738; // CUtlVector<QAngle>
     }
 
     pub mod CGameSceneNode {
