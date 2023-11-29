@@ -3,6 +3,7 @@ use glutin::event_loop::EventLoop;
 use imgui::{Ui, Context};
 use imgui_winit_support::WinitPlatform;
 use lazy_static::lazy_static;
+use rand::{Rng, thread_rng, distributions::Alphanumeric};
 
 use crate::{ui::thread::run_event_loop, utils::messagebox::{create_messagebox, MessageBoxStyle}};
 use crate::utils::config::ProgramConfig;
@@ -21,7 +22,10 @@ lazy_static! {
 }
 
 pub fn init_gui() {
-    let self_title = ProgramConfig::Package::Name;
+    let mut rng = thread_rng();
+    let self_title_length = rng.gen_range(6 .. 12);
+    let self_title: String = rng.sample_iter(&Alphanumeric).take(self_title_length).map(char::from).collect();
+
     let window_title = ProgramConfig::TargetProcess::Window::Title;
     let window_class = ProgramConfig::TargetProcess::Window::Class;
 
@@ -30,12 +34,12 @@ pub fn init_gui() {
         None => return create_messagebox(MessageBoxStyle::Error, "Error", &format!("Failed to find {} window.", window_title))
     };
 
-    let event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>> = Arc::new(Mutex::new(create_window(self_title, hwnd)));
+    let event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>> = Arc::new(Mutex::new(create_window(&self_title, hwnd)));
     let winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>> = Arc::new(Mutex::new(init_imgui(&event_loop_window.lock().unwrap().1)));
 
-    let self_hwnd = match find_window(self_title, None) {
+    let self_hwnd = match find_window(&self_title, None) {
         Some(hwnd) => hwnd,
-        None => return create_messagebox(MessageBoxStyle::Error, "Error", &format!("Failed to find {} window.", self_title))
+        None => return create_messagebox(MessageBoxStyle::Error, "Error", &format!("Failed to find {} window.", ProgramConfig::Package::Name))
     };
 
     set_window_brush_to_transparent(self_hwnd);

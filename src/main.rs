@@ -7,7 +7,6 @@ mod ui;
 use std::thread::{self, sleep};
 use utils::messagebox::{MessageBoxStyle, MessageBoxButtons, MessageBoxResult};
 
-use crate::ui::windows::find_window;
 use crate::utils::messagebox::{create_messagebox, create_dialog};
 use crate::utils::open::open_url;
 use crate::utils::process_manager::{attach_process_manager, get_process_amount};
@@ -18,7 +17,7 @@ use crate::utils::config::{setup_config, update_configs, ProgramConfig};
 use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists};
 
 fn main() {
-    if get_process_amount(ProgramConfig::Package::Executable) > 1 || find_window(ProgramConfig::Package::Name, None).is_some() {
+    if get_process_amount(ProgramConfig::Package::Executable) > 1 {
         return create_messagebox(MessageBoxStyle::Error, "Already Running", &format!("{} is already running.", ProgramConfig::Package::Name));
     }
 
