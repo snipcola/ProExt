@@ -1,9 +1,16 @@
 use std::f32::consts::PI;
+use std::sync::{Arc, Mutex};
 use imgui::{Ui, ImColor32};
 use mint::{Vector2, Vector3};
+use lazy_static::lazy_static;
 
-use crate::utils::config::Config;
+use crate::ui::main::WINDOWS_ACTIVE;
+use crate::utils::config::{Config, CONFIG};
 use crate::ui::functions::{color_u32_to_f32, color_with_masked_alpha};
+
+lazy_static! {
+    pub static ref RADAR_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
+}
 
 pub fn revolve_coordinates_system(revolve_angle: f32, origin_pos: Vector2<f32>, dest_pos: Vector2<f32>) -> Vector2<f32> {
     let mut result_pos: Vector2<f32> = Vector2 { x: 0.0, y: 0.0 };
@@ -19,17 +26,26 @@ pub fn revolve_coordinates_system(revolve_angle: f32, origin_pos: Vector2<f32>, 
 }
 
 pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_yaw: f32, points: Vec<(Vector3<f32>, f32)>) {
+    let mut reset_position = RADAR_RESET_POSITION.lock().unwrap();
+    let (window_position, condition) = if let Some(position) = *reset_position {
+        *reset_position = None;
+        (position, imgui::Condition::Always)
+    } else {
+        (config.window_positions.radar, imgui::Condition::Once)
+    };
+
+    drop(reset_position);
+
     ui.window("Radar")
-        .resizable(false)
         .collapsible(false)
-        .scroll_bar(false)
-        .title_bar(false)
-        .movable(false)
-        .bring_to_front_on_focus(false)
-        .draw_background(false)
+        .resizable(false)
+        .bg_alpha(0.0)
         .size([config.radar.range * 2.0, config.radar.range * 2.0], imgui::Condition::Always)
-        .position([0.0, 0.0], imgui::Condition::Always)
+        .position(window_position, condition)
         .build(|| {
+            (*WINDOWS_ACTIVE.lock().unwrap()).insert("spectator_list".to_string(), ui.is_window_hovered());
+            (*CONFIG.lock().unwrap()).window_positions.radar = ui.window_pos();
+
             let (full_window_pos, full_window_size) = (ui.window_pos(), ui.window_size());
             let window_pos = Vector2 { x: full_window_pos[0] + config.radar.range, y: full_window_pos[1] + config.radar.range };
 
