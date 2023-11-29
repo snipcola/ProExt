@@ -282,12 +282,16 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.same_line();
                             ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
                         }
-                        
-                        // Mode
-                        ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Tap", "Hold"]);
 
-                        if (*config).triggerbot.mode == 0 {
+                        // Mode
+                        ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Hold", "Toggle"]);
+                        
+                        // Action
+                        ui.combo_simple_string("Action##Triggerbot", &mut (*config).triggerbot.action, &["Click", "Press"]);
+
+                        if (*config).triggerbot.action == 0 {
                             // Interval
+                            ui.separator();
                             ui.slider_config("Interval##Triggerbot", 50, 500).display_format("%d").build(&mut (*config).triggerbot.tap_interval);
                             ui.slider_config("Interval Offset##Triggerbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.tap_interval_offset);
                         }
