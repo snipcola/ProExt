@@ -310,7 +310,7 @@ impl Default for Config {
             esp: ESP {
                 enabled: true,
                 outline: true,
-                thickness: 1.2,
+                thickness: 1.0,
                 rounding: 0,
                 box_enabled: true,
                 box_color: (255, 255, 255, 255),
