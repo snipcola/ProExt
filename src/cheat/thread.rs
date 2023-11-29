@@ -3,7 +3,7 @@ use std::time::Instant;
 use mint::{Vector3, Vector2};
 use windows::Win32::Foundation::HWND;
 
-use crate::ui::main::{WINDOW_INFO, UI_FUNCTIONS};
+use crate::ui::main::{WINDOW_INFO, UI_FUNCTIONS, WINDOWS_ACTIVE};
 use crate::ui::windows::{is_window_focused, hide_window_from_capture};
 use crate::cheat::functions::{is_enemy_at_crosshair, is_enemy_in_fov};
 use crate::utils::config::{CONFIG, ProgramConfig};
@@ -45,7 +45,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 None => { continue; }
             };
 
-            let is_game_window_focused = is_window_focused(hwnd);
+            let is_game_window_focused = is_window_focused(hwnd) && !(*WINDOWS_ACTIVE.lock().unwrap()).values().any(| val | val == &true);
 
             if !window_hidden_from_capture && (config.settings.enabled && config.settings.bypass_capture) {
                 hide_window_from_capture(self_hwnd, true);
