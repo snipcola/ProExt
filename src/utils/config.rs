@@ -238,7 +238,8 @@ pub struct WindowPositions {
     pub watermark: [f32; 2],
     pub cheat_list: [f32; 2],
     pub bomb_timer: [f32; 2],
-    pub spectator_list: [f32; 2]
+    pub spectator_list: [f32; 2],
+    pub radar: [f32; 2]
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -408,7 +409,7 @@ impl Default for Config {
                 crossline_color: (255, 255, 255, 255),
                 point_size: 1.0,
                 proportion: 3100.0,
-                range: 148.0
+                range: 143.0
             },
             misc: Misc {
                 enabled: true,
@@ -486,10 +487,11 @@ impl Default for Config {
             },
             window_positions: WindowPositions {
                 menu: [600.0, 150.0],
-                watermark: [300.0, 5.0],
-                cheat_list: [300.0, 58.0],
+                watermark: [315.0, 5.0],
+                cheat_list: [315.0, 58.0],
                 bomb_timer: [30.0, 330.0],
-                spectator_list: [475.0, 5.0]
+                spectator_list: [490.0, 5.0],
+                radar: [5.0, 5.0]
             }
         };
     }
