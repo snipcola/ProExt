@@ -155,6 +155,7 @@ pub struct Aimbot {
     pub fov_circle_target_color: (u32, u32, u32, u32),
     pub fov_circle_outline_enabled: bool,
     pub fov_circle_thickness: f32,
+    pub always: bool,
     pub only_visible: bool,
     pub only_grounded: bool,
     pub only_weapon: bool,
@@ -175,7 +176,7 @@ pub struct Triggerbot {
     pub tap_interval_offset: u32,
     pub delay: u32,
     pub delay_offset: u32,
-    pub always_activated: bool,
+    pub always: bool,
     pub only_weapon: bool
 }
 
@@ -361,6 +362,7 @@ impl Default for Config {
                 fov_circle_target_color: (255, 0, 0, 255),
                 fov_circle_outline_enabled: true,
                 fov_circle_thickness: 1.2,
+                always: false,
                 only_visible: true,
                 only_grounded: true,
                 only_weapon: true,
@@ -379,7 +381,7 @@ impl Default for Config {
                 tap_interval_offset: 15,
                 delay: 70,
                 delay_offset: 15,
-                always_activated: false,
+                always: false,
                 only_weapon: true
             },
             crosshair: Crosshair {

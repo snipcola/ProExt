@@ -99,8 +99,8 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             let no_weapon =  local_entity.pawn.weapon_name == "Knife" || local_entity.pawn.weapon_name == "Fists";
-            let is_aimbot_toggled = !no_pawn && get_aimbot_toggled(config) && config.aimbot.enabled && is_game_window_focused && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon);
-            let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always_activated || get_triggerbot_toggled(config)) && config.triggerbot.enabled && is_game_window_focused && (!config.triggerbot.only_weapon || config.triggerbot.only_weapon && !no_weapon);
+            let is_aimbot_toggled = !no_pawn && (config.aimbot.always || get_aimbot_toggled(config)) && config.aimbot.enabled && is_game_window_focused && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon);
+            let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always || get_triggerbot_toggled(config)) && config.triggerbot.enabled && is_game_window_focused && (!config.triggerbot.only_weapon || config.triggerbot.only_weapon && !no_weapon);
 
             // Cheat List
             if config.misc.enabled && config.misc.cheat_list_enabled {

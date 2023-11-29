@@ -216,8 +216,12 @@ pub fn render_menu(ui: &mut Ui) {
 
                     if (*config).aimbot.enabled {
                         // Aim Key
-                        ui.same_line();
-                        ui.combo_simple_string("##KeyAimbot", &mut (*config).aimbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
+                        if !(*config).aimbot.always {
+                            ui.same_line();
+                            ui.combo_simple_string("##KeyAimbot", &mut (*config).aimbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
+                        }
+
+                        // Mode
                         ui.combo_simple_string("Mode##Aimbot", &mut (*config).aimbot.mode, &["Hold", "Toggle"]);
                         ui.separator();
 
@@ -245,6 +249,7 @@ pub fn render_menu(ui: &mut Ui) {
                         }
 
                         // Only Visible, Only Grounded, & Only Weapon
+                        ui.checkbox("Always##Aimbot", &mut (*config).aimbot.always);
                         ui.checkbox("Only Visible##Aimbot", &mut (*config).aimbot.only_visible);
                         ui.checkbox("Only Grounded##Aimbot", &mut (*config).aimbot.only_grounded);
                         ui.checkbox("Only Weapon##Aimbot", &mut (*config).aimbot.only_weapon);
@@ -273,7 +278,7 @@ pub fn render_menu(ui: &mut Ui) {
                     
                     if (*config).triggerbot.enabled {
                         // Trigger Key
-                        if !(*config).triggerbot.always_activated {
+                        if !(*config).triggerbot.always {
                             ui.same_line();
                             ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
                         }
@@ -295,7 +300,7 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.separator();
 
                         // Always Activated
-                        ui.checkbox("Always##Triggerbot", &mut (*config).triggerbot.always_activated);
+                        ui.checkbox("Always##Triggerbot", &mut (*config).triggerbot.always);
 
                         // Only Weapon
                         ui.checkbox("Only Weapon##Triggerbot", &mut (*config).triggerbot.only_weapon);
