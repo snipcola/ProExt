@@ -488,7 +488,7 @@ impl Default for Config {
             window_positions: WindowPositions {
                 menu: [600.0, 150.0],
                 watermark: [315.0, 5.0],
-                cheat_list: [315.0, 58.0],
+                cheat_list: [315.0, 70.0],
                 bomb_timer: [30.0, 330.0],
                 spectator_list: [490.0, 5.0],
                 radar: [5.0, 5.0]
