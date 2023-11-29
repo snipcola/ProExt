@@ -29,25 +29,27 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
         return false;
     }
 
-    if observer_services != 0 {
-        let mut observer_target: u32 = 0;
-        let mut controller: usize = 0;
-        
-        if !rpm_offset(observer_services as u64, Offsets::CPlayer_ObserverServices::m_hObserverTarget as u64, &mut observer_target) {
+    if observer_services == 0 {
+        return false;
+    }
+
+    let mut observer_target: u32 = 0;
+    let mut controller: usize = 0;
+    
+    if !rpm_offset(observer_services as u64, Offsets::CPlayer_ObserverServices::m_hObserverTarget as u64, &mut observer_target) {
+        return false;
+    }
+
+    if let Some(sum) = (120 as u64).checked_mul(observer_target.bitand(0x1FF) as u64) {
+        if !rpm_offset(game_entity_list_entry, sum, &mut controller) {
             return false;
         }
+    } else {
+        return false;
+    }
 
-        if let Some(sum) = (120 as u64).checked_mul(observer_target.bitand(0x1FF) as u64) {
-            if !rpm_offset(game_entity_list_entry, sum, &mut controller) {
-                return false;
-            }
-        } else {
-            return false;
-        }
-
-        if controller as u64 == local_entity_pawn_address {
-            return true;
-        }
+    if controller as u64 == local_entity_pawn_address {
+        return true;
     }
 
     return false;
