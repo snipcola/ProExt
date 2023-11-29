@@ -92,7 +92,7 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     target_y /= smooth;
     target_y = if screen_pos.y > screen_center_y { if target_y + screen_center_y > screen_center_y * 2.0 { 0.0 } else { target_y } } else { if target_y + screen_center_y < 0.0 { 0.0 } else { target_y } };
 
-    if smooth == base_smooth { return move_mouse(target_x as i32, target_y as i32); }
+    if smooth == base_smooth { return move_mouse(target_x as i32, target_y as i32, true); }
 
     target_x /= smooth * (base_smooth + (base_smooth - (norm / config.aimbot.fov)));
     target_y /= smooth * (base_smooth + (base_smooth - (norm / config.aimbot.fov)));
@@ -100,7 +100,7 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     target_x = if target_x.abs() < base_smooth { if target_x > 0.0 { base_smooth } else { -base_smooth } } else { target_x };
     target_y = if target_y.abs() < base_smooth { if target_y > 0.0 { base_smooth } else { -base_smooth } } else { target_y };
 
-    move_mouse(target_x as i32, target_y as i32);
+    move_mouse(target_x as i32, target_y as i32, true);
 }
 
 pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_address: &mut Option<u64>, address: u64, enemy_visible: bool, in_air: bool, config: Config) {

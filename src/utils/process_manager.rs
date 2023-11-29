@@ -86,7 +86,12 @@ pub fn rpm_auto<ReadType>(address: u64, value: &mut ReadType) -> bool {
 }
 
 pub fn rpm_offset<ReadType>(address: u64, offset: u64, value: &mut ReadType) -> bool {
-    return address != 0 && rpm_auto(address + offset, value);
+    let sum = match address.checked_add(offset) {
+        Some(value) => value,
+        None => return false
+    };
+
+    return address != 0 && rpm_auto(sum, value);
 }
 
 pub fn search_memory(signature: &str, start_address: u64, end_address: u64, search_num: i32) -> Vec<u64> {

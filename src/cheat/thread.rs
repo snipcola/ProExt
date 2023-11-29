@@ -27,6 +27,7 @@ use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bom
 use crate::cheat::functions::is_enemy_visible;
 use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY};
 use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY};
+use crate::cheat::features::rcs::{get_rcs_toggled, run_rcs};
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
     thread::spawn(move || {
@@ -101,11 +102,12 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let no_weapon =  local_entity.pawn.weapon_name == "Knife" || local_entity.pawn.weapon_name == "Fists";
             let is_aimbot_toggled = !no_pawn && (config.aimbot.always || get_aimbot_toggled(config)) && config.aimbot.enabled && is_game_window_focused && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon);
             let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always || get_triggerbot_toggled(config)) && config.triggerbot.enabled && is_game_window_focused && (!config.triggerbot.only_weapon || config.triggerbot.only_weapon && !no_weapon);
+            let is_rcs_toggled = !no_pawn && (config.rcs.always || get_rcs_toggled(config)) && config.rcs.enabled && is_game_window_focused;
 
             // Cheat List
             if config.misc.enabled && config.misc.cheat_list_enabled {
                 (*ui_functions.lock().unwrap()).insert("cheat_list".to_string(), Box::new(move |ui| {
-                    render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled);
+                    render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled, is_rcs_toggled);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("cheat_list");
@@ -513,6 +515,11 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
             } else {
                 *TB_OFF_ENTITY.lock().unwrap() = None;
+            }
+
+            // RCS
+            if is_rcs_toggled {
+                run_rcs(config, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
             }
         }
     });

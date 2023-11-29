@@ -8,7 +8,7 @@ lazy_static! {
     pub static ref CHEAT_LIST_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
 }
 
-pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled: bool, triggerbot_toggled: bool) {
+pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled: bool, triggerbot_toggled: bool, rcs_toggled: bool) {
     let mut reset_position = CHEAT_LIST_RESET_POSITION.lock().unwrap();
     let (window_position, condition) = if let Some(position) = *reset_position {
         *reset_position = None;
@@ -35,6 +35,15 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
 
             if config.esp.enabled {
                 ui.text_colored(cheat_list_one_color, "ESP");
+            }
+
+            if pawn && config.rcs.enabled {
+                ui.text_colored(cheat_list_one_color, "RCS");
+
+                if rcs_toggled {
+                    ui.same_line();
+                    ui.text_colored(cheat_list_two_color, "(Toggled)");
+                }
             }
 
             if pawn && config.aimbot.enabled {
