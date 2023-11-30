@@ -24,7 +24,7 @@ pub fn init_imgui(window: &Window) -> (WinitPlatform, Context) {
     imgui_context.set_log_filename(None);
 
     let mut winit_platform = WinitPlatform::init(&mut imgui_context);
-    winit_platform.attach_window(imgui_context.io_mut(), window.window(), HiDpiMode::Default);
+    winit_platform.attach_window(imgui_context.io_mut(), window.window(), HiDpiMode::Rounded);
 
     let mut fonts = vec![FontSource::DefaultFontData { config: None }];
     add_imgui_font(&mut fonts, ProgramConfig::Imgui::FontPaths::Chinese, 13.5, FontGlyphRanges::chinese_full());
