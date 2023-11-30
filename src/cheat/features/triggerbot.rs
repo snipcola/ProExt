@@ -1,11 +1,10 @@
 use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
 use lazy_static::lazy_static;
 use rand::{Rng, thread_rng};
-use crate::utils::{config::{Config, CONFIG, ProgramConfig}, mouse::{MOUSE_LOCKED, click_mouse, press_mouse}};
-use crate::ui::functions::hotkey_index_to_io;
+use crate::{utils::{config::{Config, CONFIG}, mouse::{MOUSE_LOCKED, click_mouse, press_mouse}}, cheat::functions::is_feature_toggled};
 
 lazy_static! {
-    pub static ref TRIGGERBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().triggerbot.default));
+    pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().triggerbot.default));
     pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
 
     pub static ref TB_SHOT_ENTITY: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
@@ -14,42 +13,11 @@ lazy_static! {
 }
 
 pub fn get_triggerbot_toggled(config: Config) -> bool {
-    match hotkey_index_to_io(config.triggerbot.key) {
-        Ok(triggerbot_button) => {
-            if config.triggerbot.mode == 0 {
-                return triggerbot_button.is_pressed();
-            } else {
-                let triggerbot_toggled = *TRIGGERBOT_TOGGLED.lock().unwrap();
-                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
+    let feature = config.triggerbot;
+    let mut toggled = FEATURE_TOGGLED.lock().unwrap();
+    let mut changed = TOGGLE_CHANGED.lock().unwrap();
 
-                if triggerbot_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
-                    *TRIGGERBOT_TOGGLED.lock().unwrap() = !triggerbot_toggled;
-                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
-
-                    return !triggerbot_toggled;
-                } else {
-                    return triggerbot_toggled;
-                }
-            }
-        },
-        Err(triggerbot_key) => {
-            if config.triggerbot.mode == 0 {
-                return triggerbot_key.is_pressed();
-            } else {
-                let triggerbot_toggled = *TRIGGERBOT_TOGGLED.lock().unwrap();
-                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
-
-                if triggerbot_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
-                    *TRIGGERBOT_TOGGLED.lock().unwrap() = !triggerbot_toggled;
-                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
-                    
-                    return !triggerbot_toggled;
-                } else {
-                    return triggerbot_toggled;
-                }
-            }
-        }
-    }
+    return is_feature_toggled(feature.key, feature.mode, &mut toggled, &mut changed);
 }
 
 pub fn run_triggerbot(address: u64, config: Config) {

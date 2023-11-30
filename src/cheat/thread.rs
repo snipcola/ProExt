@@ -17,16 +17,17 @@ use crate::cheat::features::aimbot::{get_aimbot_toggled, aimbot_check, render_fo
 use crate::cheat::features::bomb_timer::render_bomb_timer;
 use crate::cheat::features::cheat_list::render_cheat_list;
 use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_weapon_name, render_distance, render_name, render_bomb, get_esp_toggled};
-use crate::cheat::features::radar::render_radar;
+use crate::cheat::features::radar::{render_radar, get_radar_toggled};
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
 use crate::cheat::features::triggerbot::{get_triggerbot_toggled, run_triggerbot};
-use crate::cheat::features::visuals::{render_crosshair, render_headshot_line};
+use crate::cheat::features::visuals::render_headshot_line;
 use crate::cheat::features::watermark::render_watermark;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
 use crate::cheat::functions::is_enemy_visible;
 use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch};
 use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY};
 use crate::cheat::features::rcs::{get_rcs_toggled, run_rcs};
+use crate::cheat::features::crosshair::{render_crosshair, get_crosshair_toggled};
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
     thread::spawn(move || {
@@ -103,11 +104,13 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let is_triggerbot_toggled = !no_pawn && config.triggerbot.enabled && is_game_window_focused && (!config.triggerbot.only_weapon || config.triggerbot.only_weapon && !no_weapon) && (config.triggerbot.always || get_triggerbot_toggled(config));
             let is_rcs_toggled = !no_pawn && config.rcs.enabled && is_game_window_focused && (config.rcs.always || get_rcs_toggled(config));
             let is_esp_toggled = config.esp.enabled && (config.esp.always || get_esp_toggled(config));
+            let is_crosshair_toggled = !no_pawn && config.crosshair.enabled && (!config.crosshair.only_weapon || config.crosshair.only_weapon && !no_weapon) && (config.crosshair.always || get_crosshair_toggled(config));
+            let is_radar_toggled = !no_pawn && config.radar.enabled && (config.radar.always || get_radar_toggled(config));
 
             // Cheat List
             if config.misc.enabled && config.misc.cheat_list_enabled {
                 (*ui_functions.lock().unwrap()).insert("cheat_list".to_string(), Box::new(move |ui| {
-                    render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled, is_rcs_toggled, is_esp_toggled);
+                    render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled, is_rcs_toggled, is_esp_toggled, is_crosshair_toggled, is_radar_toggled);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("cheat_list");
@@ -266,7 +269,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Radar Point
-                if config.radar.enabled {
+                if is_radar_toggled {
                     radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y));
                 }
 
@@ -431,7 +434,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             };
 
             // Crosshair
-            if !no_pawn && config.crosshair.enabled && (!config.crosshair.only_weapon || config.crosshair.only_weapon && !no_weapon) {
+            if is_crosshair_toggled {
                 (*ui_functions.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
                     render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, aiming_at_enemy && allow_shoot, config);
                 }));
@@ -458,7 +461,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Radar
-            if !no_pawn && config.radar.enabled {
+            if is_radar_toggled {
                 (*ui_functions.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
                     render_radar(ui, config, local_entity.pawn.pos, local_entity.pawn.view_angle.y, radar_points.clone());
                 }));

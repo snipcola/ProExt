@@ -1,7 +1,10 @@
 use std::mem::size_of;
 use std::ops::{BitAnd, Shl};
+use std::time::{Instant, Duration};
 use mint::{Vector3, Vector2};
 use crate::cheat::classes::offsets::Offsets;
+use crate::ui::functions::hotkey_index_to_io;
+use crate::utils::config::ProgramConfig;
 use crate::utils::process_manager::rpm_auto;
 use crate::utils::{config::Config, process_manager::{rpm_offset, trace_address}};
 use crate::cheat::classes::entity::CUtlVector;
@@ -182,4 +185,30 @@ pub fn cache_to_punch(aim_punch_cache: CUtlVector) -> Option<Vector2<f32>> {
     }
 
     return Some(punch);
+}
+
+pub fn is_io_pressed(key: usize) -> bool {
+    match hotkey_index_to_io(key) {
+        Ok(button) => {
+            return button.is_pressed();
+        },
+        Err(key) => {
+            return key.is_pressed();
+        }
+    }
+}
+
+pub fn is_feature_toggled(key: usize, mode: usize, toggle_toggled: &mut bool, toggle_changed: &mut Instant) -> bool {
+    let pressed = is_io_pressed(key);
+
+    if mode == 0 {
+        return pressed;
+    } else {
+        if pressed && (*toggle_changed).elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
+            *toggle_toggled = !*toggle_toggled;
+            *toggle_changed = Instant::now();
+        }
+
+        return *toggle_toggled;
+    }
 }

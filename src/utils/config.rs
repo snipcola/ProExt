@@ -209,6 +209,8 @@ pub struct Triggerbot {
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Crosshair {
     pub enabled: bool,
+    pub key: usize,
+    pub mode: usize,
     pub color: (u32, u32, u32, u32),
     pub target_enabled: bool,
     pub target_color: (u32, u32, u32, u32),
@@ -222,6 +224,8 @@ pub struct Crosshair {
     pub lines_height: u32,
     pub lines_space: u32,
     pub lines_thickness: u32,
+    pub always: bool,
+    pub default: bool,
     pub only_weapon: bool
 }
 
@@ -229,11 +233,15 @@ pub struct Crosshair {
 pub struct Radar {
     pub enabled: bool,
     pub color: (u32, u32, u32, u32),
+    pub key: usize,
     pub mode: usize,
+    pub style: usize,
     pub alpha: f32,
     pub outline: bool,
     pub crossline_enabled: bool,
     pub crossline_color: (u32, u32, u32, u32),
+    pub always: bool,
+    pub default: bool,
     pub point_size: f32,
     pub proportion: f32,
     pub range: f32
@@ -405,16 +413,16 @@ impl Default for Config {
             },
             rcs: RCS {
                 enabled: true,
-                key: 0,
-                mode: 0,
+                key: 9,
+                mode: 1,
                 start_bullet: 1,
                 yaw: 1.0,
                 yaw_offset: 0.2,
                 pitch: 1.0,
                 pitch_offset: 0.2,
                 sensitivity: 3.0,
-                always: true,
-                default: false
+                always: false,
+                default: true
             },
             aimbot: Aimbot {
                 enabled: true,
@@ -454,6 +462,8 @@ impl Default for Config {
             crosshair: Crosshair {
                 enabled: true,
                 color: (255, 255, 255, 255),
+                key: 10,
+                mode: 1,
                 target_enabled: true,
                 target_color: (255, 0, 0, 255),
                 outline_enabled: true,
@@ -466,16 +476,22 @@ impl Default for Config {
                 lines_height: 9,
                 lines_space: 7,
                 lines_thickness: 1,
+                always: false,
+                default: true,
                 only_weapon: true
             },
             radar: Radar {
-                enabled: false,
+                enabled: true,
                 color: (255, 0, 0, 255),
-                mode: 2,
+                key: 11,
+                mode: 1,
+                style: 2,
                 alpha: 0.0,
                 outline: true,
                 crossline_enabled: false,
                 crossline_color: (255, 255, 255, 255),
+                always: false,
+                default: true,
                 point_size: 1.0,
                 proportion: 3100.0,
                 range: 143.0

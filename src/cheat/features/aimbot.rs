@@ -3,10 +3,10 @@ use imgui::Ui;
 use mint::{Vector3, Vector2};
 use lazy_static::lazy_static;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::{Config, ProgramConfig, CONFIG}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{hotkey_index_to_io, distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::classes::{bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}, view::View}};
+use crate::{utils::{config::{Config, ProgramConfig, CONFIG}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::{classes::{bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}, view::View}, functions::is_feature_toggled}};
 
 lazy_static! {
-    pub static ref AIMBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().aimbot.default));
+    pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().aimbot.default));
     pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
 
     pub static ref AB_LOCKED_ENTITY: Arc<Mutex<Option<(Instant, u64)>>> = Arc::new(Mutex::new(None));
@@ -14,42 +14,11 @@ lazy_static! {
 }
 
 pub fn get_aimbot_toggled(config: Config) -> bool {
-    match hotkey_index_to_io(config.aimbot.key) {
-        Ok(aimbot_button) => {
-            if config.aimbot.mode == 0 {
-                return aimbot_button.is_pressed();
-            } else {
-                let aimbot_toggled = *AIMBOT_TOGGLED.lock().unwrap();
-                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
+    let feature = config.aimbot;
+    let mut toggled = FEATURE_TOGGLED.lock().unwrap();
+    let mut changed = TOGGLE_CHANGED.lock().unwrap();
 
-                if aimbot_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
-                    *AIMBOT_TOGGLED.lock().unwrap() = !aimbot_toggled;
-                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
-
-                    return !aimbot_toggled;
-                } else {
-                    return aimbot_toggled;
-                }
-            }
-        },
-        Err(aimbot_key) => {
-            if config.aimbot.mode == 0 {
-                return aimbot_key.is_pressed();
-            } else {
-                let aimbot_toggled = *AIMBOT_TOGGLED.lock().unwrap();
-                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
-
-                if aimbot_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
-                    *AIMBOT_TOGGLED.lock().unwrap() = !aimbot_toggled;
-                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
-                    
-                    return !aimbot_toggled;
-                } else {
-                    return aimbot_toggled;
-                }
-            }
-        }
-    }
+    return is_feature_toggled(feature.key, feature.mode, &mut toggled, &mut changed);
 }
 
 pub fn get_aimbot_yaw_pitch(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32>, view_angle: Vector2<f32>) -> Option<f32> {

@@ -401,6 +401,16 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.same_line();
                         color_edit_u32_tuple(ui, "##ColorCrosshair", &mut (*config).crosshair.color);
 
+                        if !(*config).crosshair.always {
+                            // Key
+                            ui.same_line();
+                            ui.combo_simple_string("##KeyCrosshair", &mut (*config).crosshair.key, &ProgramConfig::Keys::Available);
+
+                            // Mode
+                            ui.combo_simple_string("Mode##Crosshair", &mut (*config).crosshair.mode, &["Hold", "Toggle"]);
+                            ui.separator();
+                        }
+
                         // Target Crosshair
                         ui.checkbox("Target##Crosshair", &mut (*config).crosshair.target_enabled);
                         
@@ -441,7 +451,15 @@ pub fn render_menu(ui: &mut Ui) {
 
                         ui.separator();
 
+                        // Always & Default
+                        ui.checkbox("Always##Crosshair", &mut (*config).crosshair.always);
+                    
+                        if !(*config).crosshair.always && (*config).crosshair.mode == 1 {
+                            ui.checkbox("Default Toggle##Crosshair", &mut (*config).crosshair.default);
+                        }
+
                         // Only Weapon
+                        ui.separator();
                         ui.checkbox("Only Weapon##Crosshair", &mut (*config).crosshair.only_weapon);
                     }
                 });
@@ -455,8 +473,18 @@ pub fn render_menu(ui: &mut Ui) {
                         // Radar Type
                         ui.same_line();
                         color_edit_u32_tuple(ui, "##ColorRadar", &mut (*config).radar.color);
-                        ui.same_line();
-                        ui.combo_simple_string("##ModeRadar", &mut (*config).radar.mode, &["Circle", "Arrow", "Both"]);
+
+                        if !(*config).radar.always {
+                            // Key
+                            ui.same_line();
+                            ui.combo_simple_string("##KeyRadar", &mut (*config).radar.key, &ProgramConfig::Keys::Available);
+
+                            // Mode
+                            ui.combo_simple_string("Mode##Radar", &mut (*config).radar.mode, &["Hold", "Toggle"]);
+                        }
+
+                        // Style
+                        ui.combo_simple_string("Style##Radar", &mut (*config).radar.style, &["Circle", "Arrow", "Both"]);
 
                         // Radar Alpha
                         ui.slider_config("Alpha##Radar", 0.0, 1.0).display_format("%.1f").build(&mut (*config).radar.alpha);
@@ -471,6 +499,14 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).radar.crossline_enabled {
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##ColorRadarCrossline", &mut (*config).radar.crossline_color);
+                        }
+
+                        // Always & Default
+                        ui.separator();
+                        ui.checkbox("Always##Radar", &mut (*config).radar.always);
+                    
+                        if !(*config).radar.always && (*config).radar.mode == 1 {
+                            ui.checkbox("Default Toggle##Radar", &mut (*config).radar.default);
                         }
 
                         ui.separator();

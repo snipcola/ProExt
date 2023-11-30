@@ -1,15 +1,27 @@
 use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
+use std::time::Instant;
 use imgui::{Ui, ImColor32};
 use mint::{Vector2, Vector3};
 use lazy_static::lazy_static;
 
+use crate::cheat::functions::is_feature_toggled;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::utils::config::{Config, CONFIG};
 use crate::ui::functions::{color_u32_to_f32, color_with_masked_alpha};
 
 lazy_static! {
+    pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().esp.default));
+    pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
     pub static ref RADAR_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
+}
+
+pub fn get_radar_toggled(config: Config) -> bool {
+    let feature = config.radar;
+    let mut toggled = FEATURE_TOGGLED.lock().unwrap();
+    let mut changed = TOGGLE_CHANGED.lock().unwrap();
+
+    return is_feature_toggled(feature.key, feature.mode, &mut toggled, &mut changed);
 }
 
 pub fn revolve_coordinates_system(revolve_angle: f32, origin_pos: Vector2<f32>, dest_pos: Vector2<f32>) -> Vector2<f32> {
@@ -80,13 +92,13 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
                     continue;
                 }
 
-                if config.radar.mode == 0 {
+                if config.radar.style == 0 {
                     ui.get_window_draw_list().add_circle(point_pos, circle_size, color_u32_to_f32(config.radar.color)).filled(true).build();
                     
                     if config.radar.outline {
                         ui.get_window_draw_list().add_circle(point_pos, circle_size, color_with_masked_alpha(config.radar.color, 0xFF000000)).thickness(0.1).build();
                     }
-                } else if config.radar.mode == 1 {
+                } else if config.radar.style == 1 {
                     let angle2 = (local_yaw - yaw) + 180.0;
                     let re_point = revolve_coordinates_system(angle2, window_pos, point_pos);
                     
