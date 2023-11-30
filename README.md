@@ -23,5 +23,3 @@ In the meanwhile, here are some alternatives:
 ## 💬 Q&A:
 **🤔  Is this detectable?** <br>
 **Yes, this may be detectable in certain circumstances**, it is a user-mode cheat afterall. *It is important to note that you might not be detected, other factors such as suspicious gameplay also are important to consider.*<br><br>
-**🤔  FPS drops when focusing on the menu, any way to fix that?** <br>
-**Yes, there is an actual fix for this.** If you have turned on the developer console, you can simply run the following command to resolve this issue:<br><code>engine_no_focus_sleep 0</code><br><br>
