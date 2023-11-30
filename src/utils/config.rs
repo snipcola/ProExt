@@ -45,6 +45,8 @@ pub mod ProgramConfig {
         use glutin::event::VirtualKeyCode;
         use mki::Keyboard;
 
+        pub const Available: [&str; 20] = ["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"];
+
         pub const ToggleKey: VirtualKeyCode = VirtualKeyCode::Insert;
         pub const ToggleKeyMKI: Keyboard = Keyboard::Insert;
 

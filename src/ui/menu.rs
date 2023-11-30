@@ -232,7 +232,7 @@ pub fn render_menu(ui: &mut Ui) {
                         if !(*config).rcs.always {
                             // Key
                             ui.same_line();
-                            ui.combo_simple_string("##KeyRCS", &mut (*config).rcs.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
+                            ui.combo_simple_string("##KeyRCS", &mut (*config).rcs.key, &ProgramConfig::Keys::Available);
 
                             // Mode
                             ui.combo_simple_string("Mode##RCS", &mut (*config).rcs.mode, &["Hold", "Toggle"]);
@@ -262,7 +262,7 @@ pub fn render_menu(ui: &mut Ui) {
                         if !(*config).aimbot.always {
                             // Key
                             ui.same_line();
-                            ui.combo_simple_string("##KeyAimbot", &mut (*config).aimbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
+                            ui.combo_simple_string("##KeyAimbot", &mut (*config).aimbot.key, &ProgramConfig::Keys::Available);
 
                             // Mode
                             ui.combo_simple_string("Mode##Aimbot", &mut (*config).aimbot.mode, &["Hold", "Toggle"]);
@@ -324,7 +324,7 @@ pub fn render_menu(ui: &mut Ui) {
                         if !(*config).triggerbot.always {
                             // Key
                             ui.same_line();
-                            ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control"]);
+                            ui.combo_simple_string("##KeyTriggerbot", &mut (*config).triggerbot.key, &ProgramConfig::Keys::Available);
 
                             // Mode
                             ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Hold", "Toggle"]);
