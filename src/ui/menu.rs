@@ -245,11 +245,18 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.slider_config("Yaw Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).rcs.yaw_offset);
                         ui.slider_config("Pitch##RCS", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs.pitch);
                         ui.slider_config("Pitch Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).rcs.pitch_offset);
+                        ui.separator();
 
-                        // Always
+                        // Alway, & Default
+                        ui.checkbox("Always##RCS", &mut (*config).rcs.always);
+                        
+                        if !(*config).rcs.always && (*config).rcs.mode == 1 {
+                            ui.checkbox("Default Toggle##RCS", &mut (*config).rcs.default);
+                        }
+
+                        // Sensitivity
                         ui.separator();
                         ui.slider_config("Mouse Sensitivity##RCS", 0.1, 8.0).display_format("%.1f").build(&mut (*config).rcs.sensitivity);
-                        ui.checkbox("Always##RCS", &mut (*config).rcs.always);
                     }
                 });
 
@@ -289,11 +296,18 @@ pub fn render_menu(ui: &mut Ui) {
 
                             // Thickness
                             ui.slider_config("Thickness##AimbotCircle", 0.5, 5.0).display_format("%.1f").build(&mut (*config).aimbot.fov_circle_thickness);
-                            ui.separator();
+                        }
+
+                        // Always & Default
+                        ui.separator();
+                        ui.checkbox("Always##Aimbot", &mut (*config).aimbot.always);
+                        
+                        if !(*config).aimbot.always && (*config).aimbot.mode == 1 {
+                            ui.checkbox("Default Toggle##Aimbot", &mut (*config).aimbot.default);
                         }
 
                         // Only Visible, Only Grounded, & Only Weapon
-                        ui.checkbox("Always##Aimbot", &mut (*config).aimbot.always);
+                        ui.separator();
                         ui.checkbox("Only Visible##Aimbot", &mut (*config).aimbot.only_visible);
                         ui.checkbox("Only Grounded##Aimbot", &mut (*config).aimbot.only_grounded);
                         ui.checkbox("Only Weapon##Aimbot", &mut (*config).aimbot.only_weapon);
@@ -347,10 +361,15 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.slider_config("Delay Offset##Triggerbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.delay_offset);
                         ui.separator();
 
-                        // Always Activated
+                        // Always & Default
                         ui.checkbox("Always##Triggerbot", &mut (*config).triggerbot.always);
+                        
+                        if !(*config).triggerbot.always && (*config).triggerbot.mode == 1 {
+                            ui.checkbox("Default Toggle##Triggerbot", &mut (*config).triggerbot.default);
+                        }
 
                         // Only Weapon
+                        ui.separator();
                         ui.checkbox("Only Weapon##Triggerbot", &mut (*config).triggerbot.only_weapon);
                     }
                 });

@@ -158,7 +158,8 @@ pub struct RCS {
     pub pitch: f32,
     pub pitch_offset: f32,
     pub sensitivity: f32,
-    pub always: bool
+    pub always: bool,
+    pub default: bool
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -173,6 +174,7 @@ pub struct Aimbot {
     pub fov_circle_outline_enabled: bool,
     pub fov_circle_thickness: f32,
     pub always: bool,
+    pub default: bool,
     pub only_visible: bool,
     pub only_grounded: bool,
     pub only_weapon: bool,
@@ -195,6 +197,7 @@ pub struct Triggerbot {
     pub delay: u32,
     pub delay_offset: u32,
     pub always: bool,
+    pub default: bool,
     pub only_weapon: bool
 }
 
@@ -401,7 +404,8 @@ impl Default for Config {
                 pitch: 1.0,
                 pitch_offset: 0.2,
                 sensitivity: 3.0,
-                always: true
+                always: true,
+                default: false
             },
             aimbot: Aimbot {
                 enabled: true,
@@ -414,6 +418,7 @@ impl Default for Config {
                 fov_circle_outline_enabled: true,
                 fov_circle_thickness: 1.2,
                 always: false,
+                default: false,
                 only_visible: true,
                 only_grounded: true,
                 only_weapon: true,
@@ -434,6 +439,7 @@ impl Default for Config {
                 delay: 70,
                 delay_offset: 15,
                 always: false,
+                default: false,
                 only_weapon: true
             },
             crosshair: Crosshair {
