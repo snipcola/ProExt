@@ -46,7 +46,7 @@ pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_contro
     }
 
     let allow_shoot = {
-        if config.misc.enabled && config.misc.exclude_team {
+        if config.settings.enabled && config.settings.exclude_team {
             local_entity_controller_team_id != entity_team_id && entity_health > 0
         } else {
             entity_health > 0
