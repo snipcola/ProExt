@@ -1,52 +1,21 @@
-use std::{sync::{Arc, Mutex}, time::{Instant, Duration}};
+use std::{sync::{Arc, Mutex}, time::Instant};
 use lazy_static::lazy_static;
 use mint::Vector2;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::{Config, CONFIG, ProgramConfig}, mouse::move_mouse}, ui::functions::hotkey_index_to_io, cheat::{classes::entity::CUtlVector, functions::cache_to_punch}};
+use crate::{utils::{config::{Config, CONFIG}, mouse::move_mouse}, cheat::{classes::entity::CUtlVector, functions::{cache_to_punch, is_feature_toggled}}};
 
 lazy_static! {
-    pub static ref RCS_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().rcs.default));
+    pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().rcs.default));
     pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
     pub static ref LAST_PUNCH: Arc<Mutex<Vector2<f32>>> = Arc::new(Mutex::new(Vector2 { x: 0.0, y: 0.0 }));
 }
 
 pub fn get_rcs_toggled(config: Config) -> bool {
-    match hotkey_index_to_io(config.rcs.key) {
-        Ok(rcs_button) => {
-            if config.rcs.mode == 0 {
-                return rcs_button.is_pressed();
-            } else {
-                let rcs_toggled = *RCS_TOGGLED.lock().unwrap();
-                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
+    let feature = config.rcs;
+    let mut toggled = FEATURE_TOGGLED.lock().unwrap();
+    let mut changed = TOGGLE_CHANGED.lock().unwrap();
 
-                if rcs_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
-                    *RCS_TOGGLED.lock().unwrap() = !rcs_toggled;
-                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
-
-                    return !rcs_toggled;
-                } else {
-                    return rcs_toggled;
-                }
-            }
-        },
-        Err(rcs_key) => {
-            if config.rcs.mode == 0 {
-                return rcs_key.is_pressed();
-            } else {
-                let rcs_toggled = *RCS_TOGGLED.lock().unwrap();
-                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
-
-                if rcs_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
-                    *RCS_TOGGLED.lock().unwrap() = !rcs_toggled;
-                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
-                    
-                    return !rcs_toggled;
-                } else {
-                    return rcs_toggled;
-                }
-            }
-        }
-    }
+    return is_feature_toggled(feature.key, feature.mode, &mut toggled, &mut changed);
 }
 
 pub fn get_rcs_yaw_pitch(config: Config) -> (f32, f32) {
