@@ -97,8 +97,7 @@ pub struct Config {
     pub misc: Misc,
     pub style: Style,
     pub settings: Settings,
-    pub window_positions: WindowPositions,
-    pub window: Window
+    pub window_positions: WindowPositions
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -320,21 +319,22 @@ pub struct Style {
 pub struct Settings {
     pub enabled: bool,
     pub bypass_capture: bool,
-    pub discord_rpc_enabled: bool
+    pub discord_rpc_enabled: bool,
+    pub window: Window
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct WindowSize {
     pub force: bool,
-    pub width: u32,
-    pub height: u32
+    pub width: i32,
+    pub height: i32
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct WindowPosition {
     pub force: bool,
-    pub x: u32,
-    pub y: u32
+    pub x: i32,
+    pub y: i32
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -535,7 +535,19 @@ impl Default for Config {
             settings: Settings {
                 enabled: true,
                 bypass_capture: true,
-                discord_rpc_enabled: false
+                discord_rpc_enabled: false,
+                window: Window {
+                    size: WindowSize {
+                        force: false,
+                        width: 1920,
+                        height: 1080
+                    },
+                    position: WindowPosition {
+                        force: false,
+                        x: 0,
+                        y: 0
+                    }
+                }
             },
             window_positions: WindowPositions {
                 menu: [600.0, 150.0],
@@ -544,18 +556,6 @@ impl Default for Config {
                 bomb_timer: [30.0, 330.0],
                 spectator_list: [490.0, 5.0],
                 radar: [5.0, 5.0]
-            },
-            window: Window {
-                size: WindowSize {
-                    force: false,
-                    width: 1920,
-                    height: 1080
-                },
-                position: WindowPosition {
-                    force: false,
-                    x: 0,
-                    y: 0
-                }
             }
         };
     }
