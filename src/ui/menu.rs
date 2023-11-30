@@ -64,6 +64,16 @@ pub fn render_menu(ui: &mut Ui) {
                     ui.checkbox("ESP", &mut (*config).esp.enabled);
                     
                     if (*config).esp.enabled {
+                        if !(*config).esp.always {
+                            // Key
+                            ui.same_line();
+                            ui.combo_simple_string("##KeyESP", &mut (*config).esp.key, &ProgramConfig::Keys::Available);
+
+                            // Mode
+                            ui.combo_simple_string("Mode##ESP", &mut (*config).esp.mode, &["Hold", "Toggle"]);
+                            ui.separator();
+                        }
+
                         // Outline
                         ui.checkbox("Outline##ESP", &mut (*config).esp.outline);
 
@@ -207,11 +217,18 @@ pub fn render_menu(ui: &mut Ui) {
                                 ui.same_line();
                                 ui.slider_config("##AlphaESPBombFilled", 0.1, 1.0).display_format("%.1f").build(&mut (*config).esp.filled_bomb_alpha);
                             }
+                        }
 
-                            ui.separator();
+                        // Always & Default
+                        ui.separator();
+                        ui.checkbox("Always##ESP", &mut (*config).esp.always);
+                        
+                        if !(*config).esp.always && (*config).esp.mode == 1 {
+                            ui.checkbox("Default Toggle##ESP", &mut (*config).esp.default);
                         }
 
                         // Snap Line
+                        ui.separator();
                         ui.checkbox("Snapline##ESP", &mut (*config).esp.snap_line_enabled);
                         
                         if (*config).esp.snap_line_enabled {
@@ -247,7 +264,7 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.slider_config("Pitch Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).rcs.pitch_offset);
                         ui.separator();
 
-                        // Alway, & Default
+                        // Always & Default
                         ui.checkbox("Always##RCS", &mut (*config).rcs.always);
                         
                         if !(*config).rcs.always && (*config).rcs.mode == 1 {

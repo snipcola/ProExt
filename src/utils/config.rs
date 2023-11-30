@@ -45,6 +45,7 @@ pub mod ProgramConfig {
         use glutin::event::VirtualKeyCode;
         use mki::Keyboard;
 
+        pub const ToggleInterval: u64 = 200;
         pub const Available: [&str; 20] = ["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"];
 
         pub const ToggleKey: VirtualKeyCode = VirtualKeyCode::Insert;
@@ -105,6 +106,8 @@ pub struct Config {
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct ESP {
     pub enabled: bool,
+    pub key: usize,
+    pub mode: usize,
     pub outline: bool,
     pub thickness: f32,
     pub rounding: u32,
@@ -142,6 +145,8 @@ pub struct ESP {
     pub filled_bomb_enabled: bool,
     pub filled_bomb_color: (u32, u32, u32, u32),
     pub filled_bomb_alpha: f32,
+    pub always: bool,
+    pub default: bool,
     pub snap_line_enabled: bool,
     pub snap_line_color: (u32, u32, u32, u32),
     pub snap_line_mode: usize
@@ -353,6 +358,8 @@ impl Default for Config {
         return Config {
             esp: ESP {
                 enabled: true,
+                key: 8,
+                mode: 1,
                 outline: true,
                 thickness: 1.0,
                 rounding: 0,
@@ -390,6 +397,8 @@ impl Default for Config {
                 filled_bomb_enabled: true,
                 filled_bomb_color: (255, 0, 0, 255),
                 filled_bomb_alpha: 0.1,
+                always: false,
+                default: true,
                 snap_line_enabled: false,
                 snap_line_color: (255, 255, 255, 255),
                 snap_line_mode: 1

@@ -1,7 +1,52 @@
-use std::f32::consts::PI;
+use std::{f32::consts::PI, sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::{Ui, ImColor32};
 use mint::{Vector3, Vector2, Vector4};
-use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::Config, ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle, distance_between_vec3, stroke_text, mix_colors, color_with_alpha, text, rectangle_gradient}};
+use lazy_static::lazy_static;
+use crate::{cheat::classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, utils::config::{Config, CONFIG, ProgramConfig}, ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle, distance_between_vec3, stroke_text, mix_colors, color_with_alpha, text, rectangle_gradient, hotkey_index_to_io}};
+
+lazy_static! {
+    pub static ref ESP_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().esp.default));
+    pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
+}
+
+pub fn get_esp_toggled(config: Config) -> bool {
+    match hotkey_index_to_io(config.esp.key) {
+        Ok(esp_button) => {
+            if config.esp.mode == 0 {
+                return esp_button.is_pressed();
+            } else {
+                let esp_toggled = *ESP_TOGGLED.lock().unwrap();
+                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
+
+                if esp_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
+                    *ESP_TOGGLED.lock().unwrap() = !esp_toggled;
+                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
+
+                    return !esp_toggled;
+                } else {
+                    return esp_toggled;
+                }
+            }
+        },
+        Err(esp_key) => {
+            if config.esp.mode == 0 {
+                return esp_key.is_pressed();
+            } else {
+                let esp_toggled = *ESP_TOGGLED.lock().unwrap();
+                let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
+
+                if esp_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
+                    *ESP_TOGGLED.lock().unwrap() = !esp_toggled;
+                    *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
+                    
+                    return !esp_toggled;
+                } else {
+                    return esp_toggled;
+                }
+            }
+        }
+    }
+}
 
 pub fn render_bones(ui: &mut Ui, bone_pos_list: [BoneJointPos; 30], config: Config) {
     let mut previous: BoneJointPos = BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false };

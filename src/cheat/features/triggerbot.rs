@@ -1,11 +1,11 @@
 use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
 use lazy_static::lazy_static;
 use rand::{Rng, thread_rng};
-use crate::utils::{config::Config, mouse::{MOUSE_LOCKED, click_mouse, press_mouse}};
+use crate::utils::{config::{Config, CONFIG, ProgramConfig}, mouse::{MOUSE_LOCKED, click_mouse, press_mouse}};
 use crate::ui::functions::hotkey_index_to_io;
 
 lazy_static! {
-    pub static ref TRIGGERBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    pub static ref TRIGGERBOT_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().triggerbot.default));
     pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
 
     pub static ref TB_SHOT_ENTITY: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
@@ -22,7 +22,7 @@ pub fn get_triggerbot_toggled(config: Config) -> bool {
                 let triggerbot_toggled = *TRIGGERBOT_TOGGLED.lock().unwrap();
                 let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
 
-                if triggerbot_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                if triggerbot_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
                     *TRIGGERBOT_TOGGLED.lock().unwrap() = !triggerbot_toggled;
                     *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
 
@@ -39,7 +39,7 @@ pub fn get_triggerbot_toggled(config: Config) -> bool {
                 let triggerbot_toggled = *TRIGGERBOT_TOGGLED.lock().unwrap();
                 let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
 
-                if triggerbot_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                if triggerbot_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
                     *TRIGGERBOT_TOGGLED.lock().unwrap() = !triggerbot_toggled;
                     *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
                     

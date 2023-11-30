@@ -2,10 +2,10 @@ use std::{sync::{Arc, Mutex}, time::{Instant, Duration}};
 use lazy_static::lazy_static;
 use mint::Vector2;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::Config, mouse::move_mouse}, ui::functions::hotkey_index_to_io, cheat::{classes::entity::CUtlVector, functions::cache_to_punch}};
+use crate::{utils::{config::{Config, CONFIG, ProgramConfig}, mouse::move_mouse}, ui::functions::hotkey_index_to_io, cheat::{classes::entity::CUtlVector, functions::cache_to_punch}};
 
 lazy_static! {
-    pub static ref RCS_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
+    pub static ref RCS_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().rcs.default));
     pub static ref TOGGLE_CHANGED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
     pub static ref LAST_PUNCH: Arc<Mutex<Vector2<f32>>> = Arc::new(Mutex::new(Vector2 { x: 0.0, y: 0.0 }));
 }
@@ -19,7 +19,7 @@ pub fn get_rcs_toggled(config: Config) -> bool {
                 let rcs_toggled = *RCS_TOGGLED.lock().unwrap();
                 let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
 
-                if rcs_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                if rcs_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
                     *RCS_TOGGLED.lock().unwrap() = !rcs_toggled;
                     *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
 
@@ -36,7 +36,7 @@ pub fn get_rcs_toggled(config: Config) -> bool {
                 let rcs_toggled = *RCS_TOGGLED.lock().unwrap();
                 let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
 
-                if rcs_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                if rcs_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
                     *RCS_TOGGLED.lock().unwrap() = !rcs_toggled;
                     *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
                     
