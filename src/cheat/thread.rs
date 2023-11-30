@@ -5,7 +5,7 @@ use windows::Win32::Foundation::HWND;
 
 use crate::ui::main::{WINDOW_INFO, UI_FUNCTIONS, WINDOWS_ACTIVE, TOGGLED};
 use crate::ui::windows::{is_window_focused, hide_window_from_capture};
-use crate::cheat::functions::{is_enemy_at_crosshair, is_enemy_in_fov};
+use crate::cheat::functions::is_enemy_at_crosshair;
 use crate::utils::config::{CONFIG, ProgramConfig};
 use crate::cheat::classes::game::GAME;
 use crate::utils::mouse::release_mouse;
@@ -25,7 +25,7 @@ use crate::cheat::features::watermark::render_watermark;
 use crate::cheat::features::esp::render_bomb;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
 use crate::cheat::functions::is_enemy_visible;
-use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY};
+use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch};
 use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY};
 use crate::cheat::features::rcs::{get_rcs_toggled, run_rcs};
 
@@ -421,7 +421,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
             let aimbot_info = {
                 if let Some(aim_pos) = aim_pos {
-                    match is_enemy_in_fov(config, aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle) {
+                    match get_aimbot_yaw_pitch(config, aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle) {
                         Some(v) => Some(v),
                         None => None
                     }
@@ -467,7 +467,9 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Aimbot
-            if is_aimbot_toggled {
+            let aimbot_toggled = is_aimbot_toggled && aim_entity_address.is_some() && aim_pos.is_some() && aimbot_info.is_some();
+
+            if aimbot_toggled {
                 if let Some(aimbot_info) = aimbot_info {
                     if let Some(aim_pos) = aim_pos {
                         if let Some(entity_index) = aim_entity_address {
@@ -478,7 +480,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Aimbot Lock
-            if !is_aimbot_toggled || aim_entity_address.is_none() || aim_pos.is_none() || aimbot_info.is_none() {
+            if !aimbot_toggled {
                 let mut locked_entity = AB_LOCKED_ENTITY.lock().unwrap();
                 let mut off_entity = AB_OFF_ENTITY.lock().unwrap();
                 
@@ -494,14 +496,16 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Triggerbot
-            if is_triggerbot_toggled && aiming_at_enemy && allow_shoot && aiming_at_address != 0 {
+            let triggerbot_toggled = is_triggerbot_toggled && aiming_at_enemy && allow_shoot && aiming_at_address != 0;
+
+            if triggerbot_toggled {
                 run_triggerbot(aiming_at_address, config);
             } else {
                 release_mouse();
             }
 
             // Triggerbot Lock
-            if !is_triggerbot_toggled || aiming_at_address == 0 || !aiming_at_enemy || !allow_shoot {
+            if !triggerbot_toggled {
                 let mut locked_entity = TB_LOCKED_ENTITY.lock().unwrap();
                 let mut off_entity = TB_OFF_ENTITY.lock().unwrap();
 
@@ -518,7 +522,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // RCS
-            if is_rcs_toggled {
+            if is_rcs_toggled && !is_aimbot_toggled {
                 run_rcs(config, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
             }
         }

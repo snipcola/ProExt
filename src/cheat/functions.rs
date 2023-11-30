@@ -1,8 +1,10 @@
+use std::mem::size_of;
 use std::ops::{BitAnd, Shl};
 use mint::{Vector3, Vector2};
 use crate::cheat::classes::offsets::Offsets;
 use crate::utils::process_manager::rpm_auto;
 use crate::utils::{config::Config, process_manager::{rpm_offset, trace_address}};
+use crate::cheat::classes::entity::CUtlVector;
 
 pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_controller_team_id: i32, game_address_entity_list: u64, config: Config) -> (bool, bool, u64) {
     let mut u_handle: u32 = 0;
@@ -53,20 +55,6 @@ pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_contro
 
 pub fn is_enemy_visible(b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64) -> bool {
     return b_spotted_by_mask.bitand((1 as u64).shl(local_player_controller_index)) != 0 || local_b_spotted_by_mask.bitand((1 as u64).shl(i)) != 0;
-}
-
-pub fn is_enemy_in_fov(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32>, view_angle: Vector2<f32>) -> Option<f32> {
-    let pos = Vector3 { x: aim_pos.x - camera_pos.x, y: aim_pos.y - camera_pos.y, z: aim_pos.z - camera_pos.z };
-    let distance = (pos.x.powf(2.0) + pos.y.powf(2.0)).sqrt();
-    let yaw = pos.y.atan2(pos.x) * 57.295779513 - view_angle.y;
-    let pitch = -(pos.z / distance).atan() * 57.295779513 - view_angle.x;
-    let norm = (yaw.powf(2.0) + pitch.powf(2.0)).sqrt() * 0.75;
-    
-    if norm > config.aimbot.fov {
-        return None;
-    }
-
-    return Some(norm);
 }
 
 pub fn get_bomb(bomb_address: u64) -> Option<u64> {
@@ -176,4 +164,22 @@ pub fn parse_weapon_name(name: String) -> String {
         "xm1014" => "XM1014",
         _ => &name
     }.to_string();
+}
+
+pub fn cache_to_punch(aim_punch_cache: CUtlVector) -> Option<Vector2<f32>> {
+    let mut punch = Vector2 { x: 0.0, y: 0.0 };
+
+    if aim_punch_cache.count <= 0 || aim_punch_cache.count > 0xFFFF {
+        return None;
+    }
+
+    if !rpm_auto(aim_punch_cache.data + (aim_punch_cache.count - 1) * size_of::<Vector3<f32>>() as u64, &mut punch) {
+        return None;
+    }
+
+    if punch.x == 0.0 && punch.y == 0.0 {
+        return None;
+    }
+
+    return Some(punch);
 }
