@@ -95,9 +95,10 @@ pub struct Config {
     pub crosshair: Crosshair,
     pub radar: Radar,
     pub misc: Misc,
-    pub window_positions: WindowPositions,
     pub style: Style,
-    pub settings: Settings
+    pub settings: Settings,
+    pub window_positions: WindowPositions,
+    pub window: Window
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -322,6 +323,26 @@ pub struct Settings {
     pub discord_rpc_enabled: bool
 }
 
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct WindowSize {
+    pub force: bool,
+    pub width: u32,
+    pub height: u32
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct WindowPosition {
+    pub force: bool,
+    pub x: u32,
+    pub y: u32
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct Window {
+    pub size: WindowSize,
+    pub position: WindowPosition
+}
+
 impl Default for Config {
     fn default() -> Self {
         return Config {
@@ -523,6 +544,18 @@ impl Default for Config {
                 bomb_timer: [30.0, 330.0],
                 spectator_list: [490.0, 5.0],
                 radar: [5.0, 5.0]
+            },
+            window: Window {
+                size: WindowSize {
+                    force: false,
+                    width: 1920,
+                    height: 1080
+                },
+                position: WindowPosition {
+                    force: false,
+                    x: 0,
+                    y: 0
+                }
             }
         };
     }
