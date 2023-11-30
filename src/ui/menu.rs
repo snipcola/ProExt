@@ -637,10 +637,10 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.checkbox("Bypass Capture##Settings", &mut (*config).settings.bypass_capture);
                         ui.checkbox("Discord RPC##Settings", &mut (*config).settings.discord_rpc_enabled);
                     }
+                });
 
-                    // Config
-                    ui.separator();
-                    
+                // Config
+                TabItem::new("Config").build(&ui, || {
                     // Config Input & Create Button
                     ui.input_text("##NameConfig", &mut *new_config_name).build();
                     ui.same_line();
