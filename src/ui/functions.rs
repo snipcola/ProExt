@@ -27,6 +27,42 @@ pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<Mouse, Keyboard> {
     else if hotkey_index == 7 {
         return Err(Keyboard::LeftControl);
     }
+    else if hotkey_index == 8 {
+        return Err(Keyboard::F1);
+    }
+    else if hotkey_index == 9 {
+        return Err(Keyboard::F2);
+    }
+    else if hotkey_index == 10 {
+        return Err(Keyboard::F3);
+    }
+    else if hotkey_index == 11 {
+        return Err(Keyboard::F4);
+    }
+    else if hotkey_index == 12 {
+        return Err(Keyboard::F5);
+    }
+    else if hotkey_index == 13 {
+        return Err(Keyboard::F6);
+    }
+    else if hotkey_index == 14 {
+        return Err(Keyboard::F7);
+    }
+    else if hotkey_index == 15 {
+        return Err(Keyboard::F8);
+    }
+    else if hotkey_index == 16 {
+        return Err(Keyboard::F9);
+    }
+    else if hotkey_index == 17 {
+        return Err(Keyboard::F10);
+    }
+    else if hotkey_index == 18 {
+        return Err(Keyboard::F11);
+    }
+    else if hotkey_index == 19 {
+        return Err(Keyboard::F12);
+    }
     else {
         return Err(Keyboard::LeftAlt);
     }
