@@ -143,7 +143,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             if !local_entity.update_pawn(local_pawn_address, window_info, game.view) {
-                if !(config.misc.enabled && config.misc.show_on_spectate) {
+                if !(config.settings.enabled && config.settings.show_on_spectate) {
                     remove_ui_elements();
                     continue;
                 };
@@ -257,7 +257,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Team Check
-                if (config.misc.enabled && config.misc.exclude_team) && entity.controller.team_id == local_entity.controller.team_id {
+                if (config.settings.enabled && config.settings.exclude_team) && entity.controller.team_id == local_entity.controller.team_id {
                     remove_esp(i);
                     continue;
                 }

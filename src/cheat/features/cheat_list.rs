@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 use imgui::Ui;
 use mint::Vector4;
 use lazy_static::lazy_static;
-use crate::{utils::config::{CONFIG, Config}, ui::{main::WINDOWS_ACTIVE, functions::color_u32_to_f32}};
+use crate::{utils::config::{CONFIG, Config, ProgramConfig}, ui::{main::WINDOWS_ACTIVE, functions::color_u32_to_f32}};
 
 lazy_static! {
     pub static ref CHEAT_LIST_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
@@ -36,6 +36,11 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
             if config.esp.enabled {
                 ui.text_colored(cheat_list_one_color, "ESP");
 
+                if !config.esp.always {
+                    ui.same_line();
+                    ui.text_colored(cheat_list_one_color, format!("({})", ProgramConfig::Keys::Available[config.esp.key]));
+                }
+
                 if esp_toggled {
                     ui.same_line();
                     ui.text_colored(cheat_list_two_color, "(Toggled)");
@@ -44,6 +49,11 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
 
             if pawn && config.rcs.enabled {
                 ui.text_colored(cheat_list_one_color, "RCS");
+
+                if !config.rcs.always {
+                    ui.same_line();
+                    ui.text_colored(cheat_list_one_color, format!("({})", ProgramConfig::Keys::Available[config.rcs.key]));
+                }
 
                 if rcs_toggled {
                     ui.same_line();
@@ -54,6 +64,11 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
             if pawn && config.aimbot.enabled {
                 ui.text_colored(cheat_list_one_color, "Aimbot");
 
+                if !config.aimbot.always {
+                    ui.same_line();
+                    ui.text_colored(cheat_list_one_color, format!("({})", ProgramConfig::Keys::Available[config.aimbot.key]));
+                }
+
                 if aimbot_toggled {
                     ui.same_line();
                     ui.text_colored(cheat_list_two_color, "(Toggled)");
@@ -62,6 +77,11 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
 
             if pawn && config.triggerbot.enabled {
                 ui.text_colored(cheat_list_one_color, "Triggerbot");
+
+                if !config.triggerbot.always {
+                    ui.same_line();
+                    ui.text_colored(cheat_list_one_color, format!("({})", ProgramConfig::Keys::Available[config.triggerbot.key]));
+                }
 
                 if triggerbot_toggled {
                     ui.same_line();
@@ -72,6 +92,11 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
             if pawn && config.crosshair.enabled {
                 ui.text_colored(cheat_list_one_color, "Crosshair");
 
+                if !config.crosshair.always {
+                    ui.same_line();
+                    ui.text_colored(cheat_list_one_color, format!("({})", ProgramConfig::Keys::Available[config.crosshair.key]));
+                }
+
                 if crosshair_toggled {
                     ui.same_line();
                     ui.text_colored(cheat_list_two_color, "(Toggled)");
@@ -81,17 +106,14 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
             if pawn && config.radar.enabled {
                 ui.text_colored(cheat_list_one_color, "Radar");
 
+                if !config.radar.always {
+                    ui.same_line();
+                    ui.text_colored(cheat_list_one_color, format!("({})", ProgramConfig::Keys::Available[config.radar.key]));
+                }
+
                 if radar_toggled {
                     ui.same_line();
                     ui.text_colored(cheat_list_two_color, "(Toggled)");
-                }
-            }
-
-            if config.misc.enabled {
-                ui.text_colored(cheat_list_one_color, "Misc");
-
-                if config.misc.exclude_team {
-                    ui.text_colored(cheat_list_two_color, "- Exclude Team");
                 }
             }
 
@@ -104,6 +126,10 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
 
                 if config.settings.discord_rpc_enabled {
                     ui.text_colored(cheat_list_two_color, "- Discord RPC");
+                }
+
+                if config.settings.exclude_team {
+                    ui.text_colored(cheat_list_two_color, "- Exclude Team");
                 }
             }
         });

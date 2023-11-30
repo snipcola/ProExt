@@ -261,8 +261,6 @@ pub struct Misc {
     pub bomb_timer_color_enabled: (u32, u32, u32, u32),
     pub spectator_list_enabled: bool,
     pub spectator_list_color: (u32, u32, u32, u32),
-    pub exclude_team: bool,
-    pub show_on_spectate: bool,
     pub headshot_line_enabled: bool,
     pub headshot_line_color: (u32, u32, u32, u32)
 }
@@ -338,6 +336,8 @@ pub struct Settings {
     pub enabled: bool,
     pub bypass_capture: bool,
     pub discord_rpc_enabled: bool,
+    pub exclude_team: bool,
+    pub show_on_spectate: bool,
     pub window: Window
 }
 
@@ -509,8 +509,6 @@ impl Default for Config {
                 bomb_timer_color_enabled: (255, 0, 0, 255),
                 spectator_list_enabled: false,
                 spectator_list_color: (0, 255, 255, 255),
-                exclude_team: true,
-                show_on_spectate: true,
                 headshot_line_enabled: false,
                 headshot_line_color: (255, 255, 255, 255)
             },
@@ -569,6 +567,8 @@ impl Default for Config {
                 enabled: true,
                 bypass_capture: true,
                 discord_rpc_enabled: false,
+                exclude_team: true,
+                show_on_spectate: true,
                 window: Window {
                     size: WindowSize {
                         force: false,
@@ -586,8 +586,8 @@ impl Default for Config {
                 menu: [600.0, 150.0],
                 watermark: [315.0, 5.0],
                 cheat_list: [315.0, 70.0],
-                bomb_timer: [30.0, 330.0],
-                spectator_list: [490.0, 5.0],
+                bomb_timer: [5.0, 330.0],
+                spectator_list: [5.0, 415.0],
                 radar: [5.0, 5.0]
             }
         };

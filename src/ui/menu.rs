@@ -526,7 +526,7 @@ pub fn render_menu(ui: &mut Ui) {
                     if (*config).misc.enabled {
                         ui.separator();
 
-                        // Watermark
+                        // Watermark & Cheat List
                         ui.checkbox("Watermark##Misc", &mut (*config).misc.watermark_enabled);
 
                         if (*config).misc.watermark_enabled {
@@ -536,8 +536,6 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##ColorMiscWatermarkTwo", &mut (*config).misc.watermark_color_two);
                         }
 
-                        // Cheat List
-                        ui.same_line();
                         ui.checkbox("Cheat List##Misc", &mut (*config).misc.cheat_list_enabled);
 
                         if (*config).misc.cheat_list_enabled {
@@ -559,7 +557,6 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##ColorMiscBombTimerEnabled", &mut (*config).misc.bomb_timer_color_enabled);
                         }
 
-                        ui.same_line();
                         ui.checkbox("Spectator List##Misc", &mut (*config).misc.spectator_list_enabled);
 
                         if (*config).misc.spectator_list_enabled {
@@ -567,12 +564,6 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##ColorMiscSpectatorList", &mut (*config).misc.spectator_list_color);
                         }
 
-                        ui.separator();
-
-                        // Exclude Team & Show on Spectate
-                        ui.checkbox("Exclude Team##Misc", &mut (*config).misc.exclude_team);
-                        ui.same_line();
-                        ui.checkbox("Show On Spectate##Misc", &mut (*config).misc.show_on_spectate);
                         ui.separator();
 
                         // Headshot Line
@@ -724,7 +715,12 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.checkbox("Discord RPC##Settings", &mut (*config).settings.discord_rpc_enabled);
                         ui.separator();
 
-                        // Window
+                        // Exclude Team & Show on Spectate
+                        ui.checkbox("Exclude Team##Misc", &mut (*config).settings.exclude_team);
+                        ui.checkbox("Show On Spectate##Misc", &mut (*config).settings.show_on_spectate);
+                        ui.separator();
+
+                        // Window Size & Window Position
                         ui.checkbox("Force Window Size##Settings", &mut (*config).settings.window.size.force);
 
                         if (*config).settings.window.size.force {
