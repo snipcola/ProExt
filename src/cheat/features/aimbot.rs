@@ -52,6 +52,21 @@ pub fn get_aimbot_toggled(config: Config) -> bool {
     }
 }
 
+pub fn get_aimbot_yaw_pitch(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32>, view_angle: Vector2<f32>) -> Option<f32> {
+    let pos = Vector3 { x: aim_pos.x - camera_pos.x, y: aim_pos.y - camera_pos.y, z: aim_pos.z - camera_pos.z };
+    let distance = (pos.x.powf(2.0) + pos.y.powf(2.0)).sqrt();
+
+    let yaw = pos.y.atan2(pos.x) * 57.295779513 - view_angle.y;
+    let pitch = -(pos.z / distance).atan() * 57.295779513 - view_angle.x;
+    let norm = (yaw.powf(2.0) + pitch.powf(2.0)).sqrt() * 0.75;
+    
+    if norm > config.aimbot.fov {
+        return None;
+    }
+
+    return Some(norm);
+}
+
 pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, address: u64) {
     let mut locked_entity = AB_LOCKED_ENTITY.lock().unwrap();
 
@@ -92,13 +107,13 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     target_y /= smooth;
     target_y = if screen_pos.y > screen_center_y { if target_y + screen_center_y > screen_center_y * 2.0 { 0.0 } else { target_y } } else { if target_y + screen_center_y < 0.0 { 0.0 } else { target_y } };
 
-    if smooth == base_smooth { return move_mouse(target_x as i32, target_y as i32, true); }
+    if smooth != base_smooth {
+        target_x /= smooth * (base_smooth + (base_smooth - (norm / config.aimbot.fov)));
+        target_y /= smooth * (base_smooth + (base_smooth - (norm / config.aimbot.fov)));
 
-    target_x /= smooth * (base_smooth + (base_smooth - (norm / config.aimbot.fov)));
-    target_y /= smooth * (base_smooth + (base_smooth - (norm / config.aimbot.fov)));
-
-    target_x = if target_x.abs() < base_smooth { if target_x > 0.0 { base_smooth } else { -base_smooth } } else { target_x };
-    target_y = if target_y.abs() < base_smooth { if target_y > 0.0 { base_smooth } else { -base_smooth } } else { target_y };
+        target_x = if target_x.abs() < base_smooth { if target_x > 0.0 { base_smooth } else { -base_smooth } } else { target_x };
+        target_y = if target_y.abs() < base_smooth { if target_y > 0.0 { base_smooth } else { -base_smooth } } else { target_y };
+    }
 
     move_mouse(target_x as i32, target_y as i32, true);
 }
