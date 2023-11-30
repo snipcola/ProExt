@@ -22,7 +22,7 @@ pub fn get_aimbot_toggled(config: Config) -> bool {
                 let aimbot_toggled = *AIMBOT_TOGGLED.lock().unwrap();
                 let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
 
-                if aimbot_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                if aimbot_button.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
                     *AIMBOT_TOGGLED.lock().unwrap() = !aimbot_toggled;
                     *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
 
@@ -39,7 +39,7 @@ pub fn get_aimbot_toggled(config: Config) -> bool {
                 let aimbot_toggled = *AIMBOT_TOGGLED.lock().unwrap();
                 let toggle_changed = *TOGGLE_CHANGED.lock().unwrap();
 
-                if aimbot_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(250) {
+                if aimbot_key.is_pressed() && toggle_changed.elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
                     *AIMBOT_TOGGLED.lock().unwrap() = !aimbot_toggled;
                     *TOGGLE_CHANGED.lock().unwrap() = Instant::now();
                     

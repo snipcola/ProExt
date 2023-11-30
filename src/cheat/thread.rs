@@ -16,13 +16,12 @@ use crate::cheat::classes::game::update_entity_list_entry;
 use crate::cheat::features::aimbot::{get_aimbot_toggled, aimbot_check, render_fov_circle, run_aimbot};
 use crate::cheat::features::bomb_timer::render_bomb_timer;
 use crate::cheat::features::cheat_list::render_cheat_list;
-use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_weapon_name, render_distance, render_name};
+use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_weapon_name, render_distance, render_name, render_bomb, get_esp_toggled};
 use crate::cheat::features::radar::render_radar;
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
 use crate::cheat::features::triggerbot::{get_triggerbot_toggled, run_triggerbot};
 use crate::cheat::features::visuals::{render_crosshair, render_headshot_line};
 use crate::cheat::features::watermark::render_watermark;
-use crate::cheat::features::esp::render_bomb;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
 use crate::cheat::functions::is_enemy_visible;
 use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch};
@@ -100,14 +99,15 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             let no_weapon =  local_entity.pawn.weapon_name == "Knife" || local_entity.pawn.weapon_name == "Fists";
-            let is_aimbot_toggled = !no_pawn && (config.aimbot.always || get_aimbot_toggled(config)) && config.aimbot.enabled && is_game_window_focused && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon);
-            let is_triggerbot_toggled = !no_pawn && (config.triggerbot.always || get_triggerbot_toggled(config)) && config.triggerbot.enabled && is_game_window_focused && (!config.triggerbot.only_weapon || config.triggerbot.only_weapon && !no_weapon);
-            let is_rcs_toggled = !no_pawn && (config.rcs.always || get_rcs_toggled(config)) && config.rcs.enabled && is_game_window_focused;
+            let is_aimbot_toggled = !no_pawn && config.aimbot.enabled && is_game_window_focused && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon) && (config.aimbot.always || get_aimbot_toggled(config));
+            let is_triggerbot_toggled = !no_pawn && config.triggerbot.enabled && is_game_window_focused && (!config.triggerbot.only_weapon || config.triggerbot.only_weapon && !no_weapon) && (config.triggerbot.always || get_triggerbot_toggled(config));
+            let is_rcs_toggled = !no_pawn && config.rcs.enabled && is_game_window_focused && (config.rcs.always || get_rcs_toggled(config));
+            let is_esp_toggled = config.esp.enabled && (config.esp.always || get_esp_toggled(config));
 
             // Cheat List
             if config.misc.enabled && config.misc.cheat_list_enabled {
                 (*ui_functions.lock().unwrap()).insert("cheat_list".to_string(), Box::new(move |ui| {
-                    render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled, is_rcs_toggled);
+                    render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled, is_rcs_toggled, is_esp_toggled);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("cheat_list");
@@ -294,7 +294,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Skeleton
-                if config.esp.enabled && config.esp.skeleton_enabled {
+                if is_esp_toggled && config.esp.skeleton_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("skeleton_{}", i), Box::new(move |ui| {
                         render_bones(ui, bone.bone_pos_list, config);
                     }));
@@ -303,7 +303,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Head
-                if config.esp.enabled && config.esp.head_enabled {
+                if is_esp_toggled && config.esp.head_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("head_{}", i), Box::new(move |ui| {
                         render_head(ui, bone.bone_pos_list, config);
                     }));
@@ -312,7 +312,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Eye Ray
-                if config.esp.enabled && config.esp.eye_ray_enabled {
+                if is_esp_toggled && config.esp.eye_ray_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("eye_ray_{}", i), Box::new(move |ui| {
                         render_eye_ray(ui, bone.bone_pos_list, entity.pawn.view_angle, config, game.view, window_info);
                     }));
@@ -338,7 +338,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Snapline
-                if config.esp.enabled && config.esp.snap_line_enabled {
+                if is_esp_toggled && config.esp.snap_line_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("snap_line_{}", i), Box::new(move |ui| {
                         render_snap_line(ui, rect, config, window_info.1.0, window_info.1.1);
                     }));
@@ -347,7 +347,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Box
-                if config.esp.enabled && config.esp.box_enabled {
+                if is_esp_toggled && config.esp.box_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
                         render_box(ui, rect, enemy_visible, config);
                     }));
@@ -356,7 +356,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Health Bar
-                if config.esp.enabled && config.esp.health_bar_enabled {
+                if is_esp_toggled && config.esp.health_bar_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("health_bar_{}", i), Box::new(move |ui| {
                         render_health_bar(ui, entity.pawn.health as f32, rect, config);
                     }));
@@ -365,7 +365,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Armor Bar
-                if config.esp.enabled && config.esp.armor_bar_enabled {
+                if is_esp_toggled && config.esp.armor_bar_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("armor_bar_{}", i), Box::new(move |ui| {
                         render_armor_bar(ui, entity.pawn.armor as f32, rect, config);
                     }));
@@ -374,7 +374,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Weapon Name
-                if config.esp.enabled && config.esp.weapon_name_enabled {
+                if is_esp_toggled && config.esp.weapon_name_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("weapon_name_{}", i), Box::new(move |ui| {
                         render_weapon_name(ui, &entity.pawn.weapon_name, rect, config);
                     }));
@@ -383,7 +383,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Distance
-                if !no_pawn && config.esp.enabled && config.esp.distance_enabled {
+                if !no_pawn && is_esp_toggled && config.esp.distance_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("distance_{}", i), Box::new(move |ui| {
                         render_distance(ui, entity.pawn.pos, local_entity.pawn.pos, rect, config);
                     }));
@@ -392,7 +392,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Name
-                if config.esp.enabled && config.esp.name_enabled {
+                if is_esp_toggled && config.esp.name_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("player_name_{}", i), Box::new(move |ui| {
                         render_name(ui, &entity.controller.player_name, rect, config);
                     }));
