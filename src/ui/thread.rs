@@ -7,7 +7,7 @@ use windows::Win32::Foundation::HWND;
 use lazy_static::lazy_static;
 use imgui_glow_renderer::AutoRenderer;
 
-use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu, functions::apply_style}, utils::{mouse::get_mouse_position, rpc::initialize_rpc}, cheat::thread::run_cheats_thread};
+use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu, functions::apply_style}, utils::{mouse::get_mouse_position, rpc::initialize_rpc, config::CONFIG}, cheat::thread::run_cheats_thread};
 use crate::utils::config::ProgramConfig;
 use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::windows::Window;
@@ -19,16 +19,31 @@ lazy_static! {
 
 pub fn run_windows_thread(hwnd: HWND) {
     thread::spawn(move || {
+        let config = CONFIG.clone();
         let window_info = WINDOW_INFO.clone();
         let exit = EXIT.clone();
 
         loop {
-            if let Some(((x, y), (width, height))) = get_window_info(hwnd) {
-                let window_info_var = ((x + 1, y + 1), (width - 2, height - 2));
-                *window_info.lock().unwrap() = Some(window_info_var);
+            let config = config.lock().unwrap().clone();
+            let (mut width, mut height) = (config.settings.window.size.width, config.settings.window.size.height);
+            let (mut x, mut y) = (config.settings.window.position.x, config.settings.window.position.y);
+
+            if let Some(((new_x, new_y), (new_width, new_height))) = get_window_info(hwnd) {
+                if !config.settings.window.size.force {
+                    width = new_width;
+                    height = new_height;
+                }
+
+                if !config.settings.window.position.force {
+                    x = new_x;
+                    y = new_y;
+                }
             } else {
                 *exit.lock().unwrap() = true;
+                break;
             }
+
+            *window_info.lock().unwrap() = Some(((x + 1, y + 1), (width - 2, height - 2)));
             
             // Delay
             sleep(ProgramConfig::ThreadDelays::WindowTasks);
