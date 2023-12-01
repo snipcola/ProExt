@@ -16,11 +16,10 @@ use crate::cheat::classes::game::update_entity_list_entry;
 use crate::cheat::features::aimbot::{get_aimbot_toggled, aimbot_check, render_fov_circle, run_aimbot};
 use crate::cheat::features::bomb_timer::render_bomb_timer;
 use crate::cheat::features::cheat_list::render_cheat_list;
-use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_weapon_name, render_distance, render_name, render_bomb, get_esp_toggled};
+use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_weapon_name, render_distance, render_name, render_bomb, get_esp_toggled, render_headshot_line};
 use crate::cheat::features::radar::{render_radar, get_radar_toggled};
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
 use crate::cheat::features::triggerbot::{get_triggerbot_toggled, run_triggerbot};
-use crate::cheat::features::visuals::render_headshot_line;
 use crate::cheat::features::watermark::render_watermark;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
 use crate::cheat::functions::is_enemy_visible;
@@ -443,7 +442,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Headshot Line
-            if !no_pawn && config.misc.enabled && config.misc.headshot_line_enabled {
+            if is_esp_toggled && config.esp.headshot_line_enabled {
                 (*ui_functions.lock().unwrap()).insert("headshot_line".to_string(), Box::new(move |ui| {
                     render_headshot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
                 }));
@@ -452,7 +451,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // FOV Circle
-            if !no_pawn && config.aimbot.enabled && config.aimbot.fov_circle_enabled && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon) {
+            if !no_pawn && config.aimbot.enabled && config.aimbot.fov_circle_enabled && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon) && (!config.aimbot.fov_circle_only_toggled || config.aimbot.fov_circle_only_toggled && is_aimbot_toggled) {
                 (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
                     render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, aimbot_info, config);
                 }));

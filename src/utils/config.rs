@@ -149,7 +149,9 @@ pub struct ESP {
     pub default: bool,
     pub snap_line_enabled: bool,
     pub snap_line_color: (u32, u32, u32, u32),
-    pub snap_line_mode: usize
+    pub snap_line_mode: usize,
+    pub headshot_line_enabled: bool,
+    pub headshot_line_color: (u32, u32, u32, u32)
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -177,6 +179,7 @@ pub struct Aimbot {
     pub fov_circle_target_enabled: bool,
     pub fov_circle_target_color: (u32, u32, u32, u32),
     pub fov_circle_outline_enabled: bool,
+    pub fov_circle_only_toggled: bool,
     pub fov_circle_thickness: f32,
     pub always: bool,
     pub default: bool,
@@ -260,9 +263,7 @@ pub struct Misc {
     pub bomb_timer_color_disabled: (u32, u32, u32, u32),
     pub bomb_timer_color_enabled: (u32, u32, u32, u32),
     pub spectator_list_enabled: bool,
-    pub spectator_list_color: (u32, u32, u32, u32),
-    pub headshot_line_enabled: bool,
-    pub headshot_line_color: (u32, u32, u32, u32)
+    pub spectator_list_color: (u32, u32, u32, u32)
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -409,7 +410,9 @@ impl Default for Config {
                 default: true,
                 snap_line_enabled: false,
                 snap_line_color: (255, 255, 255, 255),
-                snap_line_mode: 1
+                snap_line_mode: 1,
+                headshot_line_enabled: false,
+                headshot_line_color: (255, 255, 255, 255)
             },
             rcs: RCS {
                 enabled: true,
@@ -433,6 +436,7 @@ impl Default for Config {
                 fov_circle_target_enabled: true,
                 fov_circle_target_color: (255, 0, 0, 255),
                 fov_circle_outline_enabled: true,
+                fov_circle_only_toggled: true,
                 fov_circle_thickness: 1.2,
                 always: false,
                 default: false,
@@ -508,9 +512,7 @@ impl Default for Config {
                 bomb_timer_color_disabled: (0, 255, 255, 255),
                 bomb_timer_color_enabled: (255, 0, 0, 255),
                 spectator_list_enabled: false,
-                spectator_list_color: (0, 255, 255, 255),
-                headshot_line_enabled: false,
-                headshot_line_color: (255, 255, 255, 255)
+                spectator_list_color: (0, 255, 255, 255)
             },
             style: Style {
                 enabled: true,

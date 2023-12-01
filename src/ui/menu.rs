@@ -237,6 +237,14 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.same_line();
                             ui.combo_simple_string("##ModeESPSnapline", &mut (*config).esp.snap_line_mode, &["Top", "Center", "Bottom"]);
                         }
+
+                        // Headshot Line
+                        ui.checkbox("Headshot Line##ESP", &mut (*config).esp.headshot_line_enabled);
+                        
+                        if (*config).esp.headshot_line_enabled {
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##ColorESPHeadshotLine", &mut (*config).esp.headshot_line_color);
+                        }
                     }
                 });
 
@@ -310,6 +318,9 @@ pub fn render_menu(ui: &mut Ui) {
 
                             // Outline
                             ui.checkbox("Outline##AimbotCircle", &mut (*config).aimbot.fov_circle_outline_enabled);
+
+                            // Only Toggled
+                            ui.checkbox("Only Toggled##AimbotCircle", &mut (*config).aimbot.fov_circle_only_toggled);
 
                             // Thickness
                             ui.slider_config("Thickness##AimbotCircle", 0.5, 5.0).display_format("%.1f").build(&mut (*config).aimbot.fov_circle_thickness);
@@ -562,16 +573,6 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).misc.spectator_list_enabled {
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##ColorMiscSpectatorList", &mut (*config).misc.spectator_list_color);
-                        }
-
-                        ui.separator();
-
-                        // Headshot Line
-                        ui.checkbox("Headshot Line##Misc", &mut (*config).misc.headshot_line_enabled);
-                        
-                        if (*config).misc.headshot_line_enabled {
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##ColorMiscHeadshotLine", &mut (*config).misc.headshot_line_color);
                         }
                     }
                 });
