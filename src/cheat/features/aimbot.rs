@@ -3,7 +3,7 @@ use imgui::Ui;
 use mint::{Vector3, Vector2};
 use lazy_static::lazy_static;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::{Config, ProgramConfig, CONFIG}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::{classes::{bone::{BoneIndex, aim_position_to_bone_index, BoneJointPos}, view::View}, functions::is_feature_toggled}};
+use crate::{utils::{config::{Config, ProgramConfig, CONFIG}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::{classes::{bone::{BoneIndex, BoneJointPos}, view::View}, functions::is_feature_toggled}};
 
 lazy_static! {
     pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().aimbot.default));
@@ -87,19 +87,45 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     move_mouse(target_x as i32, target_y as i32, true);
 }
 
-pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_address: &mut Option<u64>, address: u64, enemy_visible: bool, in_air: bool, config: Config) {
-    let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
-    let bone_index = aim_position_to_bone_index(config.aimbot.bone);
-    let distance_to_sight = distance_between_vec2(bone_pos_list[bone_index].screen_pos, pos);
+pub fn get_aimbot_bone_indexes(config: Config) -> Vec<usize> {
+    let mut bone_indexes = vec![];
 
+    if config.aimbot.bone_head {
+        bone_indexes.push(BoneIndex::Head as usize);
+    }
+
+    if config.aimbot.bone_neck {
+        bone_indexes.push(BoneIndex::Neck0 as usize);
+    }
+
+    if config.aimbot.bone_spine {
+        bone_indexes.push(BoneIndex::Spine1 as usize);
+    }
+
+    if config.aimbot.bone_pelvis {
+        bone_indexes.push(BoneIndex::Pelvis as usize);
+    }
+
+    return bone_indexes;
+}
+
+pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_address: &mut Option<u64>, address: u64, enemy_visible: bool, in_air: bool, config: Config) {
     if config.aimbot.only_grounded && in_air {
         return;
     }
 
-    if distance_to_sight < *max_aim_distance {
-        *max_aim_distance = distance_to_sight;
+    if config.aimbot.only_visible && !enemy_visible {
+        return;
+    }
+    
+    let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
+    let bone_indexes = get_aimbot_bone_indexes(config);
+    
+    for bone_index in bone_indexes {
+        let distance_to_sight = distance_between_vec2(bone_pos_list[bone_index].screen_pos, pos);
 
-        if !config.aimbot.only_visible || enemy_visible {
+        if distance_to_sight < *max_aim_distance {
+            *max_aim_distance = distance_to_sight;
             *entity_address = Some(address);
             *aim_pos = Some(bone_pos_list[bone_index].pos);
 
