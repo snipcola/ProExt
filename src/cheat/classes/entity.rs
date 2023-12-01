@@ -7,7 +7,7 @@ use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::game::GAME;
 use crate::cheat::classes::bone::BoneJointPos;
 use crate::cheat::classes::view::View;
-use crate::cheat::functions::parse_weapon_name;
+use crate::cheat::functions::{parse_weapon, WeaponType};
 
 #[derive(Clone, Copy)]
 pub struct CUtlVector {
@@ -33,6 +33,7 @@ pub struct PlayerPawn {
     pub screen_pos: Vector2<f32>,
     pub camera_pos: Vector3<f32>,
     pub weapon_name: String,
+    pub weapon_type: WeaponType,
     pub shots_fired: u32,
     pub aim_punch_cache: CUtlVector,
     pub health: i32,
@@ -56,7 +57,7 @@ impl Default for Entity {
     fn default() -> Self {
         return Entity {
             controller: PlayerController { address: 0, alive_status: 0, pawn: 0, team_id: 0, player_name: "None".to_string() },
-            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "None".to_string(), shots_fired: 0, aim_punch_cache: CUtlVector { count: 0, data: 0 }, health: 0, armor: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
+            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "None".to_string(), weapon_type: WeaponType::None, shots_fired: 0, aim_punch_cache: CUtlVector { count: 0, data: 0 }, health: 0, armor: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
         }
     }
 }
@@ -110,7 +111,7 @@ impl Entity {
             return false;
         }
 
-        if !self.pawn.get_weapon_name() {
+        if !self.pawn.get_weapon() {
             return false;
         }
 
@@ -236,7 +237,7 @@ impl PlayerPawn {
         return rpm_offset(self.address, Offsets::EntitySpottedState_t::m_bSpottedByMask as u64, &mut self.spotted_by_mask);
     }
 
-    pub fn get_weapon_name(&mut self) -> bool {
+    pub fn get_weapon(&mut self) -> bool {
         let weapon_name_address = trace_address(self.address + Offsets::C_CSPlayerPawnBase::m_pClippingWeapon as u64, &[0x10, 0x20, 0x0]);
         let mut buffer: [u8; 40] = [0; 40];
 
@@ -251,7 +252,17 @@ impl PlayerPawn {
         let weapon_name = buffer_to_string(&buffer);
 
         if !self.weapon_name.is_empty() {
-            self.weapon_name = parse_weapon_name(weapon_name.to_lowercase().replace("weapon_", ""));
+            let (_type, name) = parse_weapon(weapon_name.to_lowercase().replace("weapon_", ""));
+
+            self.weapon_type = _type;
+
+            if name == "" {
+                self.weapon_name = weapon_name.to_lowercase().replace("weapon_", "");
+            } else {
+                self.weapon_name = name.to_string();
+            }
+
+            self.weapon_name = name.to_string();
         }
 
         return true;
