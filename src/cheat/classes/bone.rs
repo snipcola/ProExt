@@ -25,16 +25,6 @@ pub enum BoneIndex {
     AnkleR = 27
 }
 
-pub fn aim_position_to_bone_index(aim_position: usize) -> usize {
-    if aim_position == 1 {
-        return BoneIndex::Neck0 as usize;
-    } else if aim_position == 2 {
-        return BoneIndex::Spine1 as usize;
-    } else {
-        return BoneIndex::Head as usize;
-    }
-}
-
 #[derive(Clone, Copy)]
 pub struct BoneJointData {
     pub pos: Vector3<f32>,

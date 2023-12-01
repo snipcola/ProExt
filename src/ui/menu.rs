@@ -341,8 +341,13 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.checkbox("Only Weapon##Aimbot", &mut (*config).aimbot.only_weapon);
                         ui.separator();
 
-                        // Bone, FOV
-                        ui.combo_simple_string("Bone##Aimbot", &mut (*config).aimbot.bone, &["Head", "Neck", "Spine"]);
+                        // Bones
+                        ui.checkbox("Head##Aimbot", &mut (*config).aimbot.bone_head);
+                        ui.checkbox("Neck##Aimbot", &mut (*config).aimbot.bone_neck);
+                        ui.checkbox("Spine##Aimbot", &mut (*config).aimbot.bone_spine);
+                        ui.checkbox("Pelvis##Aimbot", &mut (*config).aimbot.bone_pelvis);
+                        ui.separator();
+
                         ui.slider_config("Fov##Aimbot", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aimbot.fov);
                         ui.separator();
 
