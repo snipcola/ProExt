@@ -314,3 +314,13 @@ pub fn render_bomb(ui: &mut Ui, pos: Vector3<f32>, local_pawn_pos: Vector3<f32>,
         render_distance(ui, pos, local_pawn_pos, rect, config);
     }
 }
+
+pub fn render_headshot_line(ui: &mut Ui, window_width: i32, window_height: i32, fov: i32, view_angle_x: f32, config: Config) {
+    let pos = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 - window_height as f32 / (2.0 * (fov as f32 * PI / 180.0).sin() / (90.0 * PI / 180.0).sin()) * (view_angle_x as f32 * PI / 180.0).sin() / (90.0 * PI / 180.0).sin() };
+
+    rectangle(ui, Vector2 { x: pos.x - 21.0, y: pos.y - 1.0 }, Vector2 { x: 17.0, y: 3.0 }, color_with_masked_alpha(config.esp.headshot_line_color, 0xFF000000).into(), 1.0, 0, true);
+    rectangle(ui, Vector2 { x: pos.x - 20.0, y: pos.y }, Vector2 { x: 17.0, y: 3.0 }, color_u32_to_f32(config.esp.headshot_line_color).into(), 1.0, 0, true);
+
+    rectangle(ui, Vector2 { x: pos.x + 5.0, y: pos.y - 1.0 }, Vector2 { x: 17.0, y: 3.0 }, color_with_masked_alpha(config.esp.headshot_line_color, 0xFF000000).into(), 1.0, 0, true);
+    rectangle(ui, Vector2 { x: pos.x + 6.0, y: pos.y }, Vector2 { x: 17.0, y: 3.0 }, color_u32_to_f32(config.esp.headshot_line_color).into(), 1.0, 0, true);
+}
