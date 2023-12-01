@@ -1,6 +1,7 @@
 use std::{sync::{Arc, Mutex}, path::PathBuf};
-use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
+use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags, StyleColor};
 use lazy_static::lazy_static;
+use mint::Vector4;
 
 use crate::utils::{config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG, CONFIG_EXTENSION}, open::open_url, messagebox::{MessageBoxStyle, create_messagebox}};
 use crate::ui::functions::color_edit_u32_tuple;
@@ -57,7 +58,13 @@ pub fn render_menu(ui: &mut Ui) {
             let window_pos = ui.window_pos();
             (*config).window_positions.menu = window_pos;
 
+            let tab_bar_seperator = ui.push_style_color(StyleColor::TabActive, Vector4 { x: 0.0, y: 0.0, z: 0.0, w: 0.0 });
+            let tab_bar_seperator_2 = ui.push_style_color(StyleColor::TabUnfocusedActive, Vector4 { x: 0.0, y: 0.0, z: 0.0, w: 0.0 });
+
             TabBar::new("Cheat").build(&ui, || {
+                tab_bar_seperator.end();
+                tab_bar_seperator_2.end();
+
                 // ESP
                 TabItem::new("ESP").build(&ui, || {
                     // Enabled
