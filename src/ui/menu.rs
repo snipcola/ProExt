@@ -1,7 +1,6 @@
 use std::{sync::{Arc, Mutex}, path::PathBuf};
-use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags, StyleColor};
+use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
 use lazy_static::lazy_static;
-use mint::Vector4;
 
 use crate::utils::{config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG, CONFIG_EXTENSION}, open::open_url, messagebox::{MessageBoxStyle, create_messagebox}};
 use crate::ui::functions::color_edit_u32_tuple;
@@ -58,13 +57,7 @@ pub fn render_menu(ui: &mut Ui) {
             let window_pos = ui.window_pos();
             (*config).window_positions.menu = window_pos;
 
-            let tab_bar_seperator = ui.push_style_color(StyleColor::TabActive, Vector4 { x: 0.0, y: 0.0, z: 0.0, w: 0.0 });
-            let tab_bar_seperator_2 = ui.push_style_color(StyleColor::TabUnfocusedActive, Vector4 { x: 0.0, y: 0.0, z: 0.0, w: 0.0 });
-
             TabBar::new("Cheat").build(&ui, || {
-                tab_bar_seperator.end();
-                tab_bar_seperator_2.end();
-
                 // ESP
                 TabItem::new("ESP").build(&ui, || {
                     // Enabled
@@ -302,70 +295,121 @@ pub fn render_menu(ui: &mut Ui) {
                             // Key
                             ui.same_line();
                             ui.combo_simple_string("##KeyAimbot", &mut (*config).aimbot.key, &ProgramConfig::Keys::Available);
-
+    
                             // Mode
                             ui.combo_simple_string("Mode##Aimbot", &mut (*config).aimbot.mode, &["Hold", "Toggle"]);
                             ui.separator();
                         }
 
-                        // Circle
-                        ui.checkbox("Circle##Aimbot", &mut (*config).aimbot.fov_circle_enabled);
-                        
-                        if (*config).aimbot.fov_circle_enabled {
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##ColorAimbotCircle", &mut (*config).aimbot.fov_circle_color);
-
-                            // Circle Target
-                            ui.checkbox("Target##AimbotCircle", &mut (*config).aimbot.fov_circle_target_enabled);
-
-                            if (*config).aimbot.fov_circle_target_enabled {
-                                ui.same_line();
-                                color_edit_u32_tuple(ui, "##ColorAimbotCircleTarget", &mut (*config).aimbot.fov_circle_target_color);
-                            }
-
-                            // Outline
-                            ui.checkbox("Outline##AimbotCircle", &mut (*config).aimbot.fov_circle_outline_enabled);
-
-                            // Only Toggled
-                            ui.checkbox("Only Toggled##AimbotCircle", &mut (*config).aimbot.fov_circle_only_toggled);
-
-                            // Thickness
-                            ui.slider_config("Thickness##AimbotCircle", 0.5, 5.0).display_format("%.1f").build(&mut (*config).aimbot.fov_circle_thickness);
-                        }
-
                         // Always & Default
-                        ui.separator();
                         ui.checkbox("Always##Aimbot", &mut (*config).aimbot.always);
                         
                         if !(*config).aimbot.always && (*config).aimbot.mode == 1 {
                             ui.checkbox("Default Toggle##Aimbot", &mut (*config).aimbot.default);
                         }
 
-                        // Only Visible, Only Grounded, & Only Weapon
-                        ui.separator();
-                        ui.checkbox("Only Visible##Aimbot", &mut (*config).aimbot.only_visible);
-                        ui.checkbox("Only Grounded##Aimbot", &mut (*config).aimbot.only_grounded);
+                        // Only Weapon
                         ui.checkbox("Only Weapon##Aimbot", &mut (*config).aimbot.only_weapon);
+
+                        // Shared
+                        ui.checkbox("Shared##Aimbot", &mut (*config).aimbot.shared);
                         ui.separator();
 
-                        // Bones
-                        ui.checkbox("Head##Aimbot", &mut (*config).aimbot.bone_head);
-                        ui.checkbox("Neck##Aimbot", &mut (*config).aimbot.bone_neck);
-                        ui.checkbox("Spine##Aimbot", &mut (*config).aimbot.bone_spine);
-                        ui.checkbox("Pelvis##Aimbot", &mut (*config).aimbot.bone_pelvis);
-                        ui.separator();
+                        // Function
+                        macro_rules! aimbot_conf {
+                            ($conf:expr) => {        
+                                let conf = $conf;
 
-                        ui.slider_config("Fov##Aimbot", 0.5, 89.0).display_format("%.1f").build(&mut (*config).aimbot.fov);
-                        ui.separator();
+                                // Circle
+                                ui.checkbox("Circle##Aimbot", &mut conf.fov_circle_enabled);
+                                
+                                if conf.fov_circle_enabled {
+                                    ui.same_line();
+                                    color_edit_u32_tuple(ui, "##ColorAimbotCircle", &mut conf.fov_circle_color);
+        
+                                    // Circle Target
+                                    ui.checkbox("Target##AimbotCircle", &mut conf.fov_circle_target_enabled);
+        
+                                    if conf.fov_circle_target_enabled {
+                                        ui.same_line();
+                                        color_edit_u32_tuple(ui, "##ColorAimbotCircleTarget", &mut conf.fov_circle_target_color);
+                                    }
+        
+                                    // Outline
+                                    ui.checkbox("Outline##AimbotCircle", &mut conf.fov_circle_outline_enabled);
+        
+                                    // Only Toggled
+                                    ui.checkbox("Only Toggled##AimbotCircle", &mut conf.fov_circle_only_toggled);
+        
+                                    // Thickness
+                                    ui.slider_config("Thickness##AimbotCircle", 0.5, 5.0).display_format("%.1f").build(&mut conf.fov_circle_thickness);
+                                }
+        
+                                // Only Visible, Only Grounded, & Only Weapon
+                                ui.separator();
+                                ui.checkbox("Only Visible##Aimbot", &mut conf.only_visible);
+                                ui.checkbox("Only Grounded##Aimbot", &mut conf.only_grounded);
+                                ui.separator();
+        
+                                // Bones
+                                ui.checkbox("Head##Aimbot", &mut conf.bone_head);
+                                ui.checkbox("Neck##Aimbot", &mut conf.bone_neck);
+                                ui.checkbox("Spine##Aimbot", &mut conf.bone_spine);
+                                ui.checkbox("Pelvis##Aimbot", &mut conf.bone_pelvis);
+                                ui.separator();
+        
+                                ui.slider_config("Fov##Aimbot", 0.5, 89.0).display_format("%.1f").build(&mut conf.fov);
+                                ui.separator();
+        
+                                // Smooth
+                                ui.slider_config("Smooth##Aimbot", 0.0, 5.0).display_format("%.1f").build(&mut conf.smooth);
+                                ui.slider_config("Smooth Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut conf.smooth_offset);
+                                ui.separator();
+        
+                                // Delay
+                                ui.slider_config("Delay##Aimbot", 0, 500).display_format("%d").build(&mut conf.delay);
+                                ui.slider_config("Delay Offset##Aimbot", 0, 100).display_format("%d").build(&mut conf.delay_offset);
+                            }
+                        }
 
-                        // Smooth
-                        ui.slider_config("Smooth##Aimbot", 0.0, 5.0).display_format("%.1f").build(&mut (*config).aimbot.smooth);
-                        ui.slider_config("Smooth Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).aimbot.smooth_offset);
-                        ui.separator();
+                        // Configs
+                        if (*config).aimbot.shared {
+                            aimbot_conf!(&mut (*config).aimbot.configs.shared);
+                        } else {
+                            TabBar::new("Aimbot").build(&ui, || {
+                                TabItem::new("Default").build(&ui, || {
+                                    aimbot_conf!(&mut (*config).aimbot.configs.shared);
+                                });
 
-                        // Delay
-                        ui.slider_config("Delay##Aimbot", 0, 500).display_format("%d").build(&mut (*config).aimbot.delay);
-                        ui.slider_config("Delay Offset##Aimbot", 0, 100).display_format("%d").build(&mut (*config).aimbot.delay_offset);
+                                TabItem::new("Pistol").build(&ui, || {
+                                    aimbot_conf!(&mut (*config).aimbot.configs.pistol);
+                                });
+
+                                TabItem::new("Rifle").build(&ui, || {
+                                    aimbot_conf!(&mut (*config).aimbot.configs.rifle);
+                                });
+
+                                TabItem::new("Submachine").build(&ui, || {
+                                    aimbot_conf!(&mut (*config).aimbot.configs.submachine);
+                                });
+
+                                TabItem::new("Sniper").build(&ui, || {
+                                    aimbot_conf!(&mut (*config).aimbot.configs.sniper);
+                                });
+
+                                TabItem::new("Shotgun").build(&ui, || {
+                                    aimbot_conf!(&mut (*config).aimbot.configs.shotgun);
+                                });
+
+                                TabItem::new("Machine Gun").build(&ui, || {
+                                    aimbot_conf!(&mut (*config).aimbot.configs.machinegun);
+                                });
+
+                                TabItem::new("Knife").build(&ui, || {
+                                    aimbot_conf!(&mut (*config).aimbot.configs.knife);
+                                });
+                            });
+                        }
                     }
                 });
 
