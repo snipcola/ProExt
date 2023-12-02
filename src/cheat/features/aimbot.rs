@@ -48,7 +48,7 @@ pub fn get_aimbot_yaw_pitch(config: AimbotConfig, aim_pos: Vector3<f32>, camera_
     return Some(norm);
 }
 
-pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, address: u64) {
+pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, address: u64, rcs_toggled: bool, rcs_info: Option<(i32, i32)>) {
     let mut locked_entity = AB_LOCKED_ENTITY.lock().unwrap();
 
     if locked_entity.is_none() {
@@ -80,6 +80,9 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
         return;
     }
 
+    let screen_diff_y = (screen_center_y - screen_pos.y).abs() / 10.0;
+    let use_rcs = rcs_toggled && screen_diff_y < 5.0;
+
     let mut target_x = if screen_pos.x > screen_center_x { -(screen_center_x - screen_pos.x) } else { screen_pos.x - screen_center_x };
     target_x /= smooth;
     target_x = if screen_pos.x > screen_center_x { if target_x + screen_center_x > screen_center_x * 2.0 { 0.0 } else { target_x } } else { if target_x + screen_center_x < 0.0 { 0.0 } else { target_x } };
@@ -96,7 +99,7 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
         target_y = if target_y.abs() < base_smooth { if target_y > 0.0 { base_smooth } else { -base_smooth } } else { target_y };
     }
 
-    move_mouse(target_x as i32, target_y as i32, true);
+    move_mouse(target_x as i32, if use_rcs { rcs_info.unwrap().1 } else { target_y as i32 }, true);
 }
 
 pub fn get_aimbot_bone_indexes(config: AimbotConfig) -> Vec<usize> {
