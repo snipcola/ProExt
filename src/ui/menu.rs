@@ -787,8 +787,8 @@ pub fn render_menu(ui: &mut Ui) {
 
                         // Point Size, Proportion, & Radar Range
                         ui.slider_config("Point Size##Radar", 1.0, 2.0).display_format("%.1f").build(&mut (*config).radar.point_size);
-                        ui.slider_config("Proportion##Radar", 500.0, 3500.0).display_format("%.1f").build(&mut (*config).radar.proportion);
-                        ui.slider_config("Range##Radar", 100.0, 300.0).display_format("%.1f").build(&mut (*config).radar.range);
+                        ui.slider_config("Proportion##Radar", 10, 350).display_format("%d").build(&mut (*config).radar.proportion);
+                        ui.slider_config("Range##Radar", 100, 300).display_format("%d").build(&mut (*config).radar.range);
                     }
                 });
 
