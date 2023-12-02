@@ -6,7 +6,7 @@ use windows::Win32::Foundation::HWND;
 use crate::ui::main::{WINDOW_INFO, UI_FUNCTIONS, WINDOWS_ACTIVE, TOGGLED};
 use crate::ui::windows::{is_window_focused, hide_window_from_capture};
 use crate::cheat::functions::is_enemy_at_crosshair;
-use crate::utils::config::{CONFIG, ProgramConfig};
+use crate::utils::config::{CONFIG, ProgramConfig, AimbotConfig};
 use crate::cheat::classes::game::GAME;
 use crate::utils::mouse::release_mouse;
 use crate::utils::process_manager::{rpm, rpm_offset, rpm_auto};
@@ -21,9 +21,8 @@ use crate::cheat::features::radar::{render_radar, get_radar_toggled};
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
 use crate::cheat::features::triggerbot::{get_triggerbot_toggled, run_triggerbot};
 use crate::cheat::features::watermark::render_watermark;
-use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position};
-use crate::cheat::functions::is_enemy_visible;
-use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch};
+use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position, is_enemy_visible};
+use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch, get_aimbot_config};
 use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY};
 use crate::cheat::features::rcs::{get_rcs_toggled, run_rcs};
 use crate::cheat::features::crosshair::{render_crosshair, get_crosshair_toggled};
@@ -36,6 +35,8 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
         
         let mut no_pawn = false;
         let mut local_entity = Entity::default();
+
+        let mut aimbot_config = AimbotConfig::default();
 
         loop {
             let game = GAME.lock().unwrap().clone();
@@ -150,6 +151,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 no_pawn = true;
             } else {
                 no_pawn = false;
+                aimbot_config = if config.aimbot.shared { config.aimbot.configs.shared } else { get_aimbot_config(config.aimbot.configs, local_entity.pawn.weapon_type) };
             }
 
             // Bomb Data
@@ -292,7 +294,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 // Aimbot Check
                 if !no_pawn && config.aimbot.enabled {
-                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, enemy_visible, !entity.pawn.has_flag(Flags::InAir), config);
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, enemy_visible, !entity.pawn.has_flag(Flags::InAir), aimbot_config);
                 }
 
                 // Skeleton
@@ -423,7 +425,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
             let aimbot_info = {
                 if let Some(aim_pos) = aim_pos {
-                    match get_aimbot_yaw_pitch(config, aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle) {
+                    match get_aimbot_yaw_pitch(aimbot_config, aim_pos, local_entity.pawn.camera_pos, local_entity.pawn.view_angle) {
                         Some(v) => Some(v),
                         None => None
                     }
@@ -451,9 +453,9 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // FOV Circle
-            if !no_pawn && config.aimbot.enabled && config.aimbot.fov_circle_enabled && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon) && (!config.aimbot.fov_circle_only_toggled || config.aimbot.fov_circle_only_toggled && is_aimbot_toggled) {
+            if !no_pawn && config.aimbot.enabled && aimbot_config.fov_circle_enabled && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon) && (!aimbot_config.fov_circle_only_toggled || aimbot_config.fov_circle_only_toggled && is_aimbot_toggled) {
                 (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
-                    render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, aimbot_info, config);
+                    render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, aimbot_info, aimbot_config);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("fov_circle");
@@ -475,7 +477,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 if let Some(aimbot_info) = aimbot_info {
                     if let Some(aim_pos) = aim_pos {
                         if let Some(entity_index) = aim_entity_address {
-                            run_aimbot(config, aimbot_info, window_info, game.view, aim_pos, entity_index);
+                            run_aimbot(aimbot_config, aimbot_info, window_info, game.view, aim_pos, entity_index);
                         }
                     }
                 }

@@ -3,7 +3,7 @@ use imgui::Ui;
 use mint::{Vector3, Vector2};
 use lazy_static::lazy_static;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::{Config, ProgramConfig, CONFIG}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::{classes::{bone::{BoneIndex, BoneJointPos}, view::View}, functions::is_feature_toggled}};
+use crate::{utils::{config::{ProgramConfig, CONFIG, AimbotConfig, AimbotConfigs, Config}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::{classes::{bone::{BoneIndex, BoneJointPos}, view::View}, functions::{is_feature_toggled, WeaponType}}};
 
 lazy_static! {
     pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().aimbot.default));
@@ -14,14 +14,26 @@ lazy_static! {
 }
 
 pub fn get_aimbot_toggled(config: Config) -> bool {
-    let feature = config.aimbot;
     let mut toggled = FEATURE_TOGGLED.lock().unwrap();
     let mut changed = TOGGLE_CHANGED.lock().unwrap();
 
-    return is_feature_toggled(feature.key, feature.mode, &mut toggled, &mut changed);
+    return is_feature_toggled(config.aimbot.key, config.aimbot.mode, &mut toggled, &mut changed);
 }
 
-pub fn get_aimbot_yaw_pitch(config: Config, aim_pos: Vector3<f32>, camera_pos: Vector3<f32>, view_angle: Vector2<f32>) -> Option<f32> {
+pub fn get_aimbot_config(configs: AimbotConfigs, weapon_type: WeaponType) -> AimbotConfig {
+    return match weapon_type {
+        WeaponType::Pistol => configs.pistol,
+        WeaponType::Rifle => configs.rifle,
+        WeaponType::Submachine => configs.submachine,
+        WeaponType::Sniper => configs.sniper,
+        WeaponType::Shotgun => configs.shotgun,
+        WeaponType::MachineGun => configs.machinegun,
+        WeaponType::Knife => configs.knife,
+        _ => configs.shared
+    };
+}
+
+pub fn get_aimbot_yaw_pitch(config: AimbotConfig, aim_pos: Vector3<f32>, camera_pos: Vector3<f32>, view_angle: Vector2<f32>) -> Option<f32> {
     let pos = Vector3 { x: aim_pos.x - camera_pos.x, y: aim_pos.y - camera_pos.y, z: aim_pos.z - camera_pos.z };
     let distance = (pos.x.powf(2.0) + pos.y.powf(2.0)).sqrt();
 
@@ -29,14 +41,14 @@ pub fn get_aimbot_yaw_pitch(config: Config, aim_pos: Vector3<f32>, camera_pos: V
     let pitch = -(pos.z / distance).atan() * 57.295779513 - view_angle.x;
     let norm = (yaw.powf(2.0) + pitch.powf(2.0)).sqrt() * 0.75;
     
-    if norm > config.aimbot.fov {
+    if norm > config.fov {
         return None;
     }
 
     return Some(norm);
 }
 
-pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, address: u64) {
+pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, address: u64) {
     let mut locked_entity = AB_LOCKED_ENTITY.lock().unwrap();
 
     if locked_entity.is_none() {
@@ -49,8 +61,8 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
             return;
         }
 
-        let delay_offset = if config.aimbot.delay_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.aimbot.delay_offset as f32) .. config.aimbot.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
-        let delay = Duration::from_secs_f32((config.aimbot.delay as f32 + delay_offset).min(500.0).max(0.0) / 1000.0);
+        let delay_offset = if config.delay_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.delay_offset as f32) .. config.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
+        let delay = Duration::from_secs_f32((config.delay as f32 + delay_offset).min(500.0).max(0.0) / 1000.0);
         
         if locked_on.elapsed() < delay {
             return;
@@ -58,8 +70,8 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     }
     
     let base_smooth = 1.0;
-    let smooth_offset = if config.aimbot.smooth_offset == 0.0 { 0.0 } else { (thread_rng().gen_range(-config.aimbot.smooth_offset .. config.aimbot.smooth_offset) * 1000.0).trunc() / 1000.0 };
-    let smooth = (config.aimbot.smooth + smooth_offset).min(5.0).max(0.0) + base_smooth;
+    let smooth_offset = if config.smooth_offset == 0.0 { 0.0 } else { (thread_rng().gen_range(-config.smooth_offset .. config.smooth_offset) * 1000.0).trunc() / 1000.0 };
+    let smooth = (config.smooth + smooth_offset).min(5.0).max(0.0) + base_smooth;
     
     let (screen_center_x, screen_center_y) = ((window_info.1.0 / 2) as f32, (window_info.1.1 / 2) as f32);
     let mut screen_pos = Vector2 { x: 0.0, y: 0.0 };
@@ -77,8 +89,8 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     target_y = if screen_pos.y > screen_center_y { if target_y + screen_center_y > screen_center_y * 2.0 { 0.0 } else { target_y } } else { if target_y + screen_center_y < 0.0 { 0.0 } else { target_y } };
 
     if smooth != base_smooth {
-        target_x /= smooth * (base_smooth + (base_smooth - (norm / config.aimbot.fov)));
-        target_y /= smooth * (base_smooth + (base_smooth - (norm / config.aimbot.fov)));
+        target_x /= smooth * (base_smooth + (base_smooth - (norm / config.fov)));
+        target_y /= smooth * (base_smooth + (base_smooth - (norm / config.fov)));
 
         target_x = if target_x.abs() < base_smooth { if target_x > 0.0 { base_smooth } else { -base_smooth } } else { target_x };
         target_y = if target_y.abs() < base_smooth { if target_y > 0.0 { base_smooth } else { -base_smooth } } else { target_y };
@@ -87,34 +99,34 @@ pub fn run_aimbot(config: Config, norm: f32, window_info: ((i32, i32), (i32, i32
     move_mouse(target_x as i32, target_y as i32, true);
 }
 
-pub fn get_aimbot_bone_indexes(config: Config) -> Vec<usize> {
+pub fn get_aimbot_bone_indexes(config: AimbotConfig) -> Vec<usize> {
     let mut bone_indexes = vec![];
 
-    if config.aimbot.bone_head {
+    if config.bone_head {
         bone_indexes.push(BoneIndex::Head as usize);
     }
 
-    if config.aimbot.bone_neck {
+    if config.bone_neck {
         bone_indexes.push(BoneIndex::Neck0 as usize);
     }
 
-    if config.aimbot.bone_spine {
+    if config.bone_spine {
         bone_indexes.push(BoneIndex::Spine1 as usize);
     }
 
-    if config.aimbot.bone_pelvis {
+    if config.bone_pelvis {
         bone_indexes.push(BoneIndex::Pelvis as usize);
     }
 
     return bone_indexes;
 }
 
-pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_address: &mut Option<u64>, address: u64, enemy_visible: bool, in_air: bool, config: Config) {
-    if config.aimbot.only_grounded && in_air {
+pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_address: &mut Option<u64>, address: u64, enemy_visible: bool, in_air: bool, config: AimbotConfig) {
+    if config.only_grounded && in_air {
         return;
     }
 
-    if config.aimbot.only_visible && !enemy_visible {
+    if config.only_visible && !enemy_visible {
         return;
     }
     
@@ -138,21 +150,21 @@ pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window
     }
 }
 
-pub fn render_fov_circle(ui: &mut Ui, window_width: i32, window_height: i32, fov: i32, aimbot_info: Option<f32>, config: Config) {
+pub fn render_fov_circle(ui: &mut Ui, window_width: i32, window_height: i32, fov: i32, aimbot_info: Option<f32>, config: AimbotConfig) {
     let color = {
-        if config.aimbot.fov_circle_target_enabled && aimbot_info.is_some() {
-            config.aimbot.fov_circle_target_color
+        if config.fov_circle_target_enabled && aimbot_info.is_some() {
+            config.fov_circle_target_color
         } else {
-            config.aimbot.fov_circle_color
+            config.fov_circle_color
         }
     };
     
     let center_point: Vector2<f32> = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
-    let radius = (config.aimbot.fov / 180.0 * PI / 2.0).tan() / (fov as f32 / 180.0 * PI / 2.0).tan() * window_width as f32;
+    let radius = (config.fov / 180.0 * PI / 2.0).tan() / (fov as f32 / 180.0 * PI / 2.0).tan() * window_width as f32;
 
-    if config.aimbot.fov_circle_outline_enabled {
-        ui.get_background_draw_list().add_circle(center_point, radius, color_with_masked_alpha(color, 0xFF000000)).thickness(config.aimbot.fov_circle_thickness + 1.0).build();
+    if config.fov_circle_outline_enabled {
+        ui.get_background_draw_list().add_circle(center_point, radius, color_with_masked_alpha(color, 0xFF000000)).thickness(config.fov_circle_thickness + 1.0).build();
     }
 
-    ui.get_background_draw_list().add_circle(center_point, radius, color_u32_to_f32(color)).thickness(config.aimbot.fov_circle_thickness).build();
+    ui.get_background_draw_list().add_circle(center_point, radius, color_u32_to_f32(color)).thickness(config.fov_circle_thickness).build();
 }

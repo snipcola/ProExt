@@ -90,20 +90,6 @@ pub mod ProgramConfig {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct Config {
-    pub esp: ESP,
-    pub rcs: RCS,
-    pub aimbot: Aimbot,
-    pub triggerbot: Triggerbot,
-    pub crosshair: Crosshair,
-    pub radar: Radar,
-    pub misc: Misc,
-    pub style: Style,
-    pub settings: Settings,
-    pub window_positions: WindowPositions
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct ESP {
     pub enabled: bool,
     pub key: usize,
@@ -154,6 +140,60 @@ pub struct ESP {
     pub headshot_line_color: (u32, u32, u32, u32)
 }
 
+impl Default for ESP {
+    fn default() -> Self {
+        return Self {
+            enabled: true,
+            key: 8,
+            mode: 1,
+            outline: true,
+            thickness: 1.0,
+            rounding: 0,
+            box_enabled: true,
+            box_color: (255, 255, 255, 255),
+            box_mode: 0,
+            box_target_enabled: false,
+            box_target_color: (255, 0, 0, 255),
+            filled_box_enabled: true,
+            filled_box_color_one: (255, 255, 255, 255),
+            filled_box_color_two: (255, 255, 255, 255),
+            filled_box_alpha: 0.1,
+            skeleton_enabled: true,
+            skeleton_color: (255, 255, 255, 255),
+            head_enabled: true,
+            head_color: (255, 255, 255, 255),
+            head_mode: 0,
+            eye_ray_enabled: false,
+            eye_ray_color: (255, 255, 255, 255),
+            health_bar_enabled: true,
+            health_bar_first_color: (0, 255, 0, 255),
+            health_bar_second_color: (255, 255, 0, 255),
+            health_bar_third_color: (255, 0, 0, 255),
+            armor_bar_enabled: true,
+            armor_bar_color: (255, 255, 255, 255),
+            bar_mode: 1,
+            name_enabled: true,
+            name_color: (255, 255, 255, 255),
+            weapon_name_enabled: true,
+            weapon_name_color: (255, 255, 255, 255),
+            distance_enabled: true,
+            distance_color: (255, 255, 255, 255),
+            bomb_enabled: true,
+            bomb_color: (255, 0, 0, 255),
+            filled_bomb_enabled: true,
+            filled_bomb_color: (255, 0, 0, 255),
+            filled_bomb_alpha: 0.1,
+            always: false,
+            default: true,
+            snap_line_enabled: false,
+            snap_line_color: (255, 255, 255, 255),
+            snap_line_mode: 1,
+            headshot_line_enabled: false,
+            headshot_line_color: (255, 255, 255, 255)
+        };
+    }
+}
+
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct RCS {
     pub enabled: bool,
@@ -169,11 +209,26 @@ pub struct RCS {
     pub default: bool
 }
 
+impl Default for RCS {
+    fn default() -> Self {
+        return Self {
+            enabled: true,
+            key: 9,
+            mode: 1,
+            start_bullet: 1,
+            yaw: 1.0,
+            yaw_offset: 0.2,
+            pitch: 1.0,
+            pitch_offset: 0.2,
+            sensitivity: 3.0,
+            always: false,
+            default: true
+        };
+    }
+}
+
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct Aimbot {
-    pub enabled: bool,
-    pub key: usize,
-    pub mode: usize,
+pub struct AimbotConfig {
     pub fov_circle_enabled: bool,
     pub fov_circle_color: (u32, u32, u32, u32),
     pub fov_circle_target_enabled: bool,
@@ -181,11 +236,8 @@ pub struct Aimbot {
     pub fov_circle_outline_enabled: bool,
     pub fov_circle_only_toggled: bool,
     pub fov_circle_thickness: f32,
-    pub always: bool,
-    pub default: bool,
     pub only_visible: bool,
     pub only_grounded: bool,
-    pub only_weapon: bool,
     pub bone_head: bool,
     pub bone_neck: bool,
     pub bone_spine: bool,
@@ -195,6 +247,93 @@ pub struct Aimbot {
     pub smooth_offset: f32,
     pub delay: u32,
     pub delay_offset: u32
+}
+
+impl Default for AimbotConfig {
+    fn default() -> Self {
+        return Self {
+            fov_circle_enabled: true,
+            fov_circle_color: (255, 255, 255, 255),
+            fov_circle_target_enabled: true,
+            fov_circle_target_color: (255, 0, 0, 255),
+            fov_circle_outline_enabled: true,
+            fov_circle_only_toggled: true,
+            fov_circle_thickness: 1.2,
+            only_visible: true,
+            only_grounded: true,
+            bone_head: true,
+            bone_neck: true,
+            bone_spine: false,
+            bone_pelvis: false,
+            fov: 5.0,
+            smooth: 1.0,
+            smooth_offset: 0.2,
+            delay: 70,
+            delay_offset: 15
+        };
+    }
+}
+
+impl AimbotConfig {
+    fn sniper() -> Self {
+        let mut base = Self::default();
+        base.fov_circle_enabled = false;
+        return base;
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct AimbotConfigs {
+    pub shared: AimbotConfig,
+    pub pistol: AimbotConfig,
+    pub rifle: AimbotConfig,
+    pub submachine: AimbotConfig,
+    pub sniper: AimbotConfig,
+    pub shotgun: AimbotConfig,
+    pub machinegun: AimbotConfig,
+    pub knife: AimbotConfig
+}
+
+impl Default for AimbotConfigs {
+    fn default() -> Self {
+        return Self {
+            shared: AimbotConfig::default(),
+            pistol: AimbotConfig::default(),
+            rifle: AimbotConfig::default(),
+            submachine: AimbotConfig::default(),
+            sniper: AimbotConfig::sniper(),
+            shotgun: AimbotConfig::default(),
+            machinegun: AimbotConfig::default(),
+            knife: AimbotConfig::default()
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct Aimbot {
+    pub enabled: bool,
+    pub key: usize,
+    pub mode: usize,
+    pub always: bool,
+    pub default: bool,
+    pub only_weapon: bool,
+    pub shared: bool,
+    pub configs: AimbotConfigs
+}
+
+impl Default for Aimbot {
+    fn default() -> Self {
+        return Self {
+            enabled: true,
+            key: 0,
+            mode: 0,
+            always: false,
+            default: false,
+            only_weapon: true,
+            shared: false,
+            configs: AimbotConfigs::default()
+        };
+    }
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -210,6 +349,24 @@ pub struct Triggerbot {
     pub always: bool,
     pub default: bool,
     pub only_weapon: bool
+}
+
+impl Default for Triggerbot {
+    fn default() -> Self {
+        return Self {
+            enabled:  false,
+            key: 0,
+            mode: 0,
+            action: 0,
+            tap_interval: 120,
+            tap_interval_offset: 15,
+            delay: 70,
+            delay_offset: 15,
+            always: false,
+            default: false,
+            only_weapon: true
+        };
+    }
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -235,6 +392,32 @@ pub struct Crosshair {
     pub only_weapon: bool
 }
 
+impl Default for Crosshair {
+    fn default() -> Self {
+        return Self {
+            enabled: true,
+            color: (255, 255, 255, 255),
+            key: 10,
+            mode: 1,
+            target_enabled: true,
+            target_color: (255, 0, 0, 255),
+            outline_enabled: true,
+            dot_enabled: true,
+            dot_size: 1,
+            circle_enabled: true,
+            circle_radius: 5,
+            lines_enabled: true,
+            lines_width: 9,
+            lines_height: 9,
+            lines_space: 7,
+            lines_thickness: 1,
+            always: false,
+            default: true,
+            only_weapon: true
+        };
+    }
+}
+
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Radar {
     pub enabled: bool,
@@ -253,6 +436,27 @@ pub struct Radar {
     pub range: f32
 }
 
+impl Default for Radar {
+    fn default() -> Self {
+        return Self {
+            enabled: true,
+            color: (255, 0, 0, 255),
+            key: 11,
+            mode: 1,
+            style: 2,
+            alpha: 0.0,
+            outline: true,
+            crossline_enabled: false,
+            crossline_color: (255, 255, 255, 255),
+            always: false,
+            default: true,
+            point_size: 1.0,
+            proportion: 3100.0,
+            range: 143.0
+        };
+    }
+}
+
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Misc {
     pub enabled: bool,
@@ -269,14 +473,23 @@ pub struct Misc {
     pub spectator_list_color: (u32, u32, u32, u32)
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct WindowPositions {
-    pub menu: [f32; 2],
-    pub watermark: [f32; 2],
-    pub cheat_list: [f32; 2],
-    pub bomb_timer: [f32; 2],
-    pub spectator_list: [f32; 2],
-    pub radar: [f32; 2]
+impl Default for Misc {
+    fn default() -> Self {
+        return Self {
+            enabled: true,
+            watermark_enabled: true,
+            watermark_color_one: (255, 255, 0, 255),
+            watermark_color_two: (0, 255, 0, 255),
+            cheat_list_enabled: true,
+            cheat_list_color_one: (0, 255, 255, 255),
+            cheat_list_color_two: (0, 255, 0, 255),
+            bomb_timer_enabled: false,
+            bomb_timer_color_disabled: (0, 255, 255, 255),
+            bomb_timer_color_enabled: (255, 0, 0, 255),
+            spectator_list_enabled: false,
+            spectator_list_color: (0, 255, 255, 255)
+        };
+    }
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -311,6 +524,41 @@ pub struct StyleColors {
     pub separator: (u32, u32, u32, u32)
 }
 
+impl Default for StyleColors {
+    fn default() -> Self {
+        return Self {
+            text: (225, 225, 225, 255),
+            text_disabled: (200, 200, 200, 255),
+            window_bg: (25, 25, 25, 235),
+            child_bg: (25, 25, 25, 235),
+            popup_bg: (35, 35, 35, 235),
+            border: (51, 128, 245, 255),
+            border_shadow: (15, 15, 15, 255),
+            frame_bg: (51, 128, 245, 50),
+            frame_bg_hovered: (51, 128, 245, 100),
+            frame_bg_active: (51, 128, 245, 150),
+            title_bg: (51, 128, 245, 235),
+            title_bg_collapsed: (51, 128, 245, 235),
+            title_bg_active: (51, 128, 245, 235),
+            text_selected_bg: (51, 128, 245, 255),
+            checkmark: (51, 128, 245, 255),
+            scrollbar_bg: (25, 25, 25, 255),
+            scrollbar_grab: (45, 45, 45, 255),
+            scrollbar_grab_hovered: (45, 45, 45, 225),
+            scrollbar_grab_active: (45, 45, 45, 200),
+            slider_grab: (51, 128, 245, 255),
+            slider_grab_active: (51, 128, 245, 225),
+            button: (51, 128, 245, 255),
+            button_hovered: (51, 128, 245, 225),
+            button_active: (51, 128, 245, 200),
+            tab: (51, 128, 245, 255),
+            tab_hovered: (51, 128, 245, 175),
+            tab_active: (51, 128, 245, 150),
+            separator: (175, 175, 175, 125)
+        };
+    }
+}
+
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Style {
     pub enabled: bool,
@@ -335,6 +583,82 @@ pub struct Style {
     pub colors: StyleColors
 }
 
+impl Default for Style {
+    fn default() -> Self {
+        return Self {
+            enabled: true,
+            alpha: 1.0,
+            window_padding: [7.5, 7.5],
+            window_rounding: 5.0,
+            window_border_size: 1.0,
+            window_title_align: [0.5, 0.5],
+            frame_padding: [2.5, 2.5],
+            frame_rounding: 2.5,
+            frame_border_size: 0.0,
+            tab_rounding: 2.5,
+            tab_border_size: 0.0,
+            scrollbar_rounding: 2.5,
+            scrollbar_size: 3.0,
+            popup_rounding: 2.5,
+            popup_border_size: 0.0,
+            item_spacing: [7.5, 7.5],
+            item_inner_spacing: [5.0, 5.0],
+            indent_spacing: 2.5,
+            grab_rounding: 2.5,
+            colors: StyleColors::default()
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct WindowSize {
+    pub force: bool,
+    pub width: i32,
+    pub height: i32
+}
+
+impl Default for WindowSize {
+    fn default() -> Self {
+        return Self {
+            force: false,
+            width: 1920,
+            height: 1080
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct WindowPosition {
+    pub force: bool,
+    pub x: i32,
+    pub y: i32
+}
+
+impl Default for WindowPosition {
+    fn default() -> Self {
+        return Self {
+            force: false,
+            x: 0,
+            y: 0
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct Window {
+    pub size: WindowSize,
+    pub position: WindowPosition
+}
+
+impl Default for Window {
+    fn default() -> Self {
+        return Self {
+            size: WindowSize::default(),
+            position: WindowPosition::default()
+        };
+    }
+}
+
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
     pub enabled: bool,
@@ -345,259 +669,69 @@ pub struct Settings {
     pub window: Window
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct WindowSize {
-    pub force: bool,
-    pub width: i32,
-    pub height: i32
+impl Default for Settings {
+    fn default() -> Self {
+        return Self {
+            enabled: true,
+            bypass_capture: true,
+            discord_rpc_enabled: false,
+            exclude_team: true,
+            show_on_spectate: true,
+            window: Window::default()
+        };
+    }
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct WindowPosition {
-    pub force: bool,
-    pub x: i32,
-    pub y: i32
+pub struct WindowPositions {
+    pub menu: [f32; 2],
+    pub watermark: [f32; 2],
+    pub cheat_list: [f32; 2],
+    pub bomb_timer: [f32; 2],
+    pub spectator_list: [f32; 2],
+    pub radar: [f32; 2]
+}
+
+impl Default for WindowPositions {
+    fn default() -> Self {
+        return Self {
+            menu: [600.0, 150.0],
+            watermark: [315.0, 5.0],
+            cheat_list: [315.0, 70.0],
+            bomb_timer: [5.0, 330.0],
+            spectator_list: [5.0, 415.0],
+            radar: [5.0, 5.0]
+        };
+    }
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct Window {
-    pub size: WindowSize,
-    pub position: WindowPosition
+pub struct Config {
+    pub esp: ESP,
+    pub rcs: RCS,
+    pub aimbot: Aimbot,
+    pub triggerbot: Triggerbot,
+    pub crosshair: Crosshair,
+    pub radar: Radar,
+    pub misc: Misc,
+    pub style: Style,
+    pub settings: Settings,
+    pub window_positions: WindowPositions
 }
 
 impl Default for Config {
     fn default() -> Self {
-        return Config {
-            esp: ESP {
-                enabled: true,
-                key: 8,
-                mode: 1,
-                outline: true,
-                thickness: 1.0,
-                rounding: 0,
-                box_enabled: true,
-                box_color: (255, 255, 255, 255),
-                box_mode: 0,
-                box_target_enabled: false,
-                box_target_color: (255, 0, 0, 255),
-                filled_box_enabled: true,
-                filled_box_color_one: (255, 255, 255, 255),
-                filled_box_color_two: (255, 255, 255, 255),
-                filled_box_alpha: 0.1,
-                skeleton_enabled: true,
-                skeleton_color: (255, 255, 255, 255),
-                head_enabled: true,
-                head_color: (255, 255, 255, 255),
-                head_mode: 0,
-                eye_ray_enabled: false,
-                eye_ray_color: (255, 255, 255, 255),
-                health_bar_enabled: true,
-                health_bar_first_color: (0, 255, 0, 255),
-                health_bar_second_color: (255, 255, 0, 255),
-                health_bar_third_color: (255, 0, 0, 255),
-                armor_bar_enabled: true,
-                armor_bar_color: (255, 255, 255, 255),
-                bar_mode: 1,
-                name_enabled: true,
-                name_color: (255, 255, 255, 255),
-                weapon_name_enabled: true,
-                weapon_name_color: (255, 255, 255, 255),
-                distance_enabled: true,
-                distance_color: (255, 255, 255, 255),
-                bomb_enabled: true,
-                bomb_color: (255, 0, 0, 255),
-                filled_bomb_enabled: true,
-                filled_bomb_color: (255, 0, 0, 255),
-                filled_bomb_alpha: 0.1,
-                always: false,
-                default: true,
-                snap_line_enabled: false,
-                snap_line_color: (255, 255, 255, 255),
-                snap_line_mode: 1,
-                headshot_line_enabled: false,
-                headshot_line_color: (255, 255, 255, 255)
-            },
-            rcs: RCS {
-                enabled: true,
-                key: 9,
-                mode: 1,
-                start_bullet: 1,
-                yaw: 1.0,
-                yaw_offset: 0.2,
-                pitch: 1.0,
-                pitch_offset: 0.2,
-                sensitivity: 3.0,
-                always: false,
-                default: true
-            },
-            aimbot: Aimbot {
-                enabled: true,
-                key: 0,
-                mode: 0,
-                fov_circle_enabled: true,
-                fov_circle_color: (255, 255, 255, 255),
-                fov_circle_target_enabled: true,
-                fov_circle_target_color: (255, 0, 0, 255),
-                fov_circle_outline_enabled: true,
-                fov_circle_only_toggled: true,
-                fov_circle_thickness: 1.2,
-                always: false,
-                default: false,
-                only_visible: true,
-                only_grounded: true,
-                only_weapon: true,
-                bone_head: true,
-                bone_neck: true,
-                bone_spine: false,
-                bone_pelvis: false,
-                fov: 5.0,
-                smooth: 1.0,
-                smooth_offset: 0.2,
-                delay: 70,
-                delay_offset: 15
-            },
-            triggerbot: Triggerbot {
-                enabled:  false,
-                key: 0,
-                mode: 0,
-                action: 0,
-                tap_interval: 120,
-                tap_interval_offset: 15,
-                delay: 70,
-                delay_offset: 15,
-                always: false,
-                default: false,
-                only_weapon: true
-            },
-            crosshair: Crosshair {
-                enabled: true,
-                color: (255, 255, 255, 255),
-                key: 10,
-                mode: 1,
-                target_enabled: true,
-                target_color: (255, 0, 0, 255),
-                outline_enabled: true,
-                dot_enabled: true,
-                dot_size: 1,
-                circle_enabled: true,
-                circle_radius: 5,
-                lines_enabled: true,
-                lines_width: 9,
-                lines_height: 9,
-                lines_space: 7,
-                lines_thickness: 1,
-                always: false,
-                default: true,
-                only_weapon: true
-            },
-            radar: Radar {
-                enabled: true,
-                color: (255, 0, 0, 255),
-                key: 11,
-                mode: 1,
-                style: 2,
-                alpha: 0.0,
-                outline: true,
-                crossline_enabled: false,
-                crossline_color: (255, 255, 255, 255),
-                always: false,
-                default: true,
-                point_size: 1.0,
-                proportion: 3100.0,
-                range: 143.0
-            },
-            misc: Misc {
-                enabled: true,
-                watermark_enabled: true,
-                watermark_color_one: (255, 255, 0, 255),
-                watermark_color_two: (0, 255, 0, 255),
-                cheat_list_enabled: true,
-                cheat_list_color_one: (0, 255, 255, 255),
-                cheat_list_color_two: (0, 255, 0, 255),
-                bomb_timer_enabled: false,
-                bomb_timer_color_disabled: (0, 255, 255, 255),
-                bomb_timer_color_enabled: (255, 0, 0, 255),
-                spectator_list_enabled: false,
-                spectator_list_color: (0, 255, 255, 255)
-            },
-            style: Style {
-                enabled: true,
-                alpha: 1.0,
-                window_padding: [7.5, 7.5],
-                window_rounding: 5.0,
-                window_border_size: 1.0,
-                window_title_align: [0.5, 0.5],
-                frame_padding: [2.5, 2.5],
-                frame_rounding: 2.5,
-                frame_border_size: 0.0,
-                tab_rounding: 2.5,
-                tab_border_size: 0.0,
-                scrollbar_rounding: 2.5,
-                scrollbar_size: 3.0,
-                popup_rounding: 2.5,
-                popup_border_size: 0.0,
-                item_spacing: [7.5, 7.5],
-                item_inner_spacing: [5.0, 5.0],
-                indent_spacing: 2.5,
-                grab_rounding: 2.5,
-                colors: StyleColors {
-                    text: (225, 225, 225, 255),
-                    text_disabled: (200, 200, 200, 255),
-                    window_bg: (25, 25, 25, 235),
-                    child_bg: (25, 25, 25, 235),
-                    popup_bg: (35, 35, 35, 235),
-                    border: (51, 128, 245, 255),
-                    border_shadow: (15, 15, 15, 255),
-                    frame_bg: (51, 128, 245, 50),
-                    frame_bg_hovered: (51, 128, 245, 100),
-                    frame_bg_active: (51, 128, 245, 150),
-                    title_bg: (51, 128, 245, 235),
-                    title_bg_collapsed: (51, 128, 245, 235),
-                    title_bg_active: (51, 128, 245, 235),
-                    text_selected_bg: (51, 128, 245, 255),
-                    checkmark: (51, 128, 245, 255),
-                    scrollbar_bg: (25, 25, 25, 255),
-                    scrollbar_grab: (45, 45, 45, 255),
-                    scrollbar_grab_hovered: (45, 45, 45, 225),
-                    scrollbar_grab_active: (45, 45, 45, 200),
-                    slider_grab: (51, 128, 245, 255),
-                    slider_grab_active: (51, 128, 245, 225),
-                    button: (51, 128, 245, 255),
-                    button_hovered: (51, 128, 245, 225),
-                    button_active: (51, 128, 245, 200),
-                    tab: (51, 128, 245, 255),
-                    tab_hovered: (51, 128, 245, 225),
-                    tab_active: (51, 128, 245, 200),
-                    separator: (175, 175, 175, 125)
-                }
-            },
-            settings: Settings {
-                enabled: true,
-                bypass_capture: true,
-                discord_rpc_enabled: false,
-                exclude_team: true,
-                show_on_spectate: true,
-                window: Window {
-                    size: WindowSize {
-                        force: false,
-                        width: 1920,
-                        height: 1080
-                    },
-                    position: WindowPosition {
-                        force: false,
-                        x: 0,
-                        y: 0
-                    }
-                }
-            },
-            window_positions: WindowPositions {
-                menu: [600.0, 150.0],
-                watermark: [315.0, 5.0],
-                cheat_list: [315.0, 70.0],
-                bomb_timer: [5.0, 330.0],
-                spectator_list: [5.0, 415.0],
-                radar: [5.0, 5.0]
-            }
+        return Self {
+            esp: ESP::default(),
+            rcs: RCS::default(),
+            aimbot: Aimbot::default(),
+            triggerbot: Triggerbot::default(),
+            crosshair: Crosshair::default(),
+            radar: Radar::default(),
+            misc: Misc::default(),
+            style: Style::default(),
+            settings: Settings::default(),
+            window_positions: WindowPositions::default()
         };
     }
 }

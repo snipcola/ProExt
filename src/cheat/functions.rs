@@ -118,7 +118,7 @@ pub fn get_bomb_position(planted_bomb: u64) -> Option<Vector3<f32>> {
     return Some(bomb_pos);
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub enum WeaponType {
     Pistol,
     Rifle,
