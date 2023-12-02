@@ -41,7 +41,7 @@ pub fn get_aimbot_yaw_pitch(config: AimbotConfig, aim_pos: Vector3<f32>, camera_
     let pitch = -(pos.z / distance).atan() * 57.295779513 - view_angle.x;
     let norm = (yaw.powf(2.0) + pitch.powf(2.0)).sqrt() * 0.75;
     
-    if norm > config.fov {
+    if norm > config.fov as f32 {
         return None;
     }
 
@@ -89,8 +89,8 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
     target_y = if screen_pos.y > screen_center_y { if target_y + screen_center_y > screen_center_y * 2.0 { 0.0 } else { target_y } } else { if target_y + screen_center_y < 0.0 { 0.0 } else { target_y } };
 
     if smooth != base_smooth {
-        target_x /= smooth * (base_smooth + (base_smooth - (norm / config.fov)));
-        target_y /= smooth * (base_smooth + (base_smooth - (norm / config.fov)));
+        target_x /= smooth * (base_smooth + (base_smooth - (norm / config.fov as f32)));
+        target_y /= smooth * (base_smooth + (base_smooth - (norm / config.fov as f32)));
 
         target_x = if target_x.abs() < base_smooth { if target_x > 0.0 { base_smooth } else { -base_smooth } } else { target_x };
         target_y = if target_y.abs() < base_smooth { if target_y > 0.0 { base_smooth } else { -base_smooth } } else { target_y };
@@ -166,7 +166,7 @@ pub fn render_fov_circle(ui: &mut Ui, window_width: i32, window_height: i32, fov
     };
     
     let center_point: Vector2<f32> = Vector2 { x: window_width as f32 / 2.0, y: window_height as f32 / 2.0 };
-    let radius = (config.fov / 180.0 * PI / 2.0).tan() / (fov as f32 / 180.0 * PI / 2.0).tan() * window_width as f32;
+    let radius = (config.fov as f32 / 180.0 * PI / 2.0).tan() / (fov as f32 / 180.0 * PI / 2.0).tan() * window_width as f32;
 
     if config.fov_circle_outline_enabled {
         ui.get_background_draw_list().add_circle(center_point, radius, color_with_masked_alpha(color, 0xFF000000)).thickness(config.fov_circle_thickness + 1.0).build();
