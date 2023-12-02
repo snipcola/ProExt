@@ -417,7 +417,7 @@ pub fn render_menu(ui: &mut Ui) {
                                 ui.checkbox("Pelvis##Aimbot", &mut conf.bone_pelvis);
                                 ui.separator();
         
-                                ui.slider_config("Fov##Aimbot", 0.5, 89.0).display_format("%.1f").build(&mut conf.fov);
+                                ui.slider_config("Fov##Aimbot", 1, 89).display_format("%d").build(&mut conf.fov);
                                 ui.separator();
         
                                 // Smooth
