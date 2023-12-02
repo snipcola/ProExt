@@ -6,24 +6,22 @@ use windows::Win32::Foundation::HWND;
 use crate::ui::main::{WINDOW_INFO, UI_FUNCTIONS, WINDOWS_ACTIVE, TOGGLED};
 use crate::ui::windows::{is_window_focused, hide_window_from_capture};
 use crate::cheat::functions::is_enemy_at_crosshair;
-use crate::utils::config::{CONFIG, ProgramConfig, AimbotConfig, RCSConfig};
+use crate::utils::config::{CONFIG, ProgramConfig, AimbotConfig, RCSConfig, TriggerbotConfig};
 use crate::cheat::classes::game::GAME;
 use crate::utils::mouse::release_mouse;
 use crate::utils::process_manager::{rpm, rpm_offset, rpm_auto};
 
 use crate::cheat::classes::entity::{Entity, Flags};
 use crate::cheat::classes::game::update_entity_list_entry;
-use crate::cheat::features::aimbot::{get_aimbot_toggled, aimbot_check, render_fov_circle, run_aimbot};
+use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch, get_aimbot_config, get_aimbot_toggled, aimbot_check, render_fov_circle, run_aimbot};
 use crate::cheat::features::bomb_timer::render_bomb_timer;
 use crate::cheat::features::cheat_list::render_cheat_list;
 use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_weapon_name, render_distance, render_name, render_bomb, get_esp_toggled, render_headshot_line};
 use crate::cheat::features::radar::{render_radar, get_radar_toggled};
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
-use crate::cheat::features::triggerbot::{get_triggerbot_toggled, run_triggerbot};
+use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY, get_triggerbot_config, get_triggerbot_toggled, run_triggerbot};
 use crate::cheat::features::watermark::render_watermark;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position, is_enemy_visible};
-use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch, get_aimbot_config};
-use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY};
 use crate::cheat::features::rcs::{get_rcs_toggled, run_rcs, get_rcs_config};
 use crate::cheat::features::crosshair::{render_crosshair, get_crosshair_toggled};
 
@@ -38,6 +36,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
         let mut rcs_config = RCSConfig::default();
         let mut aimbot_config = AimbotConfig::default();
+        let mut triggerbot_config = TriggerbotConfig::default();
 
         loop {
             let game = GAME.lock().unwrap().clone();
@@ -155,6 +154,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 rcs_config = if config.rcs.shared { config.rcs.configs.shared } else { get_rcs_config(config.rcs.configs, local_entity.pawn.weapon_type) };
                 aimbot_config = if config.aimbot.shared { config.aimbot.configs.shared } else { get_aimbot_config(config.aimbot.configs, local_entity.pawn.weapon_type) };
+                triggerbot_config = if config.triggerbot.shared { config.triggerbot.configs.shared } else { get_triggerbot_config(config.triggerbot.configs, local_entity.pawn.weapon_type) };
             }
 
             // Bomb Data
@@ -506,7 +506,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let triggerbot_toggled = is_triggerbot_toggled && aiming_at_enemy && allow_shoot && aiming_at_address != 0;
 
             if triggerbot_toggled {
-                run_triggerbot(aiming_at_address, config);
+                run_triggerbot(aiming_at_address, triggerbot_config);
             } else {
                 release_mouse();
             }

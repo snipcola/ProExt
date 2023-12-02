@@ -1,7 +1,7 @@
 use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
 use lazy_static::lazy_static;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::{Config, CONFIG}, mouse::{MOUSE_LOCKED, click_mouse, press_mouse}}, cheat::functions::is_feature_toggled};
+use crate::{utils::{config::{Config, CONFIG, TriggerbotConfigs, TriggerbotConfig}, mouse::{MOUSE_LOCKED, click_mouse, press_mouse}}, cheat::functions::{is_feature_toggled, WeaponType}};
 
 lazy_static! {
     pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().triggerbot.default));
@@ -20,7 +20,20 @@ pub fn get_triggerbot_toggled(config: Config) -> bool {
     return is_feature_toggled(feature.key, feature.mode, &mut toggled, &mut changed);
 }
 
-pub fn run_triggerbot(address: u64, config: Config) {
+pub fn get_triggerbot_config(configs: TriggerbotConfigs, weapon_type: WeaponType) -> TriggerbotConfig {
+    return match weapon_type {
+        WeaponType::Pistol => configs.pistol,
+        WeaponType::Rifle => configs.rifle,
+        WeaponType::Submachine => configs.submachine,
+        WeaponType::Sniper => configs.sniper,
+        WeaponType::Shotgun => configs.shotgun,
+        WeaponType::MachineGun => configs.machinegun,
+        WeaponType::Knife => configs.knife,
+        _ => configs.shared
+    };
+}
+
+pub fn run_triggerbot(address: u64, config: TriggerbotConfig) {
     let mouse_locked = MOUSE_LOCKED.lock().unwrap().clone();
     let mut shot_entity = TB_SHOT_ENTITY.lock().unwrap();
     let mut locked_entity = TB_LOCKED_ENTITY.lock().unwrap();
@@ -35,21 +48,21 @@ pub fn run_triggerbot(address: u64, config: Config) {
             return;
         }
 
-        let delay_offset = if config.triggerbot.delay_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.triggerbot.delay_offset as f32) .. config.triggerbot.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
-        let delay = Duration::from_secs_f32((config.triggerbot.delay as f32 + delay_offset).min(500.0).max(0.0) / 1000.0);
+        let delay_offset = if config.delay_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.delay_offset as f32) .. config.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
+        let delay = Duration::from_secs_f32((config.delay as f32 + delay_offset).min(500.0).max(0.0) / 1000.0);
 
         if locked_on.elapsed() < delay {
             return;
         }
     }
     
-    let interval_offset = if config.triggerbot.tap_interval_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.triggerbot.tap_interval_offset as f32) .. config.triggerbot.tap_interval_offset as f32) * 1000.0).trunc() / 1000.0 };
-    let interval = Duration::from_secs_f32((config.triggerbot.tap_interval as f32 + interval_offset).min(500.0).max(50.0) / 1000.0);
+    let interval_offset = if config.tap_interval_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.tap_interval_offset as f32) .. config.tap_interval_offset as f32) * 1000.0).trunc() / 1000.0 };
+    let interval = Duration::from_secs_f32((config.tap_interval as f32 + interval_offset).min(500.0).max(50.0) / 1000.0);
 
-    if config.triggerbot.action == 0 && shot_entity.elapsed() >= interval {
+    if config.action == 0 && shot_entity.elapsed() >= interval {
         click_mouse();
         *shot_entity = Instant::now();
-    } else if config.triggerbot.action == 1 && !mouse_locked {
+    } else if config.action == 1 && !mouse_locked {
         press_mouse();
     }
 }

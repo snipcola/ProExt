@@ -474,24 +474,8 @@ pub fn render_menu(ui: &mut Ui) {
 
                             // Mode
                             ui.combo_simple_string("Mode##Triggerbot", &mut (*config).triggerbot.mode, &["Hold", "Toggle"]);
-                        }
-                        
-                        // Action
-                        ui.combo_simple_string("Action##Triggerbot", &mut (*config).triggerbot.action, &["Click", "Press"]);
-
-                        if (*config).triggerbot.action == 0 {
-                            // Interval
                             ui.separator();
-                            ui.slider_config("Interval##Triggerbot", 50, 500).display_format("%d").build(&mut (*config).triggerbot.tap_interval);
-                            ui.slider_config("Interval Offset##Triggerbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.tap_interval_offset);
                         }
-
-                        ui.separator();
-
-                        // Delay
-                        ui.slider_config("Delay##Triggerbot", 0, 500).display_format("%d").build(&mut (*config).triggerbot.delay);
-                        ui.slider_config("Delay Offset##Triggerbot", 0, 100).display_format("%d").build(&mut (*config).triggerbot.delay_offset);
-                        ui.separator();
 
                         // Always & Default
                         ui.checkbox("Always##Triggerbot", &mut (*config).triggerbot.always);
@@ -501,8 +485,73 @@ pub fn render_menu(ui: &mut Ui) {
                         }
 
                         // Only Weapon
-                        ui.separator();
                         ui.checkbox("Only Weapon##Triggerbot", &mut (*config).triggerbot.only_weapon);
+
+                        // Shared
+                        ui.checkbox("Shared##Triggerbot", &mut (*config).triggerbot.shared);
+                        ui.separator();
+                        
+                        // Function
+                        macro_rules! triggerbot_conf {
+                            ($conf:expr) => {
+                                let conf = $conf;
+
+                                // Action
+                                ui.combo_simple_string("Action##Triggerbot", &mut conf.action, &["Click", "Press"]);
+
+                                if conf.action == 0 {
+                                    // Interval
+                                    ui.separator();
+                                    ui.slider_config("Interval##Triggerbot", 50, 500).display_format("%d").build(&mut conf.tap_interval);
+                                    ui.slider_config("Interval Offset##Triggerbot", 0, 100).display_format("%d").build(&mut conf.tap_interval_offset);
+                                }
+
+                                ui.separator();
+
+                                // Delay
+                                ui.slider_config("Delay##Triggerbot", 0, 500).display_format("%d").build(&mut conf.delay);
+                                ui.slider_config("Delay Offset##Triggerbot", 0, 100).display_format("%d").build(&mut conf.delay_offset);
+                            }
+                        }
+
+                        // Configs
+                        if (*config).triggerbot.shared {
+                            triggerbot_conf!(&mut (*config).triggerbot.configs.shared);
+                        } else {
+                            TabBar::new("##TriggerbotConfigs").build(&ui, || {
+                                TabItem::new("Default").build(&ui, || {
+                                    triggerbot_conf!(&mut (*config).triggerbot.configs.shared);
+                                });
+
+                                TabItem::new("Pistol").build(&ui, || {
+                                    triggerbot_conf!(&mut (*config).triggerbot.configs.pistol);
+                                });
+
+                                TabItem::new("Rifle").build(&ui, || {
+                                    triggerbot_conf!(&mut (*config).triggerbot.configs.rifle);
+                                });
+
+                                TabItem::new("Submachine").build(&ui, || {
+                                    triggerbot_conf!(&mut (*config).triggerbot.configs.submachine);
+                                });
+
+                                TabItem::new("Sniper").build(&ui, || {
+                                    triggerbot_conf!(&mut (*config).triggerbot.configs.sniper);
+                                });
+
+                                TabItem::new("Shotgun").build(&ui, || {
+                                    triggerbot_conf!(&mut (*config).triggerbot.configs.shotgun);
+                                });
+
+                                TabItem::new("Machine Gun").build(&ui, || {
+                                    triggerbot_conf!(&mut (*config).triggerbot.configs.machinegun);
+                                });
+
+                                TabItem::new("Knife").build(&ui, || {
+                                    triggerbot_conf!(&mut (*config).triggerbot.configs.knife);
+                                });
+                            });
+                        }
                     }
                 });
 

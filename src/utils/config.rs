@@ -212,7 +212,7 @@ impl Default for RCSConfig {
             yaw_offset: 0.2,
             pitch: 1.0,
             pitch_offset: 0.2,
-            sensitivity: 3.0,
+            sensitivity: 3.0
         };
     }
 }
@@ -377,18 +377,63 @@ impl Default for Aimbot {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct Triggerbot {
-    pub enabled: bool,
-    pub key: usize,
-    pub mode: usize,
+pub struct TriggerbotConfig {
     pub action: usize,
     pub tap_interval: u32,
     pub tap_interval_offset: u32,
     pub delay: u32,
     pub delay_offset: u32,
+}
+
+impl Default for TriggerbotConfig {
+    fn default() -> Self {
+        return Self {
+            action: 0,
+            tap_interval: 120,
+            tap_interval_offset: 15,
+            delay: 70,
+            delay_offset: 15
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct TriggerbotConfigs {
+    pub shared: TriggerbotConfig,
+    pub pistol: TriggerbotConfig,
+    pub rifle: TriggerbotConfig,
+    pub submachine: TriggerbotConfig,
+    pub sniper: TriggerbotConfig,
+    pub shotgun: TriggerbotConfig,
+    pub machinegun: TriggerbotConfig,
+    pub knife: TriggerbotConfig
+}
+
+impl Default for TriggerbotConfigs {
+    fn default() -> Self {
+        return Self {
+            shared: TriggerbotConfig::default(),
+            pistol: TriggerbotConfig::default(),
+            rifle: TriggerbotConfig::default(),
+            submachine: TriggerbotConfig::default(),
+            sniper: TriggerbotConfig::default(),
+            shotgun: TriggerbotConfig::default(),
+            machinegun: TriggerbotConfig::default(),
+            knife: TriggerbotConfig::default()
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct Triggerbot {
+    pub enabled: bool,
+    pub key: usize,
+    pub mode: usize,
     pub always: bool,
     pub default: bool,
-    pub only_weapon: bool
+    pub only_weapon: bool,
+    pub shared: bool,
+    pub configs: TriggerbotConfigs
 }
 
 impl Default for Triggerbot {
@@ -397,14 +442,11 @@ impl Default for Triggerbot {
             enabled:  false,
             key: 0,
             mode: 0,
-            action: 0,
-            tap_interval: 120,
-            tap_interval_offset: 15,
-            delay: 70,
-            delay_offset: 15,
             always: false,
             default: false,
-            only_weapon: true
+            only_weapon: true,
+            shared: false,
+            configs: TriggerbotConfigs::default()
         };
     }
 }
