@@ -10,11 +10,11 @@ use imgui_glow_renderer::AutoRenderer;
 use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu, functions::apply_style}, utils::{mouse::get_mouse_position, rpc::initialize_rpc, config::CONFIG}, cheat::thread::run_cheats_thread};
 use crate::utils::config::ProgramConfig;
 use crate::ui::main::WINDOWS_ACTIVE;
-use crate::ui::windows::Window;
-use crate::ui::windows::get_glow_context;
+use crate::ui::windows::{Window, get_glow_context, focus_window};
 
 lazy_static! {
     pub static ref MOUSE_POS: Arc<Mutex<Option<(i32, i32)>>> = Arc::new(Mutex::new(None));
+    pub static ref FOCUS_SELF: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
 }
 
 pub fn run_windows_thread(hwnd: HWND) {
@@ -68,6 +68,7 @@ pub fn run_io_thread() {
 
 pub fn bind_ui_keys(hwnd: HWND) {
     let toggled = TOGGLED.clone();
+    let focused = FOCUS_SELF.clone();
 
     ProgramConfig::Keys::ToggleKeyMKI.bind(move | _ | {
         if !is_window_focused(hwnd) {
@@ -76,6 +77,12 @@ pub fn bind_ui_keys(hwnd: HWND) {
 
         let toggled_value = *toggled.lock().unwrap();
         *toggled.lock().unwrap() = !toggled_value;
+
+        if !toggled_value {
+            *focused.lock().unwrap() = true;
+        } else {
+            focus_window(hwnd);
+        }
     });
 
     ProgramConfig::Keys::ExitKeyMKI.bind(move | _ | {
@@ -93,6 +100,7 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
 
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();
+    let focus = FOCUS_SELF.clone();
 
     let (event_loop, window) = Arc::try_unwrap(event_loop_window).unwrap().into_inner().unwrap();
     let (mut winit_platform, mut imgui_context) = Arc::try_unwrap(winit_platform_imgui_context).unwrap().into_inner().unwrap();
@@ -134,6 +142,11 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
             *control_flow = ControlFlow::Exit;
         }
 
+        if *focus.lock().unwrap() {
+            *focus.lock().unwrap() = false;
+            window.window().focus_window();
+        }
+
         match event {
             Event::NewEvents(_) => {
                 let now = Instant::now();
@@ -173,6 +186,12 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
                 if let Some(keycode) = key.virtual_keycode {
                     if keycode == ProgramConfig::Keys::ToggleKey && key.state == ElementState::Pressed {
                         *toggled.lock().unwrap() = !toggled_value;
+                        
+                        if !toggled_value {
+                            window.window().focus_window();
+                        } else {
+                            focus_window(hwnd);
+                        }
                     } else if keycode == ProgramConfig::Keys::ExitKey && key.state == ElementState::Pressed {
                         process::exit(0);
                     }

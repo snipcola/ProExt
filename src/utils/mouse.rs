@@ -5,7 +5,6 @@ use lazy_static::lazy_static;
 lazy_static! {
     pub static ref MOUSE_LOCKED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref LAST_MOVED: Arc<Mutex<Instant>> = Arc::new(Mutex::new(Instant::now()));
-    pub static ref STARTED: Instant = Instant::now();
 }
 
 pub fn create_mouse_input(flags: MOUSE_EVENT_FLAGS, dx: i32, dy: i32, data: u32, extra_info: usize) -> INPUT {
@@ -18,9 +17,7 @@ pub fn create_mouse_input(flags: MOUSE_EVENT_FLAGS, dx: i32, dy: i32, data: u32,
 }
 
 pub fn send_input(input: INPUT) {
-    unsafe {
-        SendInput(&[input], std::mem::size_of::<INPUT>() as i32);
-    }
+    unsafe { SendInput(&[input], std::mem::size_of::<INPUT>() as i32) };
 }
 
 pub fn click_mouse() {
