@@ -135,6 +135,18 @@ pub enum WeaponType {
     None
 }
 
+pub fn has_weapon(weapon_type: WeaponType) -> bool {
+    return match weapon_type {
+        WeaponType::Pistol => true,
+        WeaponType::Rifle => true,
+        WeaponType::Submachine => true,
+        WeaponType::Sniper => true,
+        WeaponType::Shotgun => true,
+        WeaponType::MachineGun => true,
+        _ => false
+    };
+}
+
 pub fn parse_weapon(name: String) -> (WeaponType, &'static str) {
     return match name.as_str() {
         "ak47" => (WeaponType::Rifle, "AK-47"),

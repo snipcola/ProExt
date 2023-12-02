@@ -29,7 +29,7 @@ pub fn get_aimbot_config(configs: AimbotConfigs, weapon_type: WeaponType) -> Aim
         WeaponType::Shotgun => configs.shotgun,
         WeaponType::MachineGun => configs.machinegun,
         WeaponType::Knife => configs.knife,
-        _ => configs.shared
+        _ => configs.other
     };
 }
 
