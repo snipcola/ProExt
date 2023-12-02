@@ -8,10 +8,6 @@ use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::functions::reset_window_positions;
 
 lazy_static! {
-    static ref NEW_SIZE: Arc<Mutex<(i32, i32)>> = Arc::new(Mutex::new((0, 0)));
-    static ref NEW_POSITION: Arc<Mutex<(i32, i32)>> = Arc::new(Mutex::new((0, 0)));
-    static ref OVERWRITTEN_WINDOW: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
-
     static ref NEW_CONFIG_NAME: Arc<Mutex<String>> = Arc::new(Mutex::new(String::new()));
     static ref LOADED_CONFIG: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(Some(DEFAULT_CONFIG.clone())));
     pub static ref MENU_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
@@ -21,16 +17,6 @@ pub fn render_menu(ui: &mut Ui) {
     let mut config = CONFIG.lock().unwrap();
     let mut configs = CONFIGS.lock().unwrap().clone();
     let config_dir = CONFIG_DIR.lock().unwrap().clone();
-
-    let mut overwritten_window = OVERWRITTEN_WINDOW.lock().unwrap();
-    let mut new_window_size = NEW_SIZE.lock().unwrap();
-    let mut new_window_position = NEW_POSITION.lock().unwrap();
-
-    if !*overwritten_window {
-        *new_window_size = (config.settings.window.size.width, config.settings.window.size.height);
-        *new_window_position = (config.settings.window.position.x, config.settings.window.position.y);
-        *overwritten_window = true;
-    }
 
     let mut new_config_name = NEW_CONFIG_NAME.lock().unwrap();
     let loaded_config = LOADED_CONFIG.clone();
@@ -982,34 +968,6 @@ pub fn render_menu(ui: &mut Ui) {
                         // Exclude Team & Show on Spectate
                         ui.checkbox("Exclude Team##Misc", &mut (*config).settings.exclude_team);
                         ui.checkbox("Show On Spectate##Misc", &mut (*config).settings.show_on_spectate);
-                        ui.separator();
-
-                        // Window Size & Window Position
-                        ui.checkbox("Force Window Size##Settings", &mut (*config).settings.window.size.force);
-
-                        if (*config).settings.window.size.force {
-                            ui.input_int("Width##SettingsWindowSize", &mut (*new_window_size).0).build();
-                            ui.input_int("Height##SettingsWindowSize", &mut (*new_window_size).1).build();
-
-                            if ui.button("Save##SettingsWindowSize") {
-                                (*config).settings.window.size.width = new_window_size.0;
-                                (*config).settings.window.size.height = new_window_size.1;
-                            }
-
-                            ui.separator();
-                        }
-
-                        ui.checkbox("Force Window Position##Settings", &mut (*config).settings.window.position.force);
-
-                        if (*config).settings.window.position.force {
-                            ui.input_int("X##SettingsWindowPosition", &mut (*new_window_position).0).build();
-                            ui.input_int("Y##SettingsWindowPosition", &mut (*new_window_position).1).build();
-
-                            if ui.button("Save##SettingsWindowPosition") {
-                                (*config).settings.window.position.x = new_window_position.0;
-                                (*config).settings.window.position.y = new_window_position.1;
-                            }
-                        }
                     }
                 });
 
@@ -1059,8 +1017,6 @@ pub fn render_menu(ui: &mut Ui) {
                                 *config = config_item;
                                 *loaded_config.lock().unwrap() = Some(config_name.to_string());
                                 reset_window_positions(config_item.window_positions);
-                                *new_window_size = (config.settings.window.size.width, config.settings.window.size.height);
-                                *new_window_position = (config.settings.window.position.x, config.settings.window.position.y);
                             }
                         } else {
                             ui.selectable_config(format!("{} (failed)", config_name.replace(&format!(".{}", *CONFIG_EXTENSION), ""))).disabled(true).build();
@@ -1111,8 +1067,6 @@ pub fn render_menu(ui: &mut Ui) {
                         *config = default_config;
                         *loaded_config.lock().unwrap() = Some((*DEFAULT_CONFIG).to_string());
                         reset_window_positions(default_config.window_positions);
-                        *new_window_size = (config.settings.window.size.width, config.settings.window.size.height);
-                        *new_window_position = (config.settings.window.position.x, config.settings.window.position.y);
                     }
                 });
 
