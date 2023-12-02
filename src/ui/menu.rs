@@ -264,14 +264,6 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.separator();
                         }
 
-                        // Start Bullet, Yaw, Yaw Offset, Pitch, & Pitch Offset
-                        ui.slider_config("Start Bullet##RCS", 1, 6).display_format("%d").build(&mut (*config).rcs.start_bullet);
-                        ui.slider_config("Yaw##RCS", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs.yaw);
-                        ui.slider_config("Yaw Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).rcs.yaw_offset);
-                        ui.slider_config("Pitch##RCS", 0.0, 2.0).display_format("%.1f").build(&mut (*config).rcs.pitch);
-                        ui.slider_config("Pitch Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut (*config).rcs.pitch_offset);
-                        ui.separator();
-
                         // Always & Default
                         ui.checkbox("Always##RCS", &mut (*config).rcs.always);
                         
@@ -279,9 +271,65 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.checkbox("Default Toggle##RCS", &mut (*config).rcs.default);
                         }
 
-                        // Sensitivity
+                        // Shared
+                        ui.checkbox("Shared##RCS", &mut (*config).rcs.shared);
                         ui.separator();
-                        ui.slider_config("Mouse Sensitivity##RCS", 0.1, 8.0).display_format("%.1f").build(&mut (*config).rcs.sensitivity);
+
+                        // Function
+                        macro_rules! rcs_conf {
+                            ($conf:expr) => {
+                                let conf = $conf;
+
+                                // Start Bullet
+                                ui.slider_config("Start Bullet##RCS", 1, 6).display_format("%d").build(&mut conf.start_bullet);
+                                ui.separator();
+
+                                // Yaw, Yaw Offset, Pitch, & Pitch Offset
+                                ui.slider_config("Yaw##RCS", 0.0, 2.0).display_format("%.1f").build(&mut conf.yaw);
+                                ui.slider_config("Yaw Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut conf.yaw_offset);
+                                ui.slider_config("Pitch##RCS", 0.0, 2.0).display_format("%.1f").build(&mut conf.pitch);
+                                ui.slider_config("Pitch Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut conf.pitch_offset);
+
+                                // Sensitivity
+                                ui.separator();
+                                ui.slider_config("Mouse Sensitivity##RCS", 0.1, 8.0).display_format("%.1f").build(&mut conf.sensitivity);
+                            }
+                        }
+
+                        // Configs
+                        if (*config).rcs.shared {
+                            rcs_conf!(&mut (*config).rcs.configs.shared);
+                        } else {
+                            TabBar::new("##RCSConfigs").build(&ui, || {
+                                TabItem::new("Default").build(&ui, || {
+                                    rcs_conf!(&mut (*config).rcs.configs.shared);
+                                });
+
+                                TabItem::new("Pistol").build(&ui, || {
+                                    rcs_conf!(&mut (*config).rcs.configs.pistol);
+                                });
+
+                                TabItem::new("Rifle").build(&ui, || {
+                                    rcs_conf!(&mut (*config).rcs.configs.rifle);
+                                });
+
+                                TabItem::new("Submachine").build(&ui, || {
+                                    rcs_conf!(&mut (*config).rcs.configs.submachine);
+                                });
+
+                                TabItem::new("Sniper").build(&ui, || {
+                                    rcs_conf!(&mut (*config).rcs.configs.sniper);
+                                });
+
+                                TabItem::new("Shotgun").build(&ui, || {
+                                    rcs_conf!(&mut (*config).rcs.configs.shotgun);
+                                });
+
+                                TabItem::new("Machine Gun").build(&ui, || {
+                                    rcs_conf!(&mut (*config).rcs.configs.machinegun);
+                                });
+                            });
+                        }
                     }
                 });
 
@@ -376,7 +424,7 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).aimbot.shared {
                             aimbot_conf!(&mut (*config).aimbot.configs.shared);
                         } else {
-                            TabBar::new("Aimbot").build(&ui, || {
+                            TabBar::new("##AimbotConfigs").build(&ui, || {
                                 TabItem::new("Default").build(&ui, || {
                                     aimbot_conf!(&mut (*config).aimbot.configs.shared);
                                 });

@@ -195,18 +195,62 @@ impl Default for ESP {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct RCS {
-    pub enabled: bool,
-    pub key: usize,
-    pub mode: usize,
+pub struct RCSConfig {
     pub start_bullet: u32,
     pub yaw: f32,
     pub yaw_offset: f32,
     pub pitch: f32,
     pub pitch_offset: f32,
-    pub sensitivity: f32,
+    pub sensitivity: f32
+}
+
+impl Default for RCSConfig {
+    fn default() -> Self {
+        return Self {
+            start_bullet: 1,
+            yaw: 1.0,
+            yaw_offset: 0.2,
+            pitch: 1.0,
+            pitch_offset: 0.2,
+            sensitivity: 3.0,
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct RCSConfigs {
+    pub shared: RCSConfig,
+    pub pistol: RCSConfig,
+    pub rifle: RCSConfig,
+    pub submachine: RCSConfig,
+    pub sniper: RCSConfig,
+    pub shotgun: RCSConfig,
+    pub machinegun: RCSConfig
+}
+
+impl Default for RCSConfigs {
+    fn default() -> Self {
+        return Self {
+            shared: RCSConfig::default(),
+            pistol: RCSConfig::default(),
+            rifle: RCSConfig::default(),
+            submachine: RCSConfig::default(),
+            sniper: RCSConfig::default(),
+            shotgun: RCSConfig::default(),
+            machinegun: RCSConfig::default()
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct RCS {
+    pub enabled: bool,
+    pub key: usize,
+    pub mode: usize,
     pub always: bool,
-    pub default: bool
+    pub default: bool,
+    pub shared: bool,
+    pub configs: RCSConfigs
 }
 
 impl Default for RCS {
@@ -215,14 +259,10 @@ impl Default for RCS {
             enabled: true,
             key: 9,
             mode: 1,
-            start_bullet: 1,
-            yaw: 1.0,
-            yaw_offset: 0.2,
-            pitch: 1.0,
-            pitch_offset: 0.2,
-            sensitivity: 3.0,
             always: false,
-            default: true
+            default: true,
+            shared: false,
+            configs: RCSConfigs::default()
         };
     }
 }
