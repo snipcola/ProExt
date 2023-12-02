@@ -74,7 +74,15 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.separator();
                         }
 
+                        // Always & Default
+                        ui.checkbox("Always##ESP", &mut (*config).esp.always);
+                        
+                        if !(*config).esp.always && (*config).esp.mode == 1 {
+                            ui.checkbox("Default Toggle##ESP", &mut (*config).esp.default);
+                        }
+
                         // Outline
+                        ui.separator();
                         ui.checkbox("Outline##ESP", &mut (*config).esp.outline);
 
                         // Thickness
@@ -219,14 +227,6 @@ pub fn render_menu(ui: &mut Ui) {
                             }
                         }
 
-                        // Always & Default
-                        ui.separator();
-                        ui.checkbox("Always##ESP", &mut (*config).esp.always);
-                        
-                        if !(*config).esp.always && (*config).esp.mode == 1 {
-                            ui.checkbox("Default Toggle##ESP", &mut (*config).esp.default);
-                        }
-
                         // Snap Line
                         ui.separator();
                         ui.checkbox("Snapline##ESP", &mut (*config).esp.snap_line_enabled);
@@ -275,6 +275,10 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.checkbox("Shared##RCS", &mut (*config).rcs.shared);
                         ui.separator();
 
+                        // Sensitivity
+                        ui.slider_config("Mouse Sensitivity##RCS", 0.1, 8.0).display_format("%.1f").build(&mut (*config).rcs.sensitivity);
+                        ui.separator();
+
                         // Function
                         macro_rules! rcs_conf {
                             ($conf:expr) => {
@@ -289,10 +293,6 @@ pub fn render_menu(ui: &mut Ui) {
                                 ui.slider_config("Yaw Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut conf.yaw_offset);
                                 ui.slider_config("Pitch##RCS", 0.0, 2.0).display_format("%.1f").build(&mut conf.pitch);
                                 ui.slider_config("Pitch Offset##Aimbot", 0.0, 1.0).display_format("%.1f").build(&mut conf.pitch_offset);
-
-                                // Sensitivity
-                                ui.separator();
-                                ui.slider_config("Mouse Sensitivity##RCS", 0.1, 8.0).display_format("%.1f").build(&mut conf.sensitivity);
                             }
                         }
 
@@ -356,11 +356,12 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.checkbox("Default Toggle##Aimbot", &mut (*config).aimbot.default);
                         }
 
-                        // Only Weapon
-                        ui.checkbox("Only Weapon##Aimbot", &mut (*config).aimbot.only_weapon);
-
                         // Shared
                         ui.checkbox("Shared##Aimbot", &mut (*config).aimbot.shared);
+                        ui.separator();
+
+                        // Only Weapon
+                        ui.checkbox("Only Weapon##Aimbot", &mut (*config).aimbot.only_weapon);
                         ui.separator();
 
                         // Function
@@ -484,11 +485,12 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.checkbox("Default Toggle##Triggerbot", &mut (*config).triggerbot.default);
                         }
 
-                        // Only Weapon
-                        ui.checkbox("Only Weapon##Triggerbot", &mut (*config).triggerbot.only_weapon);
-
                         // Shared
                         ui.checkbox("Shared##Triggerbot", &mut (*config).triggerbot.shared);
+                        ui.separator();
+
+                        // Only Weapon
+                        ui.checkbox("Only Weapon##Triggerbot", &mut (*config).triggerbot.only_weapon);
                         ui.separator();
                         
                         // Function
@@ -561,10 +563,6 @@ pub fn render_menu(ui: &mut Ui) {
                     ui.checkbox("Crosshair", &mut (*config).crosshair.enabled);
                     
                     if (*config).crosshair.enabled {
-                        // Crosshair Color
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##ColorCrosshair", &mut (*config).crosshair.color);
-
                         if !(*config).crosshair.always {
                             // Key
                             ui.same_line();
@@ -575,46 +573,6 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.separator();
                         }
 
-                        // Target Crosshair
-                        ui.checkbox("Target##Crosshair", &mut (*config).crosshair.target_enabled);
-                        
-                        if (*config).crosshair.target_enabled {
-                            ui.same_line();
-                            color_edit_u32_tuple(ui, "##ColorCrosshairTarget", &mut (*config).crosshair.target_color);
-                        }
-
-                        // Outline
-                        ui.checkbox("Outline##Crosshair", &mut (*config).crosshair.outline_enabled);
-                        ui.separator();
-
-                        // Dot
-                        ui.checkbox("Dot##Crosshair", &mut (*config).crosshair.dot_enabled);
-                        
-                        if (*config).crosshair.dot_enabled {
-                            ui.same_line();
-                            ui.slider_config("##SizeCrosshairDot", 1, 10).display_format("%d").build(&mut (*config).crosshair.dot_size);
-                        }
-
-                        // Circle
-                        ui.checkbox("Circle##Crosshair", &mut (*config).crosshair.circle_enabled);
-
-                        if (*config).crosshair.circle_enabled {
-                            ui.same_line();
-                            ui.slider_config("##RadiusCrosshairCircle", 1, 30).display_format("%d").build(&mut (*config).crosshair.circle_radius);
-                        }
-
-                        // Lines
-                        ui.checkbox("Lines##Crosshair", &mut (*config).crosshair.lines_enabled);
-                        
-                        if (*config).crosshair.lines_enabled {
-                            ui.slider_config("Width##CrosshairLines", 1, 20).display_format("%d").build(&mut (*config).crosshair.lines_width);
-                            ui.slider_config("Height##CrosshairLines", 1, 20).display_format("%d").build(&mut (*config).crosshair.lines_height);
-                            ui.slider_config("Space##CrosshairLines", 1, 10).display_format("%d").build(&mut (*config).crosshair.lines_space);
-                            ui.slider_config("Thickness##CrosshairLines", 1, 10).display_format("%d").build(&mut (*config).crosshair.lines_thickness);
-                        }
-
-                        ui.separator();
-
                         // Always & Default
                         ui.checkbox("Always##Crosshair", &mut (*config).crosshair.always);
                     
@@ -622,9 +580,100 @@ pub fn render_menu(ui: &mut Ui) {
                             ui.checkbox("Default Toggle##Crosshair", &mut (*config).crosshair.default);
                         }
 
-                        // Only Weapon
+                        // Shared
+                        ui.checkbox("Shared##Crosshair", &mut (*config).crosshair.shared);
                         ui.separator();
+
+                        // Only Weapon
                         ui.checkbox("Only Weapon##Crosshair", &mut (*config).crosshair.only_weapon);
+                        ui.separator();
+
+                        // Function
+                        macro_rules! crosshair_conf {
+                            ($conf:expr) => {
+                                let conf = $conf;
+
+                                // Crosshair Color
+                                color_edit_u32_tuple(ui, "Color##Crosshair", &mut conf.color);
+
+                                // Target Crosshair
+                                ui.checkbox("Target##Crosshair", &mut conf.target_enabled);
+                                
+                                if conf.target_enabled {
+                                    ui.same_line();
+                                    color_edit_u32_tuple(ui, "##ColorCrosshairTarget", &mut conf.target_color);
+                                }
+
+                                // Outline
+                                ui.checkbox("Outline##Crosshair", &mut conf.outline_enabled);
+                                ui.separator();
+
+                                // Dot
+                                ui.checkbox("Dot##Crosshair", &mut conf.dot_enabled);
+                                
+                                if conf.dot_enabled {
+                                    ui.same_line();
+                                    ui.slider_config("##SizeCrosshairDot", 1, 10).display_format("%d").build(&mut conf.dot_size);
+                                }
+
+                                // Circle
+                                ui.checkbox("Circle##Crosshair", &mut conf.circle_enabled);
+
+                                if conf.circle_enabled {
+                                    ui.same_line();
+                                    ui.slider_config("##RadiusCrosshairCircle", 1, 30).display_format("%d").build(&mut conf.circle_radius);
+                                }
+
+                                // Lines
+                                ui.checkbox("Lines##Crosshair", &mut conf.lines_enabled);
+                                
+                                if conf.lines_enabled {
+                                    ui.slider_config("Width##CrosshairLines", 1, 20).display_format("%d").build(&mut conf.lines_width);
+                                    ui.slider_config("Height##CrosshairLines", 1, 20).display_format("%d").build(&mut conf.lines_height);
+                                    ui.slider_config("Space##CrosshairLines", 1, 10).display_format("%d").build(&mut conf.lines_space);
+                                    ui.slider_config("Thickness##CrosshairLines", 1, 10).display_format("%d").build(&mut conf.lines_thickness);
+                                }
+                            }
+                        }
+
+                        // Configs
+                        if (*config).crosshair.shared {
+                            crosshair_conf!(&mut (*config).crosshair.configs.shared);
+                        } else {
+                            TabBar::new("##CrosshairConfigs").build(&ui, || {
+                                TabItem::new("Pistol").build(&ui, || {
+                                    crosshair_conf!(&mut (*config).crosshair.configs.pistol);
+                                });
+
+                                TabItem::new("Rifle").build(&ui, || {
+                                    crosshair_conf!(&mut (*config).crosshair.configs.rifle);
+                                });
+
+                                TabItem::new("Submachine").build(&ui, || {
+                                    crosshair_conf!(&mut (*config).crosshair.configs.submachine);
+                                });
+
+                                TabItem::new("Sniper").build(&ui, || {
+                                    crosshair_conf!(&mut (*config).crosshair.configs.sniper);
+                                });
+
+                                TabItem::new("Shotgun").build(&ui, || {
+                                    crosshair_conf!(&mut (*config).crosshair.configs.shotgun);
+                                });
+
+                                TabItem::new("Machine Gun").build(&ui, || {
+                                    crosshair_conf!(&mut (*config).crosshair.configs.machinegun);
+                                });
+
+                                TabItem::new("Knife").build(&ui, || {
+                                    crosshair_conf!(&mut (*config).crosshair.configs.knife);
+                                });
+
+                                TabItem::new("Other").build(&ui, || {
+                                    crosshair_conf!(&mut (*config).crosshair.configs.other);
+                                });
+                            });
+                        }
                     }
                 });
 
@@ -645,9 +694,18 @@ pub fn render_menu(ui: &mut Ui) {
 
                             // Mode
                             ui.combo_simple_string("Mode##Radar", &mut (*config).radar.mode, &["Hold", "Toggle"]);
+                            ui.separator();
+                        }
+
+                        // Always & Default
+                        ui.checkbox("Always##Radar", &mut (*config).radar.always);
+                    
+                        if !(*config).radar.always && (*config).radar.mode == 1 {
+                            ui.checkbox("Default Toggle##Radar", &mut (*config).radar.default);
                         }
 
                         // Style
+                        ui.separator();
                         ui.combo_simple_string("Style##Radar", &mut (*config).radar.style, &["Circle", "Arrow", "Both"]);
 
                         // Radar Alpha
@@ -663,14 +721,6 @@ pub fn render_menu(ui: &mut Ui) {
                         if (*config).radar.crossline_enabled {
                             ui.same_line();
                             color_edit_u32_tuple(ui, "##ColorRadarCrossline", &mut (*config).radar.crossline_color);
-                        }
-
-                        // Always & Default
-                        ui.separator();
-                        ui.checkbox("Always##Radar", &mut (*config).radar.always);
-                    
-                        if !(*config).radar.always && (*config).radar.mode == 1 {
-                            ui.checkbox("Default Toggle##Radar", &mut (*config).radar.default);
                         }
 
                         ui.separator();

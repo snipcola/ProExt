@@ -94,6 +94,8 @@ pub struct ESP {
     pub enabled: bool,
     pub key: usize,
     pub mode: usize,
+    pub always: bool,
+    pub default: bool,
     pub outline: bool,
     pub thickness: f32,
     pub rounding: u32,
@@ -131,8 +133,6 @@ pub struct ESP {
     pub filled_bomb_enabled: bool,
     pub filled_bomb_color: (u32, u32, u32, u32),
     pub filled_bomb_alpha: f32,
-    pub always: bool,
-    pub default: bool,
     pub snap_line_enabled: bool,
     pub snap_line_color: (u32, u32, u32, u32),
     pub snap_line_mode: usize,
@@ -146,6 +146,8 @@ impl Default for ESP {
             enabled: true,
             key: 8,
             mode: 1,
+            always: false,
+            default: true,
             outline: true,
             thickness: 1.0,
             rounding: 0,
@@ -183,8 +185,6 @@ impl Default for ESP {
             filled_bomb_enabled: true,
             filled_bomb_color: (255, 0, 0, 255),
             filled_bomb_alpha: 0.1,
-            always: false,
-            default: true,
             snap_line_enabled: false,
             snap_line_color: (255, 255, 255, 255),
             snap_line_mode: 1,
@@ -200,8 +200,7 @@ pub struct RCSConfig {
     pub yaw: f32,
     pub yaw_offset: f32,
     pub pitch: f32,
-    pub pitch_offset: f32,
-    pub sensitivity: f32
+    pub pitch_offset: f32
 }
 
 impl Default for RCSConfig {
@@ -211,8 +210,7 @@ impl Default for RCSConfig {
             yaw: 1.0,
             yaw_offset: 0.2,
             pitch: 1.0,
-            pitch_offset: 0.2,
-            sensitivity: 3.0
+            pitch_offset: 0.2
         };
     }
 }
@@ -252,6 +250,7 @@ pub struct RCS {
     pub always: bool,
     pub default: bool,
     pub shared: bool,
+    pub sensitivity: f32,
     pub configs: RCSConfigs
 }
 
@@ -264,6 +263,7 @@ impl Default for RCS {
             always: false,
             default: true,
             shared: false,
+            sensitivity: 3.0,
             configs: RCSConfigs::default()
         };
     }
@@ -360,8 +360,8 @@ pub struct Aimbot {
     pub mode: usize,
     pub always: bool,
     pub default: bool,
-    pub only_weapon: bool,
     pub shared: bool,
+    pub only_weapon: bool,
     pub configs: AimbotConfigs
 }
 
@@ -373,8 +373,8 @@ impl Default for Aimbot {
             mode: 0,
             always: false,
             default: false,
-            only_weapon: true,
             shared: false,
+            only_weapon: true,
             configs: AimbotConfigs::default()
         };
     }
@@ -437,8 +437,8 @@ pub struct Triggerbot {
     pub mode: usize,
     pub always: bool,
     pub default: bool,
-    pub only_weapon: bool,
     pub shared: bool,
+    pub only_weapon: bool,
     pub configs: TriggerbotConfigs
 }
 
@@ -450,18 +450,15 @@ impl Default for Triggerbot {
             mode: 0,
             always: false,
             default: false,
-            only_weapon: true,
             shared: false,
+            only_weapon: true,
             configs: TriggerbotConfigs::default()
         };
     }
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct Crosshair {
-    pub enabled: bool,
-    pub key: usize,
-    pub mode: usize,
+pub struct CrosshairConfig {
     pub color: (u32, u32, u32, u32),
     pub target_enabled: bool,
     pub target_color: (u32, u32, u32, u32),
@@ -475,18 +472,12 @@ pub struct Crosshair {
     pub lines_height: u32,
     pub lines_space: u32,
     pub lines_thickness: u32,
-    pub always: bool,
-    pub default: bool,
-    pub only_weapon: bool
 }
 
-impl Default for Crosshair {
+impl Default for CrosshairConfig {
     fn default() -> Self {
         return Self {
-            enabled: true,
             color: (255, 255, 255, 255),
-            key: 10,
-            mode: 1,
             target_enabled: true,
             target_color: (255, 0, 0, 255),
             outline_enabled: true,
@@ -498,10 +489,63 @@ impl Default for Crosshair {
             lines_width: 9,
             lines_height: 9,
             lines_space: 7,
-            lines_thickness: 1,
+            lines_thickness: 1
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct CrosshairConfigs {
+    pub shared: CrosshairConfig,
+    pub pistol: CrosshairConfig,
+    pub rifle: CrosshairConfig,
+    pub submachine: CrosshairConfig,
+    pub sniper: CrosshairConfig,
+    pub shotgun: CrosshairConfig,
+    pub machinegun: CrosshairConfig,
+    pub knife: CrosshairConfig,
+    pub other: CrosshairConfig
+}
+
+impl Default for CrosshairConfigs {
+    fn default() -> Self {
+        return Self {
+            shared: CrosshairConfig::default(),
+            pistol: CrosshairConfig::default(),
+            rifle: CrosshairConfig::default(),
+            submachine: CrosshairConfig::default(),
+            sniper: CrosshairConfig::default(),
+            shotgun: CrosshairConfig::default(),
+            machinegun: CrosshairConfig::default(),
+            knife: CrosshairConfig::default(),
+            other: CrosshairConfig::default()
+        };
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct Crosshair {
+    pub enabled: bool,
+    pub key: usize,
+    pub mode: usize,
+    pub always: bool,
+    pub default: bool,
+    pub shared: bool,
+    pub only_weapon: bool,
+    pub configs: CrosshairConfigs
+}
+
+impl Default for Crosshair {
+    fn default() -> Self {
+        return Self {
+            enabled: true,
+            key: 10,
+            mode: 1,
             always: false,
             default: true,
-            only_weapon: true
+            shared: false,
+            only_weapon: true,
+            configs: CrosshairConfigs::default()
         };
     }
 }
@@ -512,13 +556,13 @@ pub struct Radar {
     pub color: (u32, u32, u32, u32),
     pub key: usize,
     pub mode: usize,
+    pub always: bool,
+    pub default: bool,
     pub style: usize,
     pub alpha: f32,
     pub outline: bool,
     pub crossline_enabled: bool,
     pub crossline_color: (u32, u32, u32, u32),
-    pub always: bool,
-    pub default: bool,
     pub point_size: f32,
     pub proportion: f32,
     pub range: f32
@@ -531,13 +575,13 @@ impl Default for Radar {
             color: (255, 0, 0, 255),
             key: 11,
             mode: 1,
+            always: false,
+            default: true,
             style: 2,
             alpha: 0.0,
             outline: true,
             crossline_enabled: false,
             crossline_color: (255, 255, 255, 255),
-            always: false,
-            default: true,
             point_size: 1.0,
             proportion: 3100.0,
             range: 143.0
