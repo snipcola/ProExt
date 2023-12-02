@@ -6,7 +6,7 @@ use windows::Win32::Foundation::HWND;
 use crate::ui::main::{WINDOW_INFO, UI_FUNCTIONS, WINDOWS_ACTIVE, TOGGLED};
 use crate::ui::windows::{is_window_focused, hide_window_from_capture};
 use crate::cheat::functions::is_enemy_at_crosshair;
-use crate::utils::config::{CONFIG, ProgramConfig, AimbotConfig};
+use crate::utils::config::{CONFIG, ProgramConfig, AimbotConfig, RCSConfig};
 use crate::cheat::classes::game::GAME;
 use crate::utils::mouse::release_mouse;
 use crate::utils::process_manager::{rpm, rpm_offset, rpm_auto};
@@ -24,7 +24,7 @@ use crate::cheat::features::watermark::render_watermark;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position, is_enemy_visible};
 use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch, get_aimbot_config};
 use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY};
-use crate::cheat::features::rcs::{get_rcs_toggled, run_rcs};
+use crate::cheat::features::rcs::{get_rcs_toggled, run_rcs, get_rcs_config};
 use crate::cheat::features::crosshair::{render_crosshair, get_crosshair_toggled};
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
@@ -36,6 +36,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
         let mut no_pawn = false;
         let mut local_entity = Entity::default();
 
+        let mut rcs_config = RCSConfig::default();
         let mut aimbot_config = AimbotConfig::default();
 
         loop {
@@ -151,6 +152,8 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 no_pawn = true;
             } else {
                 no_pawn = false;
+
+                rcs_config = if config.rcs.shared { config.rcs.configs.shared } else { get_rcs_config(config.rcs.configs, local_entity.pawn.weapon_type) };
                 aimbot_config = if config.aimbot.shared { config.aimbot.configs.shared } else { get_aimbot_config(config.aimbot.configs, local_entity.pawn.weapon_type) };
             }
 
@@ -527,7 +530,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
             // RCS
             if is_rcs_toggled && !is_aimbot_toggled {
-                run_rcs(config, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
+                run_rcs(rcs_config, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
             }
         }
     });
