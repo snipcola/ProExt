@@ -771,62 +771,12 @@ impl Default for Style {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct WindowSize {
-    pub force: bool,
-    pub width: i32,
-    pub height: i32
-}
-
-impl Default for WindowSize {
-    fn default() -> Self {
-        return Self {
-            force: false,
-            width: 1920,
-            height: 1080
-        };
-    }
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct WindowPosition {
-    pub force: bool,
-    pub x: i32,
-    pub y: i32
-}
-
-impl Default for WindowPosition {
-    fn default() -> Self {
-        return Self {
-            force: false,
-            x: 0,
-            y: 0
-        };
-    }
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
-pub struct Window {
-    pub size: WindowSize,
-    pub position: WindowPosition
-}
-
-impl Default for Window {
-    fn default() -> Self {
-        return Self {
-            size: WindowSize::default(),
-            position: WindowPosition::default()
-        };
-    }
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
     pub enabled: bool,
     pub bypass_capture: bool,
     pub discord_rpc_enabled: bool,
     pub exclude_team: bool,
-    pub show_on_spectate: bool,
-    pub window: Window
+    pub show_on_spectate: bool
 }
 
 impl Default for Settings {
@@ -836,8 +786,7 @@ impl Default for Settings {
             bypass_capture: true,
             discord_rpc_enabled: false,
             exclude_team: true,
-            show_on_spectate: true,
-            window: Window::default()
+            show_on_spectate: true
         };
     }
 }
