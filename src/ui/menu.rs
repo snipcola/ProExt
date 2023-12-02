@@ -109,6 +109,16 @@ pub fn render_menu(ui: &mut Ui) {
                                 color_edit_u32_tuple(ui, "##TargetColorESPBox", &mut (*config).esp.box_target_color);
                             }
 
+                            if (*config).settings.enabled && !(*config).settings.exclude_team {
+                                // Box Friendly
+                                ui.checkbox("Friendly##ESPBox", &mut (*config).esp.box_friendly_enabled);
+
+                                if (*config).esp.box_friendly_enabled {
+                                    ui.same_line();
+                                    color_edit_u32_tuple(ui, "##FriendlyColorESPBox", &mut (*config).esp.box_friendly_color);
+                                }
+                            }
+
                             // Filled Box
                             ui.checkbox("Filled##ESPBox", &mut (*config).esp.filled_box_enabled);
 
@@ -715,10 +725,6 @@ pub fn render_menu(ui: &mut Ui) {
                     ui.checkbox("Radar", &mut (*config).radar.enabled);
                     
                     if (*config).radar.enabled {
-                        // Radar Type
-                        ui.same_line();
-                        color_edit_u32_tuple(ui, "##ColorRadar", &mut (*config).radar.color);
-
                         if !(*config).radar.always {
                             // Key
                             ui.same_line();
@@ -734,6 +740,28 @@ pub fn render_menu(ui: &mut Ui) {
                     
                         if !(*config).radar.always && (*config).radar.mode == 1 {
                             ui.checkbox("Default Toggle##Radar", &mut (*config).radar.default);
+                        }
+
+                        // Color
+                        ui.separator();
+                        color_edit_u32_tuple(ui, "Color##Radar", &mut (*config).radar.color);
+
+                        // Target
+                        ui.checkbox("Target##Radar", &mut (*config).radar.target_enabled);
+
+                        if (*config).radar.target_enabled {
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##TargetColorRadar", &mut (*config).radar.target_color);
+                        }
+
+                        if (*config).settings.enabled && !(*config).settings.exclude_team {
+                            // Friendly
+                            ui.checkbox("Friendly##Radar", &mut (*config).radar.friendly_enabled);
+
+                            if (*config).radar.friendly_enabled {
+                                ui.same_line();
+                                color_edit_u32_tuple(ui, "##FriendlyColorRadar", &mut (*config).radar.friendly_color);
+                            }
                         }
 
                         // Style
