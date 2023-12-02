@@ -1,6 +1,6 @@
 use glutin::{event_loop::EventLoop, WindowedContext, PossiblyCurrent, window::WindowBuilder, platform::windows::WindowBuilderExtWindows, ContextBuilder};
 
-use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY, GCLP_HBRBACKGROUND, SetClassLongPtrW}}, core::HSTRING};
+use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY, GCLP_HBRBACKGROUND, SetClassLongPtrW, SetForegroundWindow}}, core::HSTRING};
 use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetForegroundWindow, FindWindowW};
 use windows::Win32::Graphics::Gdi::ClientToScreen;
 use windows::core::PCWSTR;
@@ -68,6 +68,10 @@ pub fn hide_window_from_capture(hwnd: HWND, toggle: bool) -> bool {
 
 pub fn is_window_focused(window: HWND) -> bool {
     return unsafe { GetForegroundWindow() } == window;
+}
+
+pub fn focus_window(window: HWND) {
+    unsafe { SetForegroundWindow(window) };
 }
 
 pub fn create_window(title: &str, hwnd: HWND) -> (EventLoop<()>, Window) {
