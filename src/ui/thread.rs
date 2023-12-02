@@ -19,12 +19,13 @@ lazy_static! {
 
 pub fn run_windows_thread(hwnd: HWND) {
     thread::spawn(move || {
+        let window_offset = 2;
         let window_info = WINDOW_INFO.clone();
         let exit = EXIT.clone();
 
         loop {
             if let Some(((x, y), (width, height))) = get_window_info(hwnd) {
-                *window_info.lock().unwrap() = Some(((x + 1, y + 1), (width - 2, height - 2)));
+                *window_info.lock().unwrap() = Some(((x + window_offset, y + window_offset), (width - (window_offset * 2), height - (window_offset * 2))));
             } else {
                 *exit.lock().unwrap() = true;
                 break;
