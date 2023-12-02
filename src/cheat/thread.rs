@@ -23,7 +23,7 @@ use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY, get_tr
 use crate::cheat::features::watermark::render_watermark;
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position, is_enemy_visible, has_weapon};
 use crate::cheat::features::rcs::{get_rcs_toggled, run_rcs, get_rcs_config};
-use crate::cheat::features::crosshair::{render_crosshair, get_crosshair_toggled};
+use crate::cheat::features::crosshair::{render_crosshair, get_crosshair_toggled, get_crosshair_config};
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
     thread::spawn(move || {
@@ -100,6 +100,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let rcs_config = if config.rcs.shared { config.rcs.configs.shared } else { get_rcs_config(config.rcs.configs, local_entity.pawn.weapon_type) };
             let aimbot_config = if config.aimbot.shared { config.aimbot.configs.shared } else { get_aimbot_config(config.aimbot.configs, local_entity.pawn.weapon_type) };
             let triggerbot_config = if config.triggerbot.shared { config.triggerbot.configs.shared } else { get_triggerbot_config(config.triggerbot.configs, local_entity.pawn.weapon_type) };
+            let crosshair_config = if config.crosshair.shared { config.crosshair.configs.shared } else { get_crosshair_config(config.crosshair.configs, local_entity.pawn.weapon_type) };
 
             let is_aimbot_toggled = !no_pawn && config.aimbot.enabled && is_game_window_focused && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon) && (config.aimbot.always || get_aimbot_toggled(config));
             let is_triggerbot_toggled = !no_pawn && config.triggerbot.enabled && is_game_window_focused && (!config.triggerbot.only_weapon || config.triggerbot.only_weapon && !no_weapon) && (config.triggerbot.always || get_triggerbot_toggled(config));
@@ -437,7 +438,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             // Crosshair
             if is_crosshair_toggled {
                 (*ui_functions.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
-                    render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, aiming_at_enemy && allow_shoot, config);
+                    render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, aiming_at_enemy && allow_shoot, crosshair_config);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("cross_hair");
@@ -527,7 +528,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
             // RCS
             if is_rcs_toggled && !is_aimbot_toggled {
-                run_rcs(rcs_config, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
+                run_rcs(config, rcs_config, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
             }
         }
     });
