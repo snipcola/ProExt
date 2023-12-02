@@ -3,57 +3,54 @@ use std::ops::{BitAnd, Shl};
 use std::time::{Instant, Duration};
 use mint::{Vector3, Vector2};
 use crate::cheat::classes::offsets::Offsets;
-use crate::ui::functions::hotkey_index_to_io;
+use crate::ui::functions::{hotkey_index_to_io, distance_between_vec3};
 use crate::utils::config::ProgramConfig;
 use crate::utils::process_manager::rpm_auto;
-use crate::utils::{config::Config, process_manager::{rpm_offset, trace_address}};
+use crate::utils::process_manager::{rpm_offset, trace_address};
 use crate::cheat::classes::entity::CUtlVector;
 
-pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_controller_team_id: i32, game_address_entity_list: u64, config: Config) -> (bool, bool, u64) {
+pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_controller_team_id: i32, game_address_entity_list: u64) -> (bool, bool, u64, Option<Vector3<f32>>) {
     let mut u_handle: u32 = 0;
     
     if !rpm_offset(local_entity_pawn_address, Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
-        return (false, false, 0);
+        return (false, false, 0, None);
     }
 
     if !rpm_offset(local_entity_pawn_address, Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
-        return (false, false, 0);
+        return (false, false, 0, None);
     }
 
     let list_entry: u64 = trace_address(game_address_entity_list, &[0x8 * u_handle.wrapping_shr(9) + 0x10, 0x0]);
 
     if list_entry == 0 {
-        return (false, false, 0);
+        return (false, false, 0, None);
     }
 
     let mut pawn_address: u64 = 0;
 
     if let Some(sum) = (0x78 as u64).checked_mul(u_handle.bitand(0x1FF) as u64) {
         if !rpm_offset(list_entry, sum, &mut pawn_address) {
-            return (false, false, 0);
+            return (false, false, 0, None);
         }
     }
 
     let mut entity_team_id = 0;
     let mut entity_health = 0;
+    let mut entity_pos: Vector3<f32> = Vector3 { x: 0.0, y: 0.0, z: 0.0 };
 
     if !rpm_offset(pawn_address, Offsets::C_BaseEntity::m_iTeamNum as u64, &mut entity_team_id) {
-        return (false, false, 0);
+        return (false, false, 0, None);
     }
 
     if !rpm_offset(pawn_address, Offsets::C_BaseEntity::m_iHealth as u64, &mut entity_health) {
-        return (false, false, 0);
+        return (false, false, 0, None);
     }
 
-    let allow_shoot = {
-        if config.settings.enabled && config.settings.exclude_team {
-            local_entity_controller_team_id != entity_team_id && entity_health > 0
-        } else {
-            entity_health > 0
-        }
-    };
+    if !rpm_offset(pawn_address, Offsets::C_BasePlayerPawn::m_vOldOrigin as u64, &mut entity_pos) {
+        return (false, false, 0, None);
+    }
 
-    return (true, allow_shoot, pawn_address);
+    return (true, local_entity_controller_team_id != entity_team_id && entity_health > 0, pawn_address, Some(entity_pos));
 }
 
 pub fn is_enemy_visible(b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64) -> bool {
@@ -240,4 +237,8 @@ pub fn is_feature_toggled(key: usize, mode: usize, toggle_toggled: &mut bool, to
 
         return *toggle_toggled;
     }
+}
+
+pub fn calculate_distance(position: Vector3<f32>, local_position: Vector3<f32>) -> u32 {
+    return distance_between_vec3(position, local_position) as u32 / 100;
 }

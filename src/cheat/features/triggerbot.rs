@@ -1,7 +1,8 @@
 use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
 use lazy_static::lazy_static;
+use mint::Vector3;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::{Config, CONFIG, TriggerbotConfigs, TriggerbotConfig}, mouse::{MOUSE_LOCKED, click_mouse, press_mouse}}, cheat::functions::{is_feature_toggled, WeaponType}};
+use crate::{utils::{config::{Config, CONFIG, TriggerbotConfigs, TriggerbotConfig}, mouse::{MOUSE_LOCKED, click_mouse, press_mouse, release_mouse}}, cheat::functions::{is_feature_toggled, WeaponType, calculate_distance}};
 
 lazy_static! {
     pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().triggerbot.default));
@@ -33,10 +34,18 @@ pub fn get_triggerbot_config(configs: TriggerbotConfigs, weapon_type: WeaponType
     };
 }
 
-pub fn run_triggerbot(address: u64, config: TriggerbotConfig) {
+pub fn run_triggerbot(address: u64, config: TriggerbotConfig, position: Vector3<f32>, local_position: Vector3<f32>) {
     let mouse_locked = MOUSE_LOCKED.lock().unwrap().clone();
     let mut shot_entity = TB_SHOT_ENTITY.lock().unwrap();
     let mut locked_entity = TB_LOCKED_ENTITY.lock().unwrap();
+    
+    let distance = calculate_distance(position, local_position);
+
+    if config.min_distance_enabled && distance < config.min_distance || config.max_distance_enabled && distance > config.max_distance {
+        *locked_entity = None;
+        release_mouse();
+        return;
+    }
 
     if locked_entity.is_none() {
         *locked_entity = Some((Instant::now(), address));

@@ -418,6 +418,22 @@ pub fn render_menu(ui: &mut Ui) {
                                 // Delay
                                 ui.slider_config("Delay##Aimbot", 0, 500).display_format("%d").build(&mut conf.delay);
                                 ui.slider_config("Delay Offset##Aimbot", 0, 100).display_format("%d").build(&mut conf.delay_offset);
+                                ui.separator();
+
+                                // Distance
+                                ui.checkbox("Min Distance##EnabledAimbot", &mut conf.min_distance_enabled);
+                                
+                                if conf.min_distance_enabled {
+                                    ui.same_line();
+                                    ui.slider_config("##MinDistanceAimbot", 0, 150).display_format("%d").build(&mut conf.min_distance);
+                                }
+
+                                ui.checkbox("Max Distance##EnabledAimbot", &mut conf.max_distance_enabled);
+                                
+                                if conf.max_distance_enabled {
+                                    ui.same_line();
+                                    ui.slider_config("##MaxDistanceAimbot", 0, 150).display_format("%d").build(&mut conf.max_distance);
+                                }
                             }
                         }
 
@@ -513,6 +529,22 @@ pub fn render_menu(ui: &mut Ui) {
                                 // Delay
                                 ui.slider_config("Delay##Triggerbot", 0, 500).display_format("%d").build(&mut conf.delay);
                                 ui.slider_config("Delay Offset##Triggerbot", 0, 100).display_format("%d").build(&mut conf.delay_offset);
+                                ui.separator();
+
+                                // Distance
+                                ui.checkbox("Min Distance##EnabledTriggerbot", &mut conf.min_distance_enabled);
+                                
+                                if conf.min_distance_enabled {
+                                    ui.same_line();
+                                    ui.slider_config("##MinDistanceTriggerbot", 0, 150).display_format("%d").build(&mut conf.min_distance);
+                                }
+
+                                ui.checkbox("Max Distance##EnabledTriggerbot", &mut conf.max_distance_enabled);
+                                
+                                if conf.max_distance_enabled {
+                                    ui.same_line();
+                                    ui.slider_config("##MaxDistanceTriggerbot", 0, 150).display_format("%d").build(&mut conf.max_distance);
+                                }
                             }
                         }
 
