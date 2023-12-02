@@ -288,7 +288,11 @@ pub struct AimbotConfig {
     pub smooth: f32,
     pub smooth_offset: f32,
     pub delay: u32,
-    pub delay_offset: u32
+    pub delay_offset: u32,
+    pub min_distance_enabled: bool,
+    pub min_distance: u32,
+    pub max_distance_enabled: bool,
+    pub max_distance: u32
 }
 
 impl Default for AimbotConfig {
@@ -311,7 +315,11 @@ impl Default for AimbotConfig {
             smooth: 1.0,
             smooth_offset: 0.2,
             delay: 70,
-            delay_offset: 15
+            delay_offset: 15,
+            min_distance_enabled: false,
+            min_distance: 150,
+            max_distance_enabled: false,
+            max_distance: 0
         };
     }
 }
@@ -387,6 +395,10 @@ pub struct TriggerbotConfig {
     pub tap_interval_offset: u32,
     pub delay: u32,
     pub delay_offset: u32,
+    pub min_distance_enabled: bool,
+    pub min_distance: u32,
+    pub max_distance_enabled: bool,
+    pub max_distance: u32
 }
 
 impl Default for TriggerbotConfig {
@@ -396,7 +408,11 @@ impl Default for TriggerbotConfig {
             tap_interval: 120,
             tap_interval_offset: 15,
             delay: 70,
-            delay_offset: 15
+            delay_offset: 15,
+            min_distance_enabled: false,
+            min_distance: 150,
+            max_distance_enabled: false,
+            max_distance: 0
         };
     }
 }
@@ -471,7 +487,7 @@ pub struct CrosshairConfig {
     pub lines_width: u32,
     pub lines_height: u32,
     pub lines_space: u32,
-    pub lines_thickness: u32,
+    pub lines_thickness: u32
 }
 
 impl Default for CrosshairConfig {

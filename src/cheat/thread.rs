@@ -295,7 +295,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 // Aimbot Check
                 if !no_pawn && config.aimbot.enabled {
-                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, enemy_visible, !entity.pawn.has_flag(Flags::InAir), aimbot_config);
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, enemy_visible, !entity.pawn.has_flag(Flags::InAir), entity.pawn.pos, local_entity.pawn.pos, aimbot_config);
                 }
 
                 // Skeleton
@@ -416,11 +416,11 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
             
             // Aim Info
-            let (aiming_at_enemy, allow_shoot, aiming_at_address) = {
+            let (aiming_at_enemy, allow_shoot, aiming_at_address, aiming_at_pos) = {
                 if no_pawn {
-                    (false, false, 0)
+                    (false, false, 0, None)
                 } else {
-                    is_enemy_at_crosshair(local_entity.pawn.address, local_entity.controller.team_id, game.address.entity_list, config)
+                    is_enemy_at_crosshair(local_entity.pawn.address, local_entity.controller.team_id, game.address.entity_list)
                 }
             };
 
@@ -501,10 +501,10 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             }
 
             // Triggerbot
-            let triggerbot_toggled = is_triggerbot_toggled && aiming_at_enemy && allow_shoot && aiming_at_address != 0;
+            let triggerbot_toggled = is_triggerbot_toggled && aiming_at_enemy && allow_shoot && aiming_at_address != 0 && aiming_at_pos.is_some();
 
             if triggerbot_toggled {
-                run_triggerbot(aiming_at_address, triggerbot_config);
+                run_triggerbot(aiming_at_address, triggerbot_config, aiming_at_pos.unwrap(), local_entity.pawn.pos);
             } else {
                 release_mouse();
             }

@@ -2,7 +2,7 @@ use std::{f32::consts::PI, sync::{Arc, Mutex}, time::Instant};
 use imgui::{Ui, ImColor32};
 use mint::{Vector3, Vector2, Vector4};
 use lazy_static::lazy_static;
-use crate::{cheat::{classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, functions::is_feature_toggled}, utils::config::{Config, CONFIG}, ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle, distance_between_vec3, stroke_text, mix_colors, color_with_alpha, text, rectangle_gradient}};
+use crate::{cheat::{classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, functions::{is_feature_toggled, calculate_distance}}, utils::config::{Config, CONFIG}, ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle, stroke_text, mix_colors, color_with_alpha, text, rectangle_gradient}};
 
 lazy_static! {
     pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().esp.default));
@@ -176,7 +176,7 @@ pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, rect: Vector4<f32>, co
 }
 
 pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, rect: Vector4<f32>, config: Config) {
-    let distance = distance_between_vec3(pawn_pos, local_pawn_pos) as u32 / 100;
+    let distance = calculate_distance(pawn_pos, local_pawn_pos);
 
     if config.esp.outline {
         stroke_text(ui, format!("{}m", distance), Vector2 { x: rect.x + rect.z + 4.0, y: rect.y }, color_u32_to_f32(config.esp.distance_color).into(), false);
@@ -301,7 +301,7 @@ pub fn render_health_bar(ui: &mut Ui, current_health: f32, rect: Vector4<f32>, c
 }
 
 pub fn render_bomb(ui: &mut Ui, pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, screen_pos: Vector2<f32>, bomb_site: &str, config: Config) {
-    let distance = distance_between_vec3(pos, local_pawn_pos) as u32 / 100;
+    let distance = calculate_distance(pos, local_pawn_pos);
     let rect = get_2d_box_non_player(Vector2 { x: 20.0, y: 20.0 }, screen_pos, distance as f32);
 
     render_box_bomb(ui, rect, config);
