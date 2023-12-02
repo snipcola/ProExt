@@ -52,25 +52,25 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
         .collapsible(false)
         .resizable(false)
         .bg_alpha(0.0)
-        .size([config.radar.range * 2.0, config.radar.range * 2.0], imgui::Condition::Always)
+        .size([config.radar.range as f32 * 2.0, config.radar.range as f32 * 2.0], imgui::Condition::Always)
         .position(window_position, condition)
         .build(|| {
             (*WINDOWS_ACTIVE.lock().unwrap()).insert("spectator_list".to_string(), ui.is_window_hovered());
             (*CONFIG.lock().unwrap()).window_positions.radar = ui.window_pos();
 
             let (full_window_pos, full_window_size) = (ui.window_pos(), ui.window_size());
-            let window_pos = Vector2 { x: full_window_pos[0] + config.radar.range, y: full_window_pos[1] + config.radar.range };
+            let window_pos = Vector2 { x: full_window_pos[0] + config.radar.range as f32, y: full_window_pos[1] + config.radar.range as f32 };
 
             // Window Mask
             ui.get_window_draw_list().add_rect(Vector2 { x: full_window_pos[0], y: full_window_pos[1] }, Vector2 { x: full_window_pos[0] + full_window_size[0], y: full_window_pos[1] + full_window_size[1] }, ImColor32::from_rgba_f32s(0.0, 0.0, 0.0, config.radar.alpha)).filled(true).build();
             
             // Cross Line
             if config.radar.crossline_enabled {
-                let vertical1 = Vector2 { x: window_pos.x - config.radar.range, y: window_pos.y };
-                let vertical2 = Vector2 { x: window_pos.x + config.radar.range, y: window_pos.y };
+                let vertical1 = Vector2 { x: window_pos.x - config.radar.range as f32, y: window_pos.y };
+                let vertical2 = Vector2 { x: window_pos.x + config.radar.range as f32, y: window_pos.y };
 
-                let horizontal1 = Vector2 { x: window_pos.x, y: window_pos.y - config.radar.range };
-                let horizontal2 = Vector2 { x: window_pos.x, y: window_pos.y + config.radar.range };
+                let horizontal1 = Vector2 { x: window_pos.x, y: window_pos.y - config.radar.range as f32 };
+                let horizontal2 = Vector2 { x: window_pos.x, y: window_pos.y + config.radar.range as f32 };
 
                 let color = color_u32_to_f32(config.radar.crossline_color);
                 
@@ -84,11 +84,11 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
             let arc_arrow_size = 7.0 * config.radar.point_size;
 
             for (pos, yaw, is_visible, is_friendly) in points {
-                let distance = ((local_pos.x - pos.x).powf(2.0) + (local_pos.y - pos.y).powf(2.0)).sqrt() / config.radar.proportion * config.radar.range * 2.0;
+                let distance = ((local_pos.x - pos.x).powf(2.0) + (local_pos.y - pos.y).powf(2.0)).sqrt() / (config.radar.proportion * 100) as f32 * config.radar.range as f32 * 2.0;
                 let angle = (local_yaw - (pos.y - local_pos.y).atan2(pos.x - local_pos.x) * 180.0 / PI) * PI / 180.0;
                 let point_pos = Vector2 { x: window_pos.x + distance * angle.sin(), y: window_pos.y - distance * angle.cos() };
 
-                if point_pos.x < window_pos.x - config.radar.range || point_pos.x > window_pos.x + config.radar.range || point_pos.y > window_pos.y + config.radar.range || point_pos.y < window_pos.y - config.radar.range {
+                if point_pos.x < window_pos.x - config.radar.range as f32 || point_pos.x > window_pos.x + config.radar.range as f32 || point_pos.y > window_pos.y + config.radar.range as f32 || point_pos.y < window_pos.y - config.radar.range as f32 {
                     continue;
                 }
 

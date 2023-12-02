@@ -588,8 +588,8 @@ pub struct Radar {
     pub crossline_enabled: bool,
     pub crossline_color: (u32, u32, u32, u32),
     pub point_size: f32,
-    pub proportion: f32,
-    pub range: f32
+    pub proportion: u32,
+    pub range: u32
 }
 
 impl Default for Radar {
@@ -611,8 +611,8 @@ impl Default for Radar {
             crossline_enabled: false,
             crossline_color: (255, 255, 255, 255),
             point_size: 1.0,
-            proportion: 3100.0,
-            range: 143.0
+            proportion: 31,
+            range: 143
         };
     }
 }
