@@ -212,7 +212,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let mut aim_entity_address: Option<u64> = None;
 
             // Radar Data
-            let mut radar_points: Vec<(Vector3<f32>, f32)> = Vec::new();
+            let mut radar_points: Vec<(Vector3<f32>, f32, bool, bool)> = Vec::new();
 
             // Spectator Data
             let mut spectators: Vec<String> = Vec::new();
@@ -270,9 +270,12 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     continue;
                 }
 
+                // Enemy Visible
+                let enemy_visible = is_enemy_visible( entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i);
+
                 // Radar Point
                 if is_radar_toggled {
-                    radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y));
+                    radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y, enemy_visible, entity.controller.team_id == local_entity.controller.team_id));
                 }
 
                 // Screen Check
@@ -289,9 +292,6 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                         continue;
                     }
                 };
-
-                // Enemy Visible
-                let enemy_visible = is_enemy_visible( entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i);
 
                 // Aimbot Check
                 if !no_pawn && config.aimbot.enabled {
@@ -354,7 +354,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 // Box
                 if is_esp_toggled && config.esp.box_enabled {
                     (*ui_functions.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
-                        render_box(ui, rect, enemy_visible, config);
+                        render_box(ui, rect, enemy_visible, entity.controller.team_id == local_entity.controller.team_id, config);
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("box_{}", i));

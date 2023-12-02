@@ -151,17 +151,17 @@ pub fn render_box_bomb(ui: &mut Ui, rect: Vector4<f32>, config: Config) {
     }
 }
 
-pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, enemy_visible: bool, config: Config) {
+pub fn render_box(ui: &mut Ui, rect: Vector4<f32>, enemy_visible: bool, is_friendly: bool, config: Config) {
     if config.esp.outline {
         rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_with_masked_alpha(config.esp.box_color, 0xFF000000).into(), config.esp.thickness + 1.0, config.esp.rounding, false);
     }
     
-    let box_color = if config.esp.box_target_enabled && enemy_visible { config.esp.box_target_color } else { config.esp.box_color };
+    let box_color = if is_friendly && config.esp.box_friendly_enabled { config.esp.box_friendly_color } else { if config.esp.box_target_enabled && enemy_visible { config.esp.box_target_color } else { config.esp.box_color } };
     rectangle(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, color_u32_to_f32(box_color).into(), config.esp.thickness, config.esp.rounding, false);
 
     if config.esp.filled_box_enabled {
-        let filled_box_color_one = if config.esp.box_target_enabled && enemy_visible { color_with_alpha(config.esp.box_target_color, config.esp.filled_box_alpha) } else { color_with_alpha(config.esp.filled_box_color_one, config.esp.filled_box_alpha) };
-        let filled_box_color_two = if config.esp.box_target_enabled && enemy_visible { color_with_alpha(config.esp.box_target_color, config.esp.filled_box_alpha) } else { color_with_alpha(config.esp.filled_box_color_two, config.esp.filled_box_alpha) };
+        let filled_box_color_one = if is_friendly && config.esp.box_friendly_enabled { color_with_alpha(config.esp.box_friendly_color, config.esp.filled_box_alpha) } else { if config.esp.box_target_enabled && enemy_visible { color_with_alpha(config.esp.box_target_color, config.esp.filled_box_alpha) } else { color_with_alpha(config.esp.filled_box_color_one, config.esp.filled_box_alpha) } };
+        let filled_box_color_two = if is_friendly && config.esp.box_friendly_enabled { color_with_alpha(config.esp.box_friendly_color, config.esp.filled_box_alpha) } else { if config.esp.box_target_enabled && enemy_visible { color_with_alpha(config.esp.box_target_color, config.esp.filled_box_alpha) } else { color_with_alpha(config.esp.filled_box_color_two, config.esp.filled_box_alpha) } };
 
         rectangle_gradient(ui, Vector2 { x: rect.x, y: rect.y }, Vector2 { x: rect.z, y: rect.w }, filled_box_color_one.into(), filled_box_color_two.into(), config.esp.thickness - 0.3, config.esp.rounding, true);
     }
