@@ -29,7 +29,7 @@ pub fn get_triggerbot_config(configs: TriggerbotConfigs, weapon_type: WeaponType
         WeaponType::Shotgun => configs.shotgun,
         WeaponType::MachineGun => configs.machinegun,
         WeaponType::Knife => configs.knife,
-        _ => configs.shared
+        _ => configs.other
     };
 }
 

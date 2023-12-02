@@ -225,7 +225,8 @@ pub struct RCSConfigs {
     pub submachine: RCSConfig,
     pub sniper: RCSConfig,
     pub shotgun: RCSConfig,
-    pub machinegun: RCSConfig
+    pub machinegun: RCSConfig,
+    pub other: RCSConfig
 }
 
 impl Default for RCSConfigs {
@@ -237,7 +238,8 @@ impl Default for RCSConfigs {
             submachine: RCSConfig::default(),
             sniper: RCSConfig::default(),
             shotgun: RCSConfig::default(),
-            machinegun: RCSConfig::default()
+            machinegun: RCSConfig::default(),
+            other: RCSConfig::default()
         };
     }
 }
@@ -331,7 +333,8 @@ pub struct AimbotConfigs {
     pub sniper: AimbotConfig,
     pub shotgun: AimbotConfig,
     pub machinegun: AimbotConfig,
-    pub knife: AimbotConfig
+    pub knife: AimbotConfig,
+    pub other: AimbotConfig
 }
 
 impl Default for AimbotConfigs {
@@ -344,7 +347,8 @@ impl Default for AimbotConfigs {
             sniper: AimbotConfig::sniper(),
             shotgun: AimbotConfig::default(),
             machinegun: AimbotConfig::default(),
-            knife: AimbotConfig::default()
+            knife: AimbotConfig::default(),
+            other: AimbotConfig::default()
         };
     }
 }
@@ -406,7 +410,8 @@ pub struct TriggerbotConfigs {
     pub sniper: TriggerbotConfig,
     pub shotgun: TriggerbotConfig,
     pub machinegun: TriggerbotConfig,
-    pub knife: TriggerbotConfig
+    pub knife: TriggerbotConfig,
+    pub other: TriggerbotConfig
 }
 
 impl Default for TriggerbotConfigs {
@@ -419,7 +424,8 @@ impl Default for TriggerbotConfigs {
             sniper: TriggerbotConfig::default(),
             shotgun: TriggerbotConfig::default(),
             machinegun: TriggerbotConfig::default(),
-            knife: TriggerbotConfig::default()
+            knife: TriggerbotConfig::default(),
+            other: TriggerbotConfig::default()
         };
     }
 }

@@ -26,7 +26,7 @@ pub fn get_rcs_config(configs: RCSConfigs, weapon_type: WeaponType) -> RCSConfig
         WeaponType::Sniper => configs.sniper,
         WeaponType::Shotgun => configs.shotgun,
         WeaponType::MachineGun => configs.machinegun,
-        _ => configs.shared
+        _ => configs.other
     };
 }
 

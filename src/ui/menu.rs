@@ -301,10 +301,6 @@ pub fn render_menu(ui: &mut Ui) {
                             rcs_conf!(&mut (*config).rcs.configs.shared);
                         } else {
                             TabBar::new("##RCSConfigs").build(&ui, || {
-                                TabItem::new("Default").build(&ui, || {
-                                    rcs_conf!(&mut (*config).rcs.configs.shared);
-                                });
-
                                 TabItem::new("Pistol").build(&ui, || {
                                     rcs_conf!(&mut (*config).rcs.configs.pistol);
                                 });
@@ -327,6 +323,10 @@ pub fn render_menu(ui: &mut Ui) {
 
                                 TabItem::new("Machine Gun").build(&ui, || {
                                     rcs_conf!(&mut (*config).rcs.configs.machinegun);
+                                });
+
+                                TabItem::new("Other").build(&ui, || {
+                                    rcs_conf!(&mut (*config).rcs.configs.other);
                                 });
                             });
                         }
@@ -425,10 +425,6 @@ pub fn render_menu(ui: &mut Ui) {
                             aimbot_conf!(&mut (*config).aimbot.configs.shared);
                         } else {
                             TabBar::new("##AimbotConfigs").build(&ui, || {
-                                TabItem::new("Default").build(&ui, || {
-                                    aimbot_conf!(&mut (*config).aimbot.configs.shared);
-                                });
-
                                 TabItem::new("Pistol").build(&ui, || {
                                     aimbot_conf!(&mut (*config).aimbot.configs.pistol);
                                 });
@@ -455,6 +451,10 @@ pub fn render_menu(ui: &mut Ui) {
 
                                 TabItem::new("Knife").build(&ui, || {
                                     aimbot_conf!(&mut (*config).aimbot.configs.knife);
+                                });
+
+                                TabItem::new("Other").build(&ui, || {
+                                    aimbot_conf!(&mut (*config).aimbot.configs.other);
                                 });
                             });
                         }
@@ -519,10 +519,6 @@ pub fn render_menu(ui: &mut Ui) {
                             triggerbot_conf!(&mut (*config).triggerbot.configs.shared);
                         } else {
                             TabBar::new("##TriggerbotConfigs").build(&ui, || {
-                                TabItem::new("Default").build(&ui, || {
-                                    triggerbot_conf!(&mut (*config).triggerbot.configs.shared);
-                                });
-
                                 TabItem::new("Pistol").build(&ui, || {
                                     triggerbot_conf!(&mut (*config).triggerbot.configs.pistol);
                                 });
@@ -549,6 +545,10 @@ pub fn render_menu(ui: &mut Ui) {
 
                                 TabItem::new("Knife").build(&ui, || {
                                     triggerbot_conf!(&mut (*config).triggerbot.configs.knife);
+                                });
+
+                                TabItem::new("Other").build(&ui, || {
+                                    triggerbot_conf!(&mut (*config).triggerbot.configs.other);
                                 });
                             });
                         }
