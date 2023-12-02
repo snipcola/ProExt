@@ -63,8 +63,6 @@ pub fn get_rcs_mouse(config: Config, rcs_config: RCSConfig, shots_fired: u32, ai
     return None;
 }
 
-pub fn run_rcs(config: Config, rcs_config: RCSConfig, shots_fired: u32, aim_punch_cache: CUtlVector) {
-    if let Some((x, y)) = get_rcs_mouse(config, rcs_config, shots_fired, aim_punch_cache) {
-        move_mouse(x, y, false);
-    }
+pub fn run_rcs((x, y): (i32, i32)) {
+    move_mouse(x, y, false);
 }
