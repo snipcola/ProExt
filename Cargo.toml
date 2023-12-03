@@ -3,6 +3,7 @@ name = "proext"
 version = "0.0.5"
 authors = ["Vytrol <vytrol@proton.me>"]
 edition = "2021"
+license = "MIT"
 
 [dependencies]
 lazy_static = "1.4.0"
