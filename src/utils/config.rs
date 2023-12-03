@@ -37,7 +37,7 @@ pub mod ProgramConfig {
     pub mod RPC {
         pub const Enabled: bool = true;
         pub const ClientID: u64 = 1179079909579165696;
-        pub const ImageAsset: &str = "cs2";
+        pub const ImageAsset: &str = "icon";
     }
 
     pub mod Links {
