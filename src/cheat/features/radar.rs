@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;

@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use windows::{Win32::{UI::WindowsAndMessaging::{MessageBoxW, MESSAGEBOX_STYLE, MESSAGEBOX_RESULT, MB_ICONINFORMATION, MB_ICONWARNING, MB_ICONERROR, MB_OKCANCEL, MB_YESNO}, Foundation::HWND}, core::HSTRING};
 
 pub enum MessageBoxStyle {

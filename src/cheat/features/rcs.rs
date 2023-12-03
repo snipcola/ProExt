@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::{sync::{Arc, Mutex}, time::Instant};
 use lazy_static::lazy_static;
 use mint::Vector2;

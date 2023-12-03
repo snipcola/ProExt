@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::mem;
 use std::ffi::{OsString, c_void};
 use std::os::windows::prelude::OsStringExt;

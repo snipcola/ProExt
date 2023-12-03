@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::thread;
 use std::time::Instant;
 use mint::{Vector3, Vector2};

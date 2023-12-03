@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::{sync::{Arc, Mutex}, ops::BitAnd};
 use imgui::Ui;
 use mint::Vector4;

@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::{io::Read, env, fs::File};
 use ureq::get;
 use md5::compute;

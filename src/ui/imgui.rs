@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::fs::read;
 use imgui::{Context, FontSource, FontConfig, FontGlyphRanges};
 use imgui_winit_support::{WinitPlatform, HiDpiMode};
