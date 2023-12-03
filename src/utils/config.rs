@@ -19,9 +19,11 @@ pub mod ProgramConfig {
     }
 
     pub mod Imgui {
+        pub const FontSize: f32 = 13.0;
+
         pub mod FontPaths {
             pub const Chinese: &str = "C:/Windows/Fonts/msyh.ttc";
-            pub const Cryillic: &str = "C:/Windows/Fonts/calibri.ttf";
+            pub const Cryillic: &str = "C:/Windows/Fonts/Arial.ttf";
             pub const Arabic: &str = "C:/Windows/Fonts/calibri.ttf";
         }
     }

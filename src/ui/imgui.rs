@@ -17,7 +17,7 @@ pub fn add_imgui_font(fonts: &mut Vec<FontSource>, font_path: &str, font_size: f
     fonts.push(FontSource::TtfData {
         data: slice,
         size_pixels: font_size,
-        config: Some(FontConfig { glyph_ranges: range, ..Default::default() }),
+        config: Some(FontConfig { glyph_ranges: range, oversample_h: 3, oversample_v: 3, ..Default::default() }),
     });
 }
 
@@ -29,10 +29,11 @@ pub fn init_imgui(window: &Window) -> (WinitPlatform, Context) {
     let mut winit_platform = WinitPlatform::init(&mut imgui_context);
     winit_platform.attach_window(imgui_context.io_mut(), window.window(), HiDpiMode::Rounded);
 
-    let mut fonts = vec![FontSource::DefaultFontData { config: None }];
-    add_imgui_font(&mut fonts, ProgramConfig::Imgui::FontPaths::Chinese, 13.5, FontGlyphRanges::chinese_full());
-    add_imgui_font(&mut fonts, ProgramConfig::Imgui::FontPaths::Cryillic, 13.5, FontGlyphRanges::cyrillic());
-    add_imgui_font(&mut fonts, ProgramConfig::Imgui::FontPaths::Arabic, 13.5, FontGlyphRanges::from_slice(&[0x600, 0x6FF, 0]));
+    let font_size = ProgramConfig::Imgui::FontSize;
+    let mut fonts = vec![FontSource::DefaultFontData { config: Some(FontConfig { size_pixels: font_size, oversample_h: 3, oversample_v: 3, ..Default::default() }) }];
+    add_imgui_font(&mut fonts, ProgramConfig::Imgui::FontPaths::Chinese, font_size, FontGlyphRanges::chinese_full());
+    add_imgui_font(&mut fonts, ProgramConfig::Imgui::FontPaths::Cryillic, font_size, FontGlyphRanges::cyrillic());
+    add_imgui_font(&mut fonts, ProgramConfig::Imgui::FontPaths::Arabic, font_size, FontGlyphRanges::from_slice(&[0x600, 0x6FF, 0]));
 
     imgui_context.fonts().add_font(&fonts);
     imgui_context.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
