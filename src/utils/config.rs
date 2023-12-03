@@ -413,7 +413,7 @@ impl Default for TriggerbotConfig {
     fn default() -> Self {
         return Self {
             action: 0,
-            tap_interval: 120,
+            tap_interval: 160,
             tap_interval_offset: 15,
             delay: 70,
             delay_offset: 15,
@@ -422,6 +422,14 @@ impl Default for TriggerbotConfig {
             max_distance_enabled: false,
             max_distance: 0
         };
+    }
+}
+
+impl TriggerbotConfig {
+    fn press() -> Self {
+        let mut base = Self::default();
+        base.action = 1;
+        return base;
     }
 }
 
@@ -443,11 +451,11 @@ impl Default for TriggerbotConfigs {
         return Self {
             shared: TriggerbotConfig::default(),
             pistol: TriggerbotConfig::default(),
-            rifle: TriggerbotConfig::default(),
-            submachine: TriggerbotConfig::default(),
+            rifle: TriggerbotConfig::press(),
+            submachine: TriggerbotConfig::press(),
             sniper: TriggerbotConfig::default(),
             shotgun: TriggerbotConfig::default(),
-            machinegun: TriggerbotConfig::default(),
+            machinegun: TriggerbotConfig::press(),
             knife: TriggerbotConfig::default(),
             other: TriggerbotConfig::default()
         };
