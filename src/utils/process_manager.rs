@@ -279,7 +279,7 @@ pub fn get_process_amount(process_name: &str) -> u32 {
         while Process32NextW(h_snapshot, &mut process_info).is_ok() {
             let current_name = OsString::from_wide(&process_info.szExeFile[..]).into_string().unwrap().replace("\u{0}", "");
 
-            if current_name == process_name {
+            if current_name.to_lowercase() == process_name.to_lowercase() {
                 amount += 1;
             }
         }
