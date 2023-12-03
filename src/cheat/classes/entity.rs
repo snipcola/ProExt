@@ -4,7 +4,7 @@
 use std::ops::{BitAnd, Shr};
 use mint::{Vector2, Vector3};
 
-use crate::utils::process_manager::{rpm_offset, trace_address, rpm, rpm_auto};
+use crate::utils::process_manager::{rpm_offset, rpm, rpm_auto};
 use crate::cheat::classes::bone::Bone;
 use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::game::GAME;
@@ -241,7 +241,22 @@ impl PlayerPawn {
     }
 
     pub fn get_weapon(&mut self) -> bool {
-        let weapon_name_address = trace_address(self.address + Offsets::C_CSPlayerPawnBase::m_pClippingWeapon as u64, &[0x10, 0x20, 0x0]);
+        let mut clipping_weapon: u64 = 0;
+        let mut weapon_data: u64 = 0;
+        let mut weapon_name_address: u64 = 0;
+
+        if !rpm_offset(self.address, Offsets::C_CSPlayerPawnBase::m_pClippingWeapon as u64, &mut clipping_weapon) {
+            return false;
+        }
+
+        if !rpm_offset(clipping_weapon, 0x360, &mut weapon_data) {
+            return false;
+        }
+
+        if !rpm_offset(weapon_data, Offsets::CCSWeaponBaseVData::m_szName as u64, &mut weapon_name_address) {
+            return false;
+        }
+
         let mut buffer: [u8; 40] = [0; 40];
 
         if weapon_name_address == 0 {
@@ -252,20 +267,13 @@ impl PlayerPawn {
             return false;
         }
         
-        let weapon_name = buffer_to_string(&buffer);
+        let weapon_name = buffer_to_string(&buffer).to_lowercase().replace("weapon_", "");
 
         if !self.weapon_name.is_empty() {
-            let (_type, name) = parse_weapon(weapon_name.to_lowercase().replace("weapon_", ""));
+            let (wtype, name) = parse_weapon(weapon_name.clone());
 
-            self.weapon_type = _type;
-
-            if name == "" {
-                self.weapon_name = weapon_name.to_lowercase().replace("weapon_", "");
-            } else {
-                self.weapon_name = name.to_string();
-            }
-
-            self.weapon_name = name.to_string();
+            self.weapon_type = wtype;
+            self.weapon_name = if name == "" { weapon_name } else { name.to_string() };
         }
 
         return true;

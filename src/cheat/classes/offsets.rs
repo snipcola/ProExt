@@ -78,6 +78,10 @@ pub mod Offsets {
     pub mod C_PlantedC4 { // CBaseAnimGraph
         pub const m_nBombSite: usize = 0xE84; // int32_t
     }
+
+    pub mod CCSWeaponBaseVData { // CBasePlayerWeaponVData
+        pub const m_szName: usize = 0xC18; // CUtlString
+    }
 }
 
 #[allow(non_snake_case, non_upper_case_globals)]
