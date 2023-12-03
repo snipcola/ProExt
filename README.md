@@ -1,3 +1,8 @@
+<!--
+Copyright (c) 2023 Vytrol <vytrol@proton.me>
+SPDX-License-Identifier: MIT
+-->
+
 <h1 align="center">
     <img src="./assets/banner.png" width="450"/>
 </h1>

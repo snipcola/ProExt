@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use lazy_static::lazy_static;
 use std::sync::{Mutex, Arc};
 use crate::utils::process_manager::{search_memory, get_process_module_handle, rpm_offset, rpm_auto};

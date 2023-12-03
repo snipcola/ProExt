@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file}, sync::{Arc, Mutex}, path::PathBuf};

@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 #![cfg_attr(all(target_os = "windows", not(debug_assertions)), windows_subsystem = "windows")]
 
 mod utils;

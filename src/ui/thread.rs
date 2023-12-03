@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}, process};
 use glow::{HasContext, COLOR_BUFFER_BIT};
 use glutin::{event_loop::{EventLoop, ControlFlow}, dpi::{PhysicalSize, PhysicalPosition}, event::{Event, DeviceEvent, ElementState, WindowEvent}};

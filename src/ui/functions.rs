@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::ops::BitAnd;
 use imgui::{Style, ImColor32, Ui, ColorEditFlags, StyleColor};
 use mint::{Vector2, Vector3, Vector4};

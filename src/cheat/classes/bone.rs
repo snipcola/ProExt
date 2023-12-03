@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use mint::{Vector3, Vector2};
 
 use crate::utils::process_manager::{rpm_offset, rpm_auto};

@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::{thread::{self, sleep}, time::{SystemTime, UNIX_EPOCH}};
 use discord_rpc_client::Client;
 use crate::utils::config::ProgramConfig;

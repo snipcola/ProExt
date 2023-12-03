@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 use std::mem::size_of;
 use std::ops::{BitAnd, Shl};
 use std::time::{Instant, Duration};
