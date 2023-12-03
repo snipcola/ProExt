@@ -261,7 +261,7 @@ pub struct RCS {
 impl Default for RCS {
     fn default() -> Self {
         return Self {
-            enabled: true,
+            enabled: false,
             key: 9,
             mode: 1,
             always: false,
