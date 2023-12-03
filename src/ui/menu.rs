@@ -1095,6 +1095,12 @@ pub fn render_menu(ui: &mut Ui) {
                     if ui.button("License") {
                         open_url(ProgramConfig::Links::License);
                     }
+
+                    ui.same_line();
+
+                    if ui.button("Discord") {
+                        open_url(ProgramConfig::Links::Discord);
+                    }
                 });
             });
 
