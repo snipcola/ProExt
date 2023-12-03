@@ -1,19 +1,14 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{io::Read, env, fs::File};
+use std::{io::Read, fs::File, path::PathBuf};
 use ureq::get;
 use md5::compute;
 
 use crate::utils::config::ProgramConfig;
 
-pub fn get_own_md5() -> Option<String> {
-    let exe_path = match env::current_exe() {
-        Ok(exe) => exe,
-        Err(_) => { return None; }
-    };
-
-    let mut file = match File::open(exe_path) {
+pub fn get_own_md5(exe_pathbuf: PathBuf) -> Option<String> {
+    let mut file = match File::open(exe_pathbuf) {
         Ok(file) => file,
         Err(_) => { return None; }
     };

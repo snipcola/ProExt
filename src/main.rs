@@ -7,7 +7,7 @@ mod utils;
 mod cheat;
 mod ui;
 
-use std::thread::{self, sleep};
+use std::{env, thread::{self, sleep}};
 use utils::messagebox::{MessageBoxStyle, MessageBoxButtons, MessageBoxResult};
 
 use crate::utils::messagebox::{create_messagebox, create_dialog};
@@ -20,7 +20,12 @@ use crate::utils::config::{setup_config, update_configs, ProgramConfig};
 use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists};
 
 fn main() {
-    if get_process_amount(ProgramConfig::Package::Executable) > 1 {
+    let exe_pathbuf = match env::current_exe() {
+        Ok(exe) => exe,
+        Err(_) => return
+    };
+
+    if get_process_amount(ProgramConfig::Package::Executable) > 1 || get_process_amount(&exe_pathbuf.file_name().unwrap().to_string_lossy()) > 1 {
         return create_messagebox(MessageBoxStyle::Error, "Already Running", &format!("{} is already running.", ProgramConfig::Package::Name));
     }
 
@@ -35,7 +40,7 @@ fn main() {
     }
     
     if !cfg!(debug_assertions) && ProgramConfig::Update::Enabled && update_exists() {
-        let own_md5 = get_own_md5();
+        let own_md5 = get_own_md5(exe_pathbuf);
         let latest_md5 = get_latest_md5();
 
         if own_md5.is_some() && latest_md5.is_some() {
