@@ -84,7 +84,7 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
     }
 
     let screen_diff_y = (screen_center_y - screen_pos.y).abs() / 10.0;
-    let use_rcs = rcs_toggled && screen_diff_y < 5.0;
+    let use_rcs = rcs_toggled && screen_diff_y < 10.0;
 
     let mut target_x = if screen_pos.x > screen_center_x { -(screen_center_x - screen_pos.x) } else { screen_pos.x - screen_center_x };
     target_x /= smooth;
