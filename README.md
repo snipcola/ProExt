@@ -7,6 +7,12 @@ SPDX-License-Identifier: MIT
     <img src="./assets/banner.png" width="450"/>
 </h1>
 
+<p align="center">
+    <a href="https://raw.githubusercontent.com/vytrol/ProExt/main/LICENSE" target="_blank">MIT License</a>
+    •
+    <a href="https://discord.gg/8t2vNHMJW6" target="_blank">Discord Community</a>
+</p>
+
 <div align="center">
     <img src="https://img.shields.io/github/license/vytrol/proext?style=for-the-badge&logo=github&color=3380F5"/>
     <img src="https://img.shields.io/github/actions/workflow/status/vytrol/proext/build-deploy.yml?style=for-the-badge&logo=github&color=3380F5"/>
