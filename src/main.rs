@@ -29,8 +29,8 @@ fn main() {
         return create_messagebox(MessageBoxStyle::Error, "Already Running", &format!("{} is already running.", ProgramConfig::Package::Name));
     }
 
-    if !cfg!(debug_assertions) && ProgramConfig::Package::AskStart {
-        let caption = format!("{} - {}", ProgramConfig::Package::Name, ProgramConfig::Package::Authors.replace(":", ", "));
+    if !cfg!(debug_assertions) {
+        let caption = "Copyright (c) 2023 Vytrol <vytrol@proton.me>";
         let text = format!("Would you like to start {} v{}?", ProgramConfig::Package::Name, ProgramConfig::Package::Version);
 
         match create_dialog(MessageBoxStyle::Info, MessageBoxButtons::YesNo, &caption, &text) {

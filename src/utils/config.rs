@@ -16,7 +16,6 @@ pub mod ProgramConfig {
         pub const Executable: &str = "proext.exe";
         pub const Version: &str = env!("CARGO_PKG_VERSION");
         pub const Authors: &str = &env!("CARGO_PKG_AUTHORS");
-        pub const AskStart: bool = true;
     }
 
     pub mod Imgui {
