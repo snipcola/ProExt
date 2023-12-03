@@ -214,7 +214,7 @@ pub struct RCSConfig {
 impl Default for RCSConfig {
     fn default() -> Self {
         return Self {
-            start_bullet: 1,
+            start_bullet: 0,
             yaw: 1.0,
             yaw_offset: 0.2,
             pitch: 1.0,

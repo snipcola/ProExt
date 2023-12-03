@@ -284,7 +284,7 @@ pub fn render_menu(ui: &mut Ui) {
                                 let conf = $conf;
 
                                 // Start Bullet
-                                ui.slider_config("Start Bullet##RCS", 1, 6).display_format("%d").build(&mut conf.start_bullet);
+                                ui.slider_config("Start Bullet##RCS", 0, 6).display_format("%d").build(&mut conf.start_bullet);
                                 ui.separator();
 
                                 // Yaw, Yaw Offset, Pitch, & Pitch Offset

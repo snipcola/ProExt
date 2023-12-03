@@ -43,7 +43,7 @@ pub fn get_rcs_yaw_pitch(config: RCSConfig) -> (f32, f32) {
     return (yaw, pitch);
 }
 
-pub fn calculate_rcs_position(config: Config, rcs_config: RCSConfig, current_punch: Vector2<f32>, shots_fired: u32) -> (i32, i32) {
+pub fn calculate_rcs_position(config: Config, rcs_config: RCSConfig, current_punch: Vector2<f32>, shots_fired: u32) -> Option<(i32, i32)> {
     let (yaw, pitch) = get_rcs_yaw_pitch(rcs_config);
     let mut last_punch = LAST_PUNCH.lock().unwrap();
     let mut new_punch = Vector2 { x: 0.0, y: 0.0 };
@@ -51,16 +51,18 @@ pub fn calculate_rcs_position(config: Config, rcs_config: RCSConfig, current_pun
     if shots_fired > rcs_config.start_bullet {
         new_punch.x = ((current_punch.y - last_punch.y) * 2.0 / (pitch * config.rcs.sensitivity)) * 50.0;
         new_punch.y = (-(current_punch.x - last_punch.x) * 2.0 / (yaw * config.rcs.sensitivity)) * 50.0;
+        *last_punch = current_punch;
+    } else {
+        *last_punch = current_punch;
+        return None;
     }
 
-    *last_punch = current_punch;
-    return (new_punch.x as i32, new_punch.y as i32);
+    return Some((new_punch.x as i32, new_punch.y as i32));
 }
 
 pub fn get_rcs_mouse(config: Config, rcs_config: RCSConfig, shots_fired: u32, aim_punch_cache: CUtlVector) -> Option<(i32, i32)> {
     if let Some(punch) = cache_to_punch(aim_punch_cache) {
-        let position = calculate_rcs_position(config, rcs_config, punch, shots_fired);
-        return Some(position);
+        return calculate_rcs_position(config, rcs_config, punch, shots_fired);
     }
 
     return None;
