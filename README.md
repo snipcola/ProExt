@@ -1,25 +1,30 @@
-<!--
-## ⚠️ Notice
-### 📌 This project has been abandoned and further development is halted.
-Feel free to [fork this repo](https://github.com/vytrol/ProExt/forks) if you'd like to continue this project - ensure that proper credits are included in your fork, as per the MIT license.<br><br>
-In the meanwhile, here are some alternatives:
-- 👉 [@TKazer/CS2_External](https://github.com/TKazer/CS2_External)
-- 👉 [@CowNowK/AimStarCS2](https://github.com/CowNowK/AimStarCS2)
-- 👉 [@Valthrun/Valthrun](https://github.com/Valthrun/Valthrun)
--->
+<h1 align="center">
+    <img src="./assets/banner.png" width="450"/>
+</h1>
 
-## 🎮 ProExt - A game enhancer for CS2
-![showcase](./Showcase.png)
-## 📋 Features:
-- **ESP 👁️**
-- **Aimbot 🎯**
-- **Triggerbot 💨**
-- **Crosshair ⌖**
-- **Radar 📡**
-- **Bomb Timer 💣**
-- **Spectator List 👀**
-- **Styling 🖌️**
-- ...and more to come!
-## 💬 Q&A:
-**🤔  Is this detectable?** <br>
-**Yes, this may be detectable in certain circumstances**, it is a user-mode cheat afterall. *It is important to note that you might not be detected, other factors such as suspicious gameplay also are important to consider.*<br><br>
+<div align="center">
+    <img src="https://img.shields.io/github/license/vytrol/proext?style=for-the-badge&logo=github&color=3380F5"/>
+    <img src="https://img.shields.io/github/actions/workflow/status/vytrol/proext/build-deploy.yml?style=for-the-badge&logo=github&color=3380F5"/>
+    <img src="https://img.shields.io/github/commit-activity/t/vytrol/proext?style=for-the-badge&logo=github&color=3380F5"/>
+</div>
+
+<p align="center">An open-source, customizable modification for Counter-Strike 2, designed to enhance your gameplay.</p>
+
+<img src="./assets/showcase.png"/>
+
+<h2>📋 Features:</h2>
+<li>ESP</li>
+<li>RCS</li>
+<li>Aimbot</li>
+<li>Triggerbot</li>
+<li>Crosshair</li>
+<li>Radar</li>
+<li>Bomb Timer</li>
+<li>Spectator List</li>
+<li>Styling</li>
+<li>Configuration</li>
+<li><i>...and more to come!</i></li>
+
+<h2>💬 Q&A:</h2>
+<h4><b>🤔  Is this detectable?</b></h4>
+<p>This software operates in user mode, so it is entirely possible to be detected. However, you should always avoid suspicious gameplay to evade potential reports.</p>
