@@ -39,3 +39,10 @@ SPDX-License-Identifier: MIT
 <h2>💬 Q&A:</h2>
 <h4><b>🤔  Is this detectable?</b></h4>
 <p>This software operates in user mode, so it is entirely possible to be detected. However, you should always avoid suspicious gameplay to evade potential reports.</p>
+
+<h4><b>🤔  Menu is laggy when toggling, any way to fix?</b></h4>
+<p>Yes, enable developer console and run the following:</p>
+
+<code>
+    engine_no_focus_sleep 0
+</code>
