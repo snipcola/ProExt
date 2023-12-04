@@ -110,7 +110,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let is_rcs_toggled = !no_pawn && config.rcs.enabled && is_game_window_focused && (config.rcs.always || get_rcs_toggled(config));
             let is_esp_toggled = config.esp.enabled && (config.esp.always || get_esp_toggled(config));
             let is_crosshair_toggled = !no_pawn && config.crosshair.enabled && (!config.crosshair.only_weapon || config.crosshair.only_weapon && !no_weapon) && (config.crosshair.always || get_crosshair_toggled(config));
-            let is_radar_toggled = config.radar.enabled && (config.radar.always || get_radar_toggled(config));
+            let is_radar_toggled = !no_pawn && config.radar.enabled && (config.radar.always || get_radar_toggled(config));
 
             // Cheat List
             if config.misc.enabled && config.misc.cheat_list_enabled {
