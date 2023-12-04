@@ -79,10 +79,10 @@ pub mod ProgramConfig {
         pub const UpdateOffsets: Duration = Duration::from_millis(1000);
         pub const InitAddresses: Duration = Duration::from_millis(1000);
         
-        pub const UpdateConfigs: Duration = Duration::from_millis(50);
+        pub const UpdateConfigs: Duration = Duration::from_millis(250);
         pub const WindowTasks: Duration = Duration::from_millis(25);
-        pub const IOTasks: Duration = Duration::from_millis(5);
-        pub const RPC: Duration = Duration::from_millis(5);
+        pub const IOTasks: Duration = Duration::from_millis(25);
+        pub const RPC: Duration = Duration::from_millis(100);
     }
 
     pub mod CheatDelays {
