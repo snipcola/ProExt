@@ -170,8 +170,6 @@ pub fn parse_weapon(name: String) -> (WeaponType, &'static str) {
         "hegrenade" => (WeaponType::Grenade, "Grenade"),
         "incgrenade" => (WeaponType::Grenade, "Incendiary"),
         "knife" => (WeaponType::Knife, "Knife"),
-        "knife_t" => (WeaponType::Knife, "Knife"),
-        "knife_ct" => (WeaponType::Knife, "Knife"),
         "m249" => (WeaponType::MachineGun, "M249"),
         "m4a1" => (WeaponType::Rifle, "M4A4"),
         "m4a1_silencer" => (WeaponType::Rifle, "M4A1-S"),
