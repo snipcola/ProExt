@@ -4,7 +4,7 @@
 use std::ops::{BitAnd, Shr};
 use mint::{Vector2, Vector3};
 
-use crate::utils::process_manager::{rpm_offset, rpm, rpm_auto};
+use crate::utils::process_manager::{rpm_offset, rpm, rpm_auto, trace_address};
 use crate::cheat::classes::bone::Bone;
 use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::game::GAME;
@@ -241,22 +241,7 @@ impl PlayerPawn {
     }
 
     pub fn get_weapon(&mut self) -> bool {
-        let mut clipping_weapon: u64 = 0;
-        let mut weapon_data: u64 = 0;
-        let mut weapon_name_address: u64 = 0;
-
-        if !rpm_offset(self.address, Offsets::C_CSPlayerPawnBase::m_pClippingWeapon as u64, &mut clipping_weapon) {
-            return false;
-        }
-
-        if !rpm_offset(clipping_weapon, 0x360, &mut weapon_data) {
-            return false;
-        }
-
-        if !rpm_offset(weapon_data, Offsets::CCSWeaponBaseVData::m_szName as u64, &mut weapon_name_address) {
-            return false;
-        }
-
+        let weapon_name_address = trace_address(self.address + Offsets::C_CSPlayerPawnBase::m_pClippingWeapon as u64, &[0x10, 0x20, 0x0]);
         let mut buffer: [u8; 40] = [0; 40];
 
         if weapon_name_address == 0 {
