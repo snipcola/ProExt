@@ -300,7 +300,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 };
 
                 // Aimbot Check
-                if !no_pawn && config.aimbot.enabled {
+                if !no_pawn && config.aimbot.enabled && entity.controller.team_id != local_entity.controller.team_id {
                     aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, enemy_visible, !entity.pawn.has_flag(Flags::InAir), entity.pawn.pos, local_entity.pawn.pos, aimbot_config);
                 }
 
