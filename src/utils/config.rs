@@ -62,9 +62,9 @@ pub mod ProgramConfig {
 
     pub mod TargetProcess {
         pub const Executable: &str = "cs2.exe";
-        pub const MaxAttempts: u32 = 60;
-        pub const UpdateOffsetsMaxAttempts: u32 = 60;
-        pub const InitAddressesMaxAttempts: u32 = 60;
+        pub const MaxAttempts: u32 = 30;
+        pub const UpdateOffsetsMaxAttempts: u32 = 15;
+        pub const InitAddressesMaxAttempts: u32 = 15;
 
         pub mod Window {
             pub const Title: &str = "Counter-Strike 2";
