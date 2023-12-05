@@ -206,7 +206,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             // Bomb Timer
             if config.misc.enabled && config.misc.bomb_timer_enabled {
                 (*ui_functions.lock().unwrap()).insert("bomb_timer".to_string(), Box::new(move |ui| {
-                    render_bomb_timer(ui, bomb_planted, bomb_site.clone(), config);
+                    render_bomb_timer(ui, bomb_planted, bomb_site.clone(), config, no_pawn);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("bomb_timer");
@@ -415,7 +415,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             // Spectator List
             if config.misc.enabled && config.misc.spectator_list_enabled {
                 (*ui_functions.lock().unwrap()).insert("spectator_list".to_string(), Box::new(move |ui| {
-                    render_spectator_list(ui, spectators.clone(), config);
+                    render_spectator_list(ui, spectators.clone(), config, no_pawn);
                 }));
             } else {
                 (*ui_functions.lock().unwrap()).remove("spectator_list");
