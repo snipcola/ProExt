@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 use std::{sync::{Arc, Mutex}, path::PathBuf};
-use imgui::{Ui, TabBar, TabItem, WindowHoveredFlags};
+use imgui::{Ui, TabBar, TabItem};
 use lazy_static::lazy_static;
 
 use crate::utils::{config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG, CONFIG_EXTENSION}, open::open_url, messagebox::{MessageBoxStyle, create_messagebox}};
 use crate::ui::functions::color_edit_u32_tuple;
-use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::functions::reset_window_positions;
 
 lazy_static! {
@@ -40,9 +39,6 @@ pub fn render_menu(ui: &mut Ui) {
         .focus_on_appearing(true)
         .position(window_position, condition)
         .build(|| {
-            let window_active = ui.is_window_hovered_with_flags(WindowHoveredFlags::ALLOW_WHEN_BLOCKED_BY_ACTIVE_ITEM | WindowHoveredFlags::ALLOW_WHEN_BLOCKED_BY_POPUP) || ui.is_any_item_hovered();
-            (*WINDOWS_ACTIVE.lock().unwrap()).insert("menu".to_string(), window_active);
-
             let window_pos = ui.window_pos();
             (*config).window_positions.menu = window_pos;
 

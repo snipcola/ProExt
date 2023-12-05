@@ -9,7 +9,6 @@ use mint::{Vector2, Vector3};
 use lazy_static::lazy_static;
 
 use crate::cheat::functions::is_feature_toggled;
-use crate::ui::main::WINDOWS_ACTIVE;
 use crate::utils::config::{Config, CONFIG};
 use crate::ui::functions::{color_u32_to_f32, color_with_masked_alpha};
 
@@ -58,7 +57,6 @@ pub fn render_radar(ui: &mut Ui, config: Config, local_pos: Vector3<f32>, local_
         .size([config.radar.range as f32 * 2.0, config.radar.range as f32 * 2.0], imgui::Condition::Always)
         .position(window_position, condition)
         .build(|| {
-            (*WINDOWS_ACTIVE.lock().unwrap()).insert("spectator_list".to_string(), ui.is_window_hovered());
             (*CONFIG.lock().unwrap()).window_positions.radar = ui.window_pos();
 
             let (full_window_pos, full_window_size) = (ui.window_pos(), ui.window_size());

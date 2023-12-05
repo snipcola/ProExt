@@ -5,7 +5,7 @@ use std::sync::{Arc, Mutex};
 use imgui::Ui;
 use mint::Vector4;
 use lazy_static::lazy_static;
-use crate::{utils::config::{CONFIG, Config, ProgramConfig}, ui::{main::WINDOWS_ACTIVE, functions::color_u32_to_f32}};
+use crate::{utils::config::{CONFIG, Config, ProgramConfig}, ui::functions::color_u32_to_f32};
 
 lazy_static! {
     pub static ref CHEAT_LIST_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
@@ -27,7 +27,6 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
         .always_auto_resize(true)
         .position(window_position, condition)
         .build(|| {
-            (*WINDOWS_ACTIVE.lock().unwrap()).insert("cheat_list".to_string(), ui.is_window_hovered());
             (*CONFIG.lock().unwrap()).window_positions.cheat_list = ui.window_pos();
 
             let cheat_list_one_f32 = color_u32_to_f32(config.misc.cheat_list_color_one);

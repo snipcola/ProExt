@@ -5,7 +5,7 @@ use std::{sync::{Arc, Mutex}, time::{Instant, Duration}};
 use imgui::Ui;
 use lazy_static::lazy_static;
 use mint::Vector4;
-use crate::{utils::config::{Config, CONFIG}, ui::{functions::color_u32_to_f32, main::WINDOWS_ACTIVE}};
+use crate::{utils::config::{Config, CONFIG}, ui::functions::color_u32_to_f32};
 
 lazy_static! {
     pub static ref IS_PLANTED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
@@ -56,7 +56,6 @@ pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<Stri
         .always_auto_resize(true)
         .position(window_position, condition)
         .build(|| {
-            (*WINDOWS_ACTIVE.lock().unwrap()).insert("bomb_timer".to_string(), ui.is_window_hovered());
             (*CONFIG.lock().unwrap()).window_positions.bomb_timer = ui.window_pos();
 
             let disabled = color_u32_to_f32(config.misc.bomb_timer_color_disabled);

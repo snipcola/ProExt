@@ -12,7 +12,6 @@ use imgui_glow_renderer::AutoRenderer;
 
 use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu, functions::apply_style}, utils::{mouse::get_mouse_position, rpc::initialize_rpc}, cheat::thread::run_cheats_thread};
 use crate::utils::config::ProgramConfig;
-use crate::ui::main::WINDOWS_ACTIVE;
 use crate::ui::windows::{Window, get_glow_context, focus_window};
 
 lazy_static! {
@@ -115,7 +114,7 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
         let io = imgui_context.io_mut();
         let mut mouse_pos = MOUSE_POS.lock().unwrap();
 
-        window.window().set_cursor_hittest(toggled_value && (*WINDOWS_ACTIVE.lock().unwrap()).values().any(| val | val == &true)).ok();
+        window.window().set_cursor_hittest(toggled_value).ok();
 
         if let Some(((x, y), (width, height))) = *window_info.lock().unwrap() {
             if let Some(pos) = *mouse_pos {    
