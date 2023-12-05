@@ -5,7 +5,7 @@ use std::{sync::{Arc, Mutex}, time::SystemTime};
 use imgui::Ui;
 use mint::Vector4;
 use lazy_static::lazy_static;
-use crate::{utils::config::{CONFIG, Config, ProgramConfig}, ui::{main::WINDOWS_ACTIVE, functions::color_u32_to_f32}};
+use crate::{utils::config::{CONFIG, Config, ProgramConfig}, ui::functions::color_u32_to_f32};
 
 lazy_static!{ 
     pub static ref WATERMARK_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
@@ -38,7 +38,6 @@ pub fn render_watermark(ui: &mut Ui, config: Config) {
         .always_auto_resize(true)
         .position(window_position, condition)
         .build(|| {
-            (*WINDOWS_ACTIVE.lock().unwrap()).insert("watermark".to_string(), ui.is_window_hovered());
             (*CONFIG.lock().unwrap()).window_positions.watermark = ui.window_pos();
 
             let watermark_one_f32 = color_u32_to_f32(config.misc.watermark_color_one);

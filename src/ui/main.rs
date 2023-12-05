@@ -17,7 +17,6 @@ use crate::ui::imgui::init_imgui;
 
 lazy_static! {
     pub static ref WINDOW_INFO: Arc<Mutex<Option<((i32, i32), (i32, i32))>>> = Arc::new(Mutex::new(None));
-    pub static ref WINDOWS_ACTIVE: Arc<Mutex<HashMap<String, bool>>> = Arc::new(Mutex::new(HashMap::new()));
     pub static ref UI_FUNCTIONS: Arc<Mutex<HashMap<String, Box<dyn Fn(&mut Ui) + Send>>>> = Arc::new(Mutex::new(HashMap::new()));
     
     pub static ref TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(true));
