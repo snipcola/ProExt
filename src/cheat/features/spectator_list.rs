@@ -58,7 +58,7 @@ pub fn is_spectating(entity_controller_address: u64, game_entity_list_entry: u64
     return false;
 }
 
-pub fn render_spectator_list(ui: &mut Ui, spectators: Vec<String>, config: Config) {
+pub fn render_spectator_list(ui: &mut Ui, spectators: Vec<String>, config: Config, no_pawn: bool) {
     let mut reset_position = SPECTATOR_LIST_RESET_POSITION.lock().unwrap();
     let (window_position, condition) = if let Some(position) = *reset_position {
         *reset_position = None;
@@ -79,7 +79,9 @@ pub fn render_spectator_list(ui: &mut Ui, spectators: Vec<String>, config: Confi
             let spectator_list_color_f32 = color_u32_to_f32(config.misc.spectator_list_color);
             let spectator_list_color = Vector4 { x: spectator_list_color_f32.0, y: spectator_list_color_f32.1, z: spectator_list_color_f32.2, w: spectator_list_color_f32.3 };
 
-            if spectators.len() == 0 {
+            if no_pawn {
+                ui.text_colored(spectator_list_color, "Couldn't fetch information.");
+            } else if spectators.len() == 0 {
                 ui.text_colored(spectator_list_color, "No spectators.");
             } else {
                 ui.text_colored(spectator_list_color, "Spectating:");

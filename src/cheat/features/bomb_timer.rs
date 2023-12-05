@@ -13,7 +13,7 @@ lazy_static! {
     pub static ref BOMB_TIMER_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));
 }
 
-pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<String>, config: Config) {
+pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<String>, config: Config, no_pawn: bool) {
     let mut reset_position = BOMB_TIMER_RESET_POSITION.lock().unwrap();
     let (window_position, condition) = if let Some(position) = *reset_position {
         *reset_position = None;
@@ -64,7 +64,9 @@ pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<Stri
             let disabled_color = Vector4 { x: disabled.0, y: disabled.1, z: disabled.2, w: disabled.3 };
             let enabled_color = Vector4 { x: enabled.0, y: enabled.1, z: enabled.2, w: enabled.3 };
 
-            if *is_planted && remaining_time.is_some() && plant_time.is_some() && bomb_site.is_some() && remaining_time.unwrap() > 0 {
+            if no_pawn {
+                ui.text_colored(disabled_color, "Couldn't fetch information.")
+            } else if *is_planted && remaining_time.is_some() && plant_time.is_some() && bomb_site.is_some() && remaining_time.unwrap() > 0 {
                 ui.text("The bomb has been planted at");
                 ui.same_line();
                 ui.text_colored(enabled_color, format!("Site {}.", bomb_site.unwrap()));
