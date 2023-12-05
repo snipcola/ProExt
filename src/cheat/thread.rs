@@ -160,8 +160,11 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
             // Bomb Data
             let (bomb_planted, bomb_site, bomb_pos): (bool, Option<String>, Option<Vector3<f32>>) = if !no_pawn && (config.esp.bomb_enabled || (config.misc.enabled && config.misc.bomb_timer_enabled)) {
+                // [Disabled]
+                let disabled = true;
+                
                 let bomb_address = game.address.bomb;
-                let bomb_planted = get_bomb_planted(bomb_address);
+                let bomb_planted = if disabled { false } else { get_bomb_planted(bomb_address) };
 
                 if bomb_planted {
                     let planted_bomb = get_bomb(bomb_address);

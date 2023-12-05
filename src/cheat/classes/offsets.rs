@@ -163,9 +163,11 @@ pub fn update_offsets() -> Option<String> {
         None => return Some("LocalPlayerPawn".to_string())
     };
 
+    // [Disabled]
     match search_offsets(Signatures::dwPlantedC4, client_dll) {
         Some(address) => *bomb = (address - client_dll) as u32,
-        None => return Some("Bomb".to_string())
+        // None => return Some("Bomb".to_string())
+        None => {}
     };
 
     return None;
