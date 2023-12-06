@@ -221,9 +221,6 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             // Spectator Data
             let mut spectators: Vec<String> = Vec::new();
 
-            // Local Data
-            let mut local_player_controller_index = 1;
-
             // Entities
             for i in 0 .. 64 {
                 let mut entity = Entity::default();
@@ -241,7 +238,6 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 // Self Check
                 if entity_address == local_entity.controller.address {
-                    local_player_controller_index = i;
                     remove_esp(i);
                     continue;
                 }
@@ -275,7 +271,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Enemy Visible
-                let enemy_visible = is_enemy_visible( entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i);
+                let enemy_visible = is_enemy_visible( entity.pawn.spotted_by_mask, i);
 
                 // Radar Point
                 if is_radar_toggled {
