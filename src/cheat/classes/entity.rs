@@ -57,6 +57,8 @@ pub struct PlayerPawn {
     pub camera_pos: Vector3<f32>,
     pub weapon_name: String,
     pub weapon_type: WeaponType,
+    pub weapon_max_ammo: i32,
+    pub weapon_ammo: i32,
     pub shots_fired: u32,
     pub aim_punch_cache: CUtlVector,
     pub health: i32,
@@ -77,6 +79,8 @@ impl Default for PlayerPawn {
             camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 },
             weapon_name: "".to_string(),
             weapon_type: WeaponType::None,
+            weapon_max_ammo: 0,
+            weapon_ammo: 0,
             shots_fired: 0,
             aim_punch_cache: CUtlVector::default(),
             health: 0,
@@ -283,6 +287,7 @@ impl PlayerPawn {
     }
 
     pub fn get_weapon(&mut self) -> bool {
+        // Weapon Name & Type
         let weapon_name_address = trace_address(self.address + Offsets::C_CSPlayerPawnBase::m_pClippingWeapon as u64, &[0x10, 0x20, 0x0]);
         let mut buffer: [u8; 40] = [0; 40];
 
@@ -296,13 +301,13 @@ impl PlayerPawn {
         
         let weapon_name = buffer_to_string(&buffer).to_lowercase().replace("weapon_", "");
 
-        if !self.weapon_name.is_empty() {
+        if !weapon_name.is_empty() {
             let (wtype, name) = parse_weapon(weapon_name.clone());
 
             self.weapon_type = wtype;
             self.weapon_name = if name == "" { weapon_name } else { name.to_string() };
         }
-
+        
         return true;
     }
 

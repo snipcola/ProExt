@@ -172,6 +172,14 @@ pub fn render_menu(ui: &mut Ui) {
                             color_edit_u32_tuple(ui, "##ColorESPArmor", &mut (*config).esp.armor_bar_color);
                         }
 
+                        // Ammo
+                        ui.checkbox("Ammo##ESP", &mut (*config).esp.ammo_bar_enabled);
+
+                        if (*config).esp.ammo_bar_enabled {
+                            ui.same_line();
+                            color_edit_u32_tuple(ui, "##ColorESPAmmo", &mut (*config).esp.ammo_bar_color);
+                        }
+
                         // Bar Mode
                         ui.combo_simple_string("Bar Mode##ESPBar", &mut (*config).esp.bar_mode, &["Vertical", "Horizontal"]);
                         ui.separator();
