@@ -78,6 +78,14 @@ pub mod Offsets {
     pub mod C_PlantedC4 { // CBaseAnimGraph
         pub const m_nBombSite: usize = 0xE84; // int32_t
     }
+
+    pub mod CBasePlayerWeaponVData { // CEntitySubclassVDataBase
+        pub const m_iMaxClip1: usize = 0x1FC; // int32_t
+    }
+
+    pub mod C_BasePlayerWeapon { // C_EconEntity
+        pub const m_iClip1: usize = 0x1570; // int32_t
+    }
 }
 
 #[allow(non_snake_case, non_upper_case_globals)]

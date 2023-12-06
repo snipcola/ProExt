@@ -307,6 +307,28 @@ impl PlayerPawn {
             self.weapon_type = wtype;
             self.weapon_name = if name == "" { weapon_name } else { name.to_string() };
         }
+
+        // Weapon Data
+        let mut clipping_weapon: u64 = 0;
+        let mut weapon_data: u64 = 0;
+
+        if !rpm_offset(self.address, Offsets::C_CSPlayerPawnBase::m_pClippingWeapon as u64, &mut clipping_weapon) {
+            return false;
+        }
+
+        if !rpm_offset(clipping_weapon, 0x360, &mut weapon_data) {
+            return false;
+        }
+
+        // Weapon Max Ammo
+        if !rpm_offset(weapon_data, Offsets::CBasePlayerWeaponVData::m_iMaxClip1 as u64, &mut self.weapon_max_ammo) {
+            return false;
+        }
+
+        // Weapon Ammo
+        if !rpm_offset(clipping_weapon, Offsets::C_BasePlayerWeapon::m_iClip1 as u64, &mut self.weapon_ammo) {
+            return false;
+        }
         
         return true;
     }
