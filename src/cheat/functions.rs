@@ -56,8 +56,8 @@ pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_contro
     return (true, local_entity_controller_team_id != entity_team_id && entity_health > 0, pawn_address, Some(entity_pos));
 }
 
-pub fn is_enemy_visible(b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64) -> bool {
-    return b_spotted_by_mask.bitand((1 as u64).shl(local_player_controller_index)) != 0 || local_b_spotted_by_mask.bitand((1 as u64).shl(i)) != 0;
+pub fn is_enemy_visible(b_spotted_by_mask: u64, i: u64) -> bool {
+    return b_spotted_by_mask.bitand((1 as u64).shl(i) - 1) != 0;
 }
 
 pub fn get_bomb(bomb_address: u64) -> Option<u64> {
