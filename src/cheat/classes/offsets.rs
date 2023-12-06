@@ -85,7 +85,7 @@ pub mod Signatures {
     pub const dwEntityList: &str = "48 8B 0D ?? ?? ?? ?? 48 89 7C 24 ?? 8B FA C1";
     pub const dwLocalPlayerController: &str = "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 4F";
     pub const dwLocalPlayerPawn: &str = "48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 83 EC ?? 8B 0D";
-    pub const dwPlantedC4: &str = "48 8B 15 ?? ?? ?? ?? FF C0 48 8D 4C 24";
+    pub const dwPlantedC4: &str = "48 8B 15 ?? ?? ?? ?? FF C0 48 8D 4C 24 40";
     pub const dwViewAngles: &str = "48 8B 0D ?? ?? ?? ?? E9 ?? ?? ?? ?? CC CC CC CC 40 55";
     pub const dwViewMatrix: &str = "48 8D 0D ?? ?? ?? ?? 48 C1 E0 06";
 }
@@ -159,11 +159,9 @@ pub fn update_offsets() -> Option<String> {
         None => return Some("LocalPlayerPawn".to_string())
     };
 
-    // [Disabled]
     match search_offsets(Signatures::dwPlantedC4, client_dll) {
         Some(address) => *bomb = (address - client_dll) as u32,
-        // None => return Some("Bomb".to_string())
-        None => {}
+        None => return Some("Bomb".to_string())
     };
 
     return None;
