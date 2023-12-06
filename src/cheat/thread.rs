@@ -19,7 +19,7 @@ use crate::cheat::classes::game::update_entity_list_entry;
 use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch, get_aimbot_config, get_aimbot_toggled, aimbot_check, render_fov_circle, run_aimbot};
 use crate::cheat::features::bomb_timer::render_bomb_timer;
 use crate::cheat::features::cheat_list::render_cheat_list;
-use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_weapon_name, render_distance, render_name, render_bomb, get_esp_toggled, render_headshot_line};
+use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_ammo_bar, render_weapon_name, render_distance, render_name, render_bomb, get_esp_toggled, render_headshot_line};
 use crate::cheat::features::radar::{render_radar, get_radar_toggled};
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
 use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY, get_triggerbot_config, get_triggerbot_toggled, run_triggerbot};
@@ -70,6 +70,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("health_bar_{}", entity));
                 (*ui_functions.lock().unwrap()).remove(&format!("armor_bar_{}", entity));
+                (*ui_functions.lock().unwrap()).remove(&format!("ammo_bar_{}", entity));
             };
 
             let remove_all_esp = || {
@@ -379,6 +380,15 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     }));
                 } else {
                     (*ui_functions.lock().unwrap()).remove(&format!("armor_bar_{}", i));
+                }
+
+                // Ammo Bar
+                if is_esp_toggled && config.esp.ammo_bar_enabled {
+                    (*ui_functions.lock().unwrap()).insert(format!("ammo_bar_{}", i), Box::new(move |ui| {
+                        render_ammo_bar(ui, entity.pawn.weapon_ammo as f32, entity.pawn.weapon_max_ammo as f32, rect, config);
+                    }));
+                } else {
+                    (*ui_functions.lock().unwrap()).remove(&format!("ammo_bar_{}", i));
                 }
 
                 // Weapon Name
