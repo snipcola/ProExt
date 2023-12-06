@@ -41,10 +41,29 @@ pub struct BoneJointPos {
     pub is_visible: bool
 }
 
+impl Default for BoneJointPos {
+    fn default() -> Self {
+        return Self {
+            pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 },
+            screen_pos: Vector2 { x: 0.0, y: 0.0 },
+            is_visible: false
+        };
+    }
+}
+
 #[derive(Clone)]
 pub struct Bone {
     pub entity_pawn_address: u64,
     pub bone_pos_list: [BoneJointPos; 30]
+}
+
+impl Default for Bone {
+    fn default() -> Self {
+        return Self {
+            entity_pawn_address: 0,
+            bone_pos_list: [BoneJointPos::default(); 30]
+        };
+    }
 }
 
 impl Bone {

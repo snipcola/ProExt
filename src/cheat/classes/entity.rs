@@ -8,7 +8,6 @@ use crate::utils::process_manager::{rpm_offset, rpm, rpm_auto, trace_address};
 use crate::cheat::classes::bone::Bone;
 use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::game::GAME;
-use crate::cheat::classes::bone::BoneJointPos;
 use crate::cheat::classes::view::View;
 use crate::cheat::functions::{parse_weapon, WeaponType};
 
@@ -18,6 +17,15 @@ pub struct CUtlVector {
     pub data: u64
 }
 
+impl Default for CUtlVector {
+    fn default() -> Self {
+        return Self {
+            count: 0,
+            data: 0
+        };
+    }
+}
+
 #[derive(Clone)]
 pub struct PlayerController {
     pub address: u64,
@@ -25,6 +33,18 @@ pub struct PlayerController {
     pub pawn: u64,
     pub team_id: i32,
     pub player_name: String
+}
+
+impl Default for PlayerController {
+    fn default() -> Self {
+        return Self {
+            address: 0,
+            alive_status: 0,
+            pawn: 0,
+            team_id: 0,
+            player_name: String::new()
+        };
+    }
 }
 
 #[derive(Clone)]
@@ -46,6 +66,28 @@ pub struct PlayerPawn {
     pub flags: i32
 }
 
+impl Default for PlayerPawn {
+    fn default() -> Self {
+        return Self {
+            address: 0,
+            bone_data: Bone::default(),
+            view_angle: Vector2 { x: 0.0, y: 0.0 },
+            pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 },
+            screen_pos: Vector2 { x: 0.0, y: 0.0 },
+            camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 },
+            weapon_name: "".to_string(),
+            weapon_type: WeaponType::None,
+            shots_fired: 0,
+            aim_punch_cache: CUtlVector::default(),
+            health: 0,
+            armor: 0,
+            fov: 0,
+            spotted_by_mask: 0,
+            flags: 0
+        };
+    }
+}
+
 pub enum Flags {
     InAir = (1 as isize).wrapping_shl(0)
 }
@@ -59,8 +101,8 @@ pub struct Entity {
 impl Default for Entity {
     fn default() -> Self {
         return Entity {
-            controller: PlayerController { address: 0, alive_status: 0, pawn: 0, team_id: 0, player_name: "None".to_string() },
-            pawn: PlayerPawn { address: 0, bone_data: Bone { entity_pawn_address: 0, bone_pos_list: [BoneJointPos { pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, is_visible: false }; 30] }, view_angle: Vector2 { x: 0.0, y: 0.0 }, pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, screen_pos: Vector2 { x: 0.0, y: 0.0 }, camera_pos: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, weapon_name: "None".to_string(), weapon_type: WeaponType::None, shots_fired: 0, aim_punch_cache: CUtlVector { count: 0, data: 0 }, health: 0, armor: 0, fov: 0, spotted_by_mask: 0, flags: 0 }
+            controller: PlayerController::default(),
+            pawn: PlayerPawn::default()
         }
     }
 }
