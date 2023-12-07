@@ -197,8 +197,7 @@ pub fn render_weapon_name(ui: &mut Ui, weapon_name: &str, rect: Vector4<f32>, co
     }
 }
 
-pub fn render_distance(ui: &mut Ui, pawn_pos: Vector3<f32>, local_pawn_pos: Vector3<f32>, rect: Vector4<f32>, config: Config) {
-    let distance = calculate_distance(pawn_pos, local_pawn_pos);
+pub fn render_distance(ui: &mut Ui, distance: u32, rect: Vector4<f32>, config: Config) {
     let mut x_offset: f32 = 0.0;
 
     if config.esp.bar_mode == 0 {
@@ -380,7 +379,7 @@ pub fn render_bomb(ui: &mut Ui, pos: Vector3<f32>, local_pawn_pos: Vector3<f32>,
     }
 
     if config.esp.distance_enabled {
-        render_distance(ui, pos, local_pawn_pos, rect, config);
+        render_distance(ui, distance, rect, config);
     }
 }
 

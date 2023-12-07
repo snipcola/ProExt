@@ -96,7 +96,7 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
                 }
             }
 
-            if pawn && config.crosshair.enabled {
+            if config.crosshair.enabled {
                 ui.text_colored(cheat_list_one_color, "Crosshair");
 
                 if !config.crosshair.always {
@@ -110,7 +110,7 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
                 }
             }
 
-            if pawn && config.radar.enabled {
+            if config.radar.enabled {
                 ui.text_colored(cheat_list_one_color, "Radar");
 
                 if !config.radar.always {
