@@ -713,7 +713,8 @@ pub struct Settings {
     pub bypass_capture: bool,
     pub discord_rpc_enabled: bool,
     pub exclude_team: bool,
-    pub show_on_spectate: bool
+    pub show_on_spectate: bool,
+    pub toggle_bg_alpha: f32
 }
 
 impl Default for Settings {
@@ -723,7 +724,8 @@ impl Default for Settings {
             bypass_capture: true,
             discord_rpc_enabled: false,
             exclude_team: true,
-            show_on_spectate: true
+            show_on_spectate: true,
+            toggle_bg_alpha: 0.3
         };
     }
 }

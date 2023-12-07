@@ -1,7 +1,8 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-#[allow(non_snake_case, non_upper_case_globals)]
+#![allow(non_snake_case, non_upper_case_globals)]
+
 pub mod Offsets {
     pub mod C_BaseEntity {  // CEntityInstance
         pub const m_iHealth: usize = 0x32C; // int32_t
@@ -73,7 +74,6 @@ pub mod Offsets {
     }
 }
 
-#[allow(non_snake_case, non_upper_case_globals)]
 pub mod Signatures {
     pub const dwEntityList: &str = "48 8B 0D ?? ?? ?? ?? 48 89 7C 24 ?? 8B FA C1";
     pub const dwLocalPlayerController: &str = "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 4F";
@@ -83,7 +83,6 @@ pub mod Signatures {
     pub const dwViewMatrix: &str = "48 8D 0D ?? ?? ?? ?? 48 C1 E0 06";
 }
 
-#[allow(non_snake_case, non_upper_case_globals)]
 pub mod ProgramConfig {
     pub mod Package {
         pub const Name: &str = "ProExt";
@@ -125,7 +124,6 @@ pub mod ProgramConfig {
         use glutin::event::VirtualKeyCode;
         use mki::Keyboard;
 
-        pub const ToggleInterval: u64 = 200;
         pub const Available: [&str; 20] = ["Alt", "Left Mouse", "Middle Mouse", "Right Mouse", "Side Mouse", "Extra Mouse", "Shift", "Control", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"];
 
         pub const ToggleKey: VirtualKeyCode = VirtualKeyCode::Insert;
@@ -167,6 +165,7 @@ pub mod ProgramConfig {
     pub mod CheatDelays {
         use std::time::Duration;
 
+        pub const Toggle: Duration = Duration::from_millis(200);
         pub const Aimbot: Duration = Duration::from_millis(10);
         pub const AimbotOffEntity: Duration = Duration::from_millis(500);
         pub const TriggerbotOffEntity: Duration = Duration::from_millis(500);

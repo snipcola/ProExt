@@ -3,7 +3,7 @@
 
 use std::mem::size_of;
 use std::ops::{BitAnd, Shl};
-use std::time::{Instant, Duration};
+use std::time::Instant;
 
 use mint::{Vector3, Vector2};
 
@@ -234,7 +234,7 @@ pub fn is_feature_toggled(key: usize, mode: usize, toggle_toggled: &mut bool, to
     if mode == 0 {
         return pressed;
     } else {
-        if pressed && (*toggle_changed).elapsed() > Duration::from_millis(ProgramConfig::Keys::ToggleInterval) {
+        if pressed && (*toggle_changed).elapsed() > ProgramConfig::CheatDelays::Toggle {
             *toggle_toggled = !*toggle_toggled;
             *toggle_changed = Instant::now();
         }
