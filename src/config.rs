@@ -1,3 +1,6 @@
+// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// SPDX-License-Identifier: MIT
+
 #[allow(non_snake_case, non_upper_case_globals)]
 pub mod Offsets {
     pub mod C_BaseEntity {  // CEntityInstance
