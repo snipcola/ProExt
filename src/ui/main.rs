@@ -26,7 +26,7 @@ lazy_static! {
     pub static ref TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref EXIT: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
 
-    pub static ref BG_ALPHA: Arc<Mutex<f32>> = Arc::new(Mutex::new(0.3));
+    pub static ref BG_ALPHA: Arc<Mutex<f32>> = Arc::new(Mutex::new(0.2));
 }
 
 pub fn init_gui() {

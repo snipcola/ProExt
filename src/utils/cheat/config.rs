@@ -686,22 +686,22 @@ impl Default for Style {
             enabled: true,
             alpha: 1.0,
             window_padding: [7.5, 7.5],
-            window_rounding: 5.0,
+            window_rounding: 0.0,
             window_border_size: 1.0,
             window_title_align: [0.5, 0.5],
-            frame_padding: [2.5, 2.5],
-            frame_rounding: 2.5,
+            frame_padding: [1.5, 1.5],
+            frame_rounding: 0.5,
             frame_border_size: 0.0,
-            tab_rounding: 2.5,
+            tab_rounding: 0.0,
             tab_border_size: 0.0,
-            scrollbar_rounding: 2.5,
-            scrollbar_size: 3.0,
-            popup_rounding: 2.5,
+            scrollbar_rounding: 0.5,
+            scrollbar_size: 2.0,
+            popup_rounding: 0.0,
             popup_border_size: 0.0,
-            item_spacing: [7.5, 7.5],
+            item_spacing: [5.0, 6.0],
             item_inner_spacing: [5.0, 5.0],
             indent_spacing: 2.5,
-            grab_rounding: 2.5,
+            grab_rounding: 0.0,
             colors: StyleColors::default()
         };
     }
@@ -725,7 +725,7 @@ impl Default for Settings {
             discord_rpc_enabled: false,
             exclude_team: true,
             show_on_spectate: true,
-            toggle_bg_alpha: 0.3
+            toggle_bg_alpha: 0.2
         };
     }
 }
