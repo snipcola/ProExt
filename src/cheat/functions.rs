@@ -13,7 +13,7 @@ use crate::ui::functions::{hotkey_index_to_io, distance_between_vec3};
 use crate::utils::cheat::process::{rpm_auto, rpm_offset, trace_address};
 use crate::cheat::classes::entity::CUtlVector;
 
-pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_controller_team_id: i32, game_address_entity_list: u64) -> (bool, bool, u64, Option<Vector3<f32>>) {
+pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_controller_team_id: i32, game_address_entity_list: u64, exclude_team: bool) -> (bool, bool, u64, Option<Vector3<f32>>) {
     let mut u_handle: u32 = 0;
     
     if !rpm_offset(local_entity_pawn_address, Offsets::C_CSPlayerPawnBase::m_iIDEntIndex as u64, &mut u_handle) {
@@ -54,7 +54,7 @@ pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_contro
         return (false, false, 0, None);
     }
 
-    return (true, local_entity_controller_team_id != entity_team_id && entity_health > 0, pawn_address, Some(entity_pos));
+    return (true, if exclude_team { local_entity_controller_team_id != entity_team_id && entity_health > 0 } else { entity_health > 0 }, pawn_address, Some(entity_pos));
 }
 
 pub fn is_enemy_visible(b_spotted_by_mask: u64, local_b_spotted_by_mask: u64, local_player_controller_index: u64, i: u64) -> bool {

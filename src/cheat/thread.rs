@@ -267,8 +267,12 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                     spectators.push(entity.controller.player_name.clone());
                 }
 
+                // Is Friendly
+                let exclude_team = config.settings.enabled && config.settings.exclude_team;
+                let is_friendly = entity.controller.team_id == local_entity.controller.team_id;
+
                 // Team Check
-                if (config.settings.enabled && config.settings.exclude_team) && entity.controller.team_id == local_entity.controller.team_id {
+                if exclude_team && is_friendly {
                     remove_esp(i);
                     continue;
                 }
@@ -280,14 +284,14 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 }
 
                 // Enemy Visible
-                let enemy_visible = is_enemy_visible(entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i);
+                let is_visible = if is_friendly { true } else { is_enemy_visible(entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i) };
 
                 // Distance
                 let distance = if no_pawn { 0 } else { calculate_distance(entity.pawn.pos, local_entity.pawn.pos) };
 
                 // Radar Point
                 if is_radar_toggled {
-                    radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y, enemy_visible, entity.controller.team_id == local_entity.controller.team_id));
+                    radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y, is_visible, is_friendly));
                 }
 
                 // Screen Check
@@ -306,8 +310,8 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 };
 
                 // Aimbot Check
-                if !no_pawn && config.aimbot.enabled && entity.controller.team_id != local_entity.controller.team_id {
-                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, enemy_visible, !entity.pawn.has_flag(Flags::InAir), distance, aimbot_config);
+                if !no_pawn && config.aimbot.enabled {
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, is_visible, !entity.pawn.has_flag(Flags::InAir), distance, aimbot_config);
                 }
 
                 // Skeleton
@@ -366,7 +370,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 // Box
                 if is_esp_toggled && config.esp.box_enabled {
                     (*render_list.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
-                        render_box(ui, rect, enemy_visible, entity.controller.team_id == local_entity.controller.team_id, config);
+                        render_box(ui, rect, is_visible, is_friendly, config);
                     }));
                 } else {
                     (*render_list.lock().unwrap()).remove(&format!("box_{}", i));
@@ -441,7 +445,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 if no_pawn {
                     (false, false, 0, None)
                 } else {
-                    is_enemy_at_crosshair(local_entity.pawn.address, local_entity.controller.team_id, game.address.entity_list)
+                    is_enemy_at_crosshair(local_entity.pawn.address, local_entity.controller.team_id, game.address.entity_list, config.settings.enabled && config.settings.exclude_team)
                 }
             };
 
