@@ -1,23 +1,27 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{sync::{Arc, Mutex}, collections::HashMap};
+use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
+
 use glutin::event_loop::EventLoop;
+use lazy_static::lazy_static;
+
 use imgui::{Ui, Context};
 use imgui_winit_support::WinitPlatform;
-use lazy_static::lazy_static;
+
 use rand::{Rng, thread_rng, distributions::Alphanumeric};
 
-use crate::{ui::thread::run_event_loop, utils::messagebox::{create_messagebox, MessageBoxStyle}};
-use crate::utils::config::ProgramConfig;
-use crate::ui::windows::{create_window, find_window};
-use crate::ui::windows::Window;
-use crate::ui::windows::set_window_brush_to_transparent;
-use crate::ui::imgui::init_imgui;
+use crate::config::ProgramConfig;
+use crate::ui::thread::run_event_loop;
+
+use crate::utils::messagebox::{create_messagebox, MessageBoxStyle};
+use crate::utils::ui::windows::{Window, set_window_brush_to_transparent, create_window, find_window};
+use crate::utils::ui::imgui::init_imgui;
 
 lazy_static! {
     pub static ref WINDOW_INFO: Arc<Mutex<Option<((i32, i32), (i32, i32))>>> = Arc::new(Mutex::new(None));
-    pub static ref UI_FUNCTIONS: Arc<Mutex<HashMap<String, Box<dyn Fn(&mut Ui) + Send>>>> = Arc::new(Mutex::new(HashMap::new()));
+    pub static ref RENDER_LIST: Arc<Mutex<HashMap<String, Box<dyn Fn(&mut Ui) + Send>>>> = Arc::new(Mutex::new(HashMap::new()));
     
     pub static ref TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(true));
     pub static ref EXIT: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));

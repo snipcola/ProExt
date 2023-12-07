@@ -1,11 +1,5 @@
-// Copyright (c) 2023 Vytrol <vytrol@proton.me>
-// SPDX-License-Identifier: MIT
-
-use std::process::Command;
+use open::that_in_background as open_in_background;
 
 pub fn open_url(url: &str) {
-    Command::new("cmd.exe")
-        .args(["/C", "start", url])
-        .spawn()
-        .ok();
+    open_in_background(url).join().ok();
 }

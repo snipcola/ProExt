@@ -1,11 +1,22 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{f32::consts::PI, sync::{Arc, Mutex}, time::Instant};
+use std::f32::consts::PI;
+use std::sync::{Arc, Mutex};
+use std::time::Instant;
+
+use lazy_static::lazy_static;
+
 use imgui::{Ui, ImColor32};
 use mint::{Vector3, Vector2, Vector4};
-use lazy_static::lazy_static;
-use crate::{cheat::{classes::{bone::{BoneJointPos, bone_joint_list, BoneIndex}, view::View}, functions::{is_feature_toggled, calculate_distance}}, utils::config::{Config, CONFIG}, ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle, stroke_text, mix_colors, color_with_alpha, text, rectangle_gradient}};
+
+use crate::utils::cheat::config::{Config, CONFIG};
+use crate::cheat::functions::{is_feature_toggled, calculate_distance};
+
+use crate::cheat::classes::bone::{BoneJointPos, bone_joint_list, BoneIndex};
+use crate::cheat::classes::view::View;
+
+use crate::ui::functions::{color_u32_to_f32, color_with_masked_alpha, rectangle, stroke_text, mix_colors, color_with_alpha, text, rectangle_gradient};
 
 lazy_static! {
     pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().esp.default));

@@ -4,12 +4,14 @@
 use std::ops::{BitAnd, Shr};
 use mint::{Vector2, Vector3};
 
-use crate::utils::process_manager::{rpm_offset, rpm, rpm_auto, trace_address};
+use crate::config::Offsets;
+
+use crate::utils::cheat::process::{rpm_offset, rpm, rpm_auto, trace_address};
+use crate::cheat::functions::{parse_weapon, WeaponType};
+
 use crate::cheat::classes::bone::Bone;
-use crate::cheat::classes::offsets::Offsets;
 use crate::cheat::classes::game::GAME;
 use crate::cheat::classes::view::View;
-use crate::cheat::functions::{parse_weapon, WeaponType};
 
 #[derive(Clone, Copy)]
 pub struct CUtlVector {
@@ -283,7 +285,7 @@ impl PlayerPawn {
     }
 
     pub fn get_spotted(&mut self) -> bool {
-        return rpm_offset(self.address, Offsets::EntitySpottedState_t::m_bSpottedByMask as u64, &mut self.spotted_by_mask);
+        return rpm_offset(self.address, (Offsets::C_CSPlayerPawnBase::m_entitySpottedState + Offsets::EntitySpottedState_t::m_bSpottedByMask) as u64, &mut self.spotted_by_mask);
     }
 
     pub fn get_weapon(&mut self) -> bool {

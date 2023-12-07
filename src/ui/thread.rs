@@ -1,18 +1,36 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{time::Instant, thread::{self, sleep}, sync::{Arc, Mutex}, process};
+use std::time::Instant;
+use std::thread::{self, sleep};
+use std::sync::{Arc, Mutex};
+use std::process;
+
+use lazy_static::lazy_static;
+
 use glow::{HasContext, COLOR_BUFFER_BIT};
-use glutin::{event_loop::{EventLoop, ControlFlow}, dpi::{PhysicalSize, PhysicalPosition}, event::{Event, DeviceEvent, ElementState, WindowEvent}};
+use mki::{Action, State, InhibitEvent};
+
+use glutin::event_loop::{EventLoop, ControlFlow};
+use glutin::dpi::{PhysicalSize, PhysicalPosition};
+use glutin:: event::{Event, DeviceEvent, ElementState, WindowEvent};
+
 use imgui::Context;
 use imgui_winit_support::WinitPlatform;
-use windows::Win32::Foundation::HWND;
-use lazy_static::lazy_static;
 use imgui_glow_renderer::AutoRenderer;
 
-use crate::{ui::{main::{WINDOW_INFO, EXIT, TOGGLED, UI_FUNCTIONS}, windows::{get_window_info, is_window_focused}, menu::render_menu, functions::apply_style}, utils::{mouse::get_mouse_position, rpc::initialize_rpc}, cheat::thread::run_cheats_thread};
-use crate::utils::config::ProgramConfig;
-use crate::ui::windows::{Window, get_glow_context, focus_window};
+use windows::Win32::Foundation::HWND;
+
+use crate::config::ProgramConfig;
+use crate::cheat::thread::run_cheats_thread;
+
+use crate::ui::main::{WINDOW_INFO, EXIT, TOGGLED, RENDER_LIST};
+use crate::ui::functions::apply_style;
+use crate::ui::menu::render_menu;
+
+use crate::utils::ui::windows::{Window, get_glow_context, focus_window, get_window_info, is_window_focused};
+use crate::utils::cheat::rpc::initialize_rpc;
+use crate::utils::mouse::get_mouse_position;
 
 lazy_static! {
     pub static ref MOUSE_POS: Arc<Mutex<Option<(i32, i32)>>> = Arc::new(Mutex::new(None));
@@ -58,19 +76,26 @@ pub fn bind_ui_keys(hwnd: HWND) {
     let toggled = TOGGLED.clone();
     let focused = FOCUS_SELF.clone();
 
-    ProgramConfig::Keys::ToggleKeyMKI.bind(move | _ | {
-        if !is_window_focused(hwnd) {
-            return;
-        }
-
-        let toggled_value = *toggled.lock().unwrap();
-        *toggled.lock().unwrap() = !toggled_value;
-
-        if !toggled_value {
-            *focused.lock().unwrap() = true;
-        } else {
-            focus_window(hwnd);
-        }
+    ProgramConfig::Keys::ToggleKeyMKI.act_on(Action {
+        callback: Box::new(move | _, state | {
+            if state == State::Released {
+                if !is_window_focused(hwnd) {
+                    return;
+                }
+        
+                let toggled_value = *toggled.lock().unwrap();
+                *toggled.lock().unwrap() = !toggled_value;
+        
+                if !toggled_value {
+                    *focused.lock().unwrap() = true;
+                } else {
+                    focus_window(hwnd);
+                }
+            }
+        }),
+        inhibit: InhibitEvent::No,
+        defer: true,
+        sequencer: false
     });
 
     ProgramConfig::Keys::ExitKeyMKI.bind(move | _ | {
@@ -84,7 +109,7 @@ pub fn bind_ui_keys(hwnd: HWND) {
 
 pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, winit_platform_imgui_context: Arc<Mutex<(WinitPlatform, Context)>>, hwnd: HWND, self_hwnd: HWND) {
     let window_info = WINDOW_INFO.clone();
-    let ui_functions = UI_FUNCTIONS.clone();
+    let render_list = RENDER_LIST.clone();
 
     let toggled = TOGGLED.clone();
     let exit = EXIT.clone();
@@ -147,7 +172,12 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
             },
             Event::RedrawRequested(_) => {
                 unsafe {
-                    renderer.gl_context().clear_color(0.0, 0.0, 0.0, 0.0);
+                    if toggled_value {
+                        renderer.gl_context().clear_color(0.0, 0.0, 0.0, 0.25);
+                    } else {
+                        renderer.gl_context().clear_color(0.0, 0.0, 0.0, 0.0);
+                    }
+
                     renderer.gl_context().clear(COLOR_BUFFER_BIT);
                 }
 
@@ -159,7 +189,7 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
                     render_menu(ui);
                 }
 
-                for (_, function) in (*ui_functions.lock().unwrap()).iter() {
+                for (_, function) in (*render_list.lock().unwrap()).iter() {
                     function(ui);
                 }
 
@@ -172,7 +202,7 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
                 ..
             } => {
                 if let Some(keycode) = key.virtual_keycode {
-                    if keycode == ProgramConfig::Keys::ToggleKey && key.state == ElementState::Pressed {
+                    if keycode == ProgramConfig::Keys::ToggleKey && key.state == ElementState::Released {
                         *toggled.lock().unwrap() = !toggled_value;
                         
                         if !toggled_value {

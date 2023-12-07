@@ -1,12 +1,25 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{f32::consts::PI, sync::{Arc, Mutex}, time::{Instant, Duration}};
-use imgui::Ui;
-use mint::{Vector3, Vector2};
+use std::f32::consts::PI;
+use std::sync::{Arc, Mutex};
+use std::time::{Instant, Duration};
+
 use lazy_static::lazy_static;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::{ProgramConfig, CONFIG, AimbotConfig, AimbotConfigs, Config}, mouse::{move_mouse, LAST_MOVED}}, ui::functions::{distance_between_vec2, color_with_masked_alpha, color_u32_to_f32}, cheat::{classes::{bone::{BoneIndex, BoneJointPos}, view::View}, functions::{is_feature_toggled, WeaponType, calculate_distance}}};
+
+use imgui::Ui;
+use mint::{Vector3, Vector2};
+
+use crate::config::ProgramConfig;
+use crate::ui::functions::{distance_between_vec2, color_with_masked_alpha, color_u32_to_f32};
+
+use crate::utils::mouse::{move_mouse, LAST_MOVED};
+use crate::utils::cheat::config::{CONFIG, AimbotConfig, AimbotConfigs, Config};
+
+use crate::cheat::functions::{is_feature_toggled, WeaponType, calculate_distance};
+use crate::cheat::classes::bone::{BoneIndex, BoneJointPos};
+use crate::cheat::classes::view::View;
 
 lazy_static! {
     pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().aimbot.default));

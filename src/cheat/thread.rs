@@ -3,36 +3,41 @@
 
 use std::thread;
 use std::time::Instant;
+
 use mint::{Vector3, Vector2};
 use windows::Win32::Foundation::HWND;
 
-use crate::ui::main::{WINDOW_INFO, UI_FUNCTIONS};
-use crate::ui::windows::{is_window_focused, hide_window_from_capture};
-use crate::cheat::functions::is_enemy_at_crosshair;
-use crate::utils::config::{CONFIG, ProgramConfig};
-use crate::cheat::classes::game::GAME;
+use crate::config::ProgramConfig;
 use crate::utils::mouse::release_mouse;
-use crate::utils::process_manager::{rpm, rpm_offset, rpm_auto};
 
+use crate::ui::main::{WINDOW_INFO, RENDER_LIST};
+use crate::utils::ui::windows::{is_window_focused, hide_window_from_capture};
+
+use crate::utils::cheat::config::CONFIG;
+use crate::utils::cheat::process::{rpm, rpm_offset, rpm_auto};
+
+use crate::cheat::classes::game::{GAME, update_entity_list_entry};
 use crate::cheat::classes::entity::{Entity, Flags};
-use crate::cheat::classes::game::update_entity_list_entry;
-use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch, get_aimbot_config, get_aimbot_toggled, aimbot_check, render_fov_circle, run_aimbot};
-use crate::cheat::features::bomb_timer::render_bomb_timer;
-use crate::cheat::features::cheat_list::render_cheat_list;
+
 use crate::cheat::features::esp::{render_bones, render_head, render_eye_ray, get_2d_bone_rect, get_2d_box, render_snap_line, render_box, render_health_bar, render_armor_bar, render_ammo_bar, render_weapon_name, render_distance, render_name, render_bomb, get_esp_toggled, render_headshot_line};
-use crate::cheat::features::radar::{render_radar, get_radar_toggled};
-use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
-use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY, get_triggerbot_config, get_triggerbot_toggled, run_triggerbot};
-use crate::cheat::features::watermark::render_watermark;
-use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position, is_enemy_visible, has_weapon};
 use crate::cheat::features::rcs::{get_rcs_toggled, run_rcs, get_rcs_config, get_rcs_mouse};
+use crate::cheat::features::aimbot::{AB_LOCKED_ENTITY, AB_OFF_ENTITY, get_aimbot_yaw_pitch, get_aimbot_config, get_aimbot_toggled, aimbot_check, render_fov_circle, run_aimbot};
+use crate::cheat::features::triggerbot::{TB_LOCKED_ENTITY, TB_OFF_ENTITY, get_triggerbot_config, get_triggerbot_toggled, run_triggerbot};
 use crate::cheat::features::crosshair::{render_crosshair, get_crosshair_toggled, get_crosshair_config};
+use crate::cheat::features::radar::{render_radar, get_radar_toggled};
+
+use crate::cheat::features::watermark::render_watermark;
+use crate::cheat::features::cheat_list::render_cheat_list;
+use crate::cheat::features::bomb_timer::render_bomb_timer;
+use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
+
+use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position, is_enemy_visible, has_weapon, is_enemy_at_crosshair};
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
     thread::spawn(move || {
         let mut window_hidden_from_capture = false;
         let window_info = WINDOW_INFO.clone();
-        let ui_functions = UI_FUNCTIONS.clone();
+        let render_list = RENDER_LIST.clone();
         
         let mut no_pawn = false;
         let mut local_entity = Entity::default();
@@ -60,17 +65,17 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let pawn_address = game.address.local_pawn;
             
             let remove_esp = | entity: u64 | {
-                (*ui_functions.lock().unwrap()).remove(&format!("skeleton_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("head_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("eye_ray_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("snap_line_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("box_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("weapon_name_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("distance_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("health_bar_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("armor_bar_{}", entity));
-                (*ui_functions.lock().unwrap()).remove(&format!("ammo_bar_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("skeleton_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("head_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("eye_ray_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("snap_line_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("box_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("weapon_name_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("distance_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("player_name_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("health_bar_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("armor_bar_{}", entity));
+                (*render_list.lock().unwrap()).remove(&format!("ammo_bar_{}", entity));
             };
 
             let remove_all_esp = || {
@@ -80,23 +85,23 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             };
 
             let remove_ui_elements = || {
-                (*ui_functions.lock().unwrap()).remove("fov_circle");
-                (*ui_functions.lock().unwrap()).remove("radar");
-                (*ui_functions.lock().unwrap()).remove("headshot_line");
-                (*ui_functions.lock().unwrap()).remove("bomb_timer");
-                (*ui_functions.lock().unwrap()).remove("spectator_list");
-                (*ui_functions.lock().unwrap()).remove("bomb");
+                (*render_list.lock().unwrap()).remove("fov_circle");
+                (*render_list.lock().unwrap()).remove("radar");
+                (*render_list.lock().unwrap()).remove("headshot_line");
+                (*render_list.lock().unwrap()).remove("bomb_timer");
+                (*render_list.lock().unwrap()).remove("spectator_list");
+                (*render_list.lock().unwrap()).remove("bomb");
                 
                 remove_all_esp();
             };
 
             // Watermark
             if config.misc.enabled && config.misc.watermark_enabled {
-                (*ui_functions.lock().unwrap()).insert("watermark".to_string(), Box::new(move |ui| {
+                (*render_list.lock().unwrap()).insert("watermark".to_string(), Box::new(move |ui| {
                     render_watermark(ui, config);
                 }));
             } else {
-                (*ui_functions.lock().unwrap()).remove("watermark");
+                (*render_list.lock().unwrap()).remove("watermark");
             }
 
             let no_weapon = !has_weapon(local_entity.pawn.weapon_type);
@@ -111,15 +116,15 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let is_rcs_toggled = !no_pawn && config.rcs.enabled && is_game_window_focused && (config.rcs.always || get_rcs_toggled(config));
             let is_esp_toggled = config.esp.enabled && (config.esp.always || get_esp_toggled(config));
             let is_crosshair_toggled = !no_pawn && config.crosshair.enabled && (!config.crosshair.only_weapon || config.crosshair.only_weapon && !no_weapon) && (config.crosshair.always || get_crosshair_toggled(config));
-            let is_radar_toggled = !no_pawn && config.radar.enabled && (config.radar.always || get_radar_toggled(config));
+            let is_radar_toggled = config.radar.enabled && (config.radar.always || get_radar_toggled(config));
 
             // Cheat List
             if config.misc.enabled && config.misc.cheat_list_enabled {
-                (*ui_functions.lock().unwrap()).insert("cheat_list".to_string(), Box::new(move |ui| {
+                (*render_list.lock().unwrap()).insert("cheat_list".to_string(), Box::new(move |ui| {
                     render_cheat_list(ui, config, !no_pawn, is_aimbot_toggled, is_triggerbot_toggled, is_rcs_toggled, is_esp_toggled, is_crosshair_toggled, is_radar_toggled);
                 }));
             } else {
-                (*ui_functions.lock().unwrap()).remove("cheat_list");
+                (*render_list.lock().unwrap()).remove("cheat_list");
             }
 
             if !rpm(matrix_address, &mut (*GAME.lock().unwrap()).view.matrix, 64) {
@@ -191,23 +196,23 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 let mut bomb_screen_pos = Vector2 { x: 0.0, y: 0.0 };
                 
                 if game.view.world_to_screen(bomb_pos, &mut bomb_screen_pos, window_info) {
-                    (*ui_functions.lock().unwrap()).insert("bomb".to_string(), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert("bomb".to_string(), Box::new(move |ui| {
                         render_bomb(ui, bomb_pos, local_entity.pawn.pos, bomb_screen_pos, &bomb_site, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove("bomb");
+                    (*render_list.lock().unwrap()).remove("bomb");
                 }
             } else {
-                (*ui_functions.lock().unwrap()).remove("bomb");
+                (*render_list.lock().unwrap()).remove("bomb");
             }
 
             // Bomb Timer
             if config.misc.enabled && config.misc.bomb_timer_enabled {
-                (*ui_functions.lock().unwrap()).insert("bomb_timer".to_string(), Box::new(move |ui| {
+                (*render_list.lock().unwrap()).insert("bomb_timer".to_string(), Box::new(move |ui| {
                     render_bomb_timer(ui, bomb_planted, bomb_site.clone(), config, no_pawn);
                 }));
             } else {
-                (*ui_functions.lock().unwrap()).remove("bomb_timer");
+                (*render_list.lock().unwrap()).remove("bomb_timer");
             }
 
             // Aimbot Data
@@ -304,29 +309,29 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 // Skeleton
                 if is_esp_toggled && config.esp.skeleton_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("skeleton_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("skeleton_{}", i), Box::new(move |ui| {
                         render_bones(ui, bone.bone_pos_list, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("skeleton_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("skeleton_{}", i));
                 }
 
                 // Head
                 if is_esp_toggled && config.esp.head_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("head_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("head_{}", i), Box::new(move |ui| {
                         render_head(ui, bone.bone_pos_list, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("head_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("head_{}", i));
                 }
 
                 // Eye Ray
                 if is_esp_toggled && config.esp.eye_ray_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("eye_ray_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("eye_ray_{}", i), Box::new(move |ui| {
                         render_eye_ray(ui, bone.bone_pos_list, entity.pawn.view_angle, config, game.view, window_info);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("eye_ray_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("eye_ray_{}", i));
                 }
 
                 // Rect Data
@@ -348,84 +353,84 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 // Snapline
                 if is_esp_toggled && config.esp.snap_line_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("snap_line_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("snap_line_{}", i), Box::new(move |ui| {
                         render_snap_line(ui, rect, config, window_info.1.0, window_info.1.1);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("snap_line_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("snap_line_{}", i));
                 }
 
                 // Box
                 if is_esp_toggled && config.esp.box_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("box_{}", i), Box::new(move |ui| {
                         render_box(ui, rect, enemy_visible, entity.controller.team_id == local_entity.controller.team_id, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("box_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("box_{}", i));
                 }
 
                 // Health Bar
                 if is_esp_toggled && config.esp.health_bar_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("health_bar_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("health_bar_{}", i), Box::new(move |ui| {
                         render_health_bar(ui, entity.pawn.health as f32, rect, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("health_bar_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("health_bar_{}", i));
                 }
 
                 // Armor Bar
                 if is_esp_toggled && config.esp.armor_bar_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("armor_bar_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("armor_bar_{}", i), Box::new(move |ui| {
                         render_armor_bar(ui, entity.pawn.armor as f32, rect, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("armor_bar_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("armor_bar_{}", i));
                 }
 
                 // Ammo Bar
                 if is_esp_toggled && config.esp.ammo_bar_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("ammo_bar_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("ammo_bar_{}", i), Box::new(move |ui| {
                         render_ammo_bar(ui, entity.pawn.weapon_ammo as f32, entity.pawn.weapon_max_ammo as f32, rect, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("ammo_bar_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("ammo_bar_{}", i));
                 }
 
                 // Weapon Name
                 if is_esp_toggled && config.esp.weapon_name_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("weapon_name_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("weapon_name_{}", i), Box::new(move |ui| {
                         render_weapon_name(ui, &entity.pawn.weapon_name, rect, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("weapon_name_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("weapon_name_{}", i));
                 }
 
                 // Distance
                 if !no_pawn && is_esp_toggled && config.esp.distance_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("distance_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("distance_{}", i), Box::new(move |ui| {
                         render_distance(ui, entity.pawn.pos, local_entity.pawn.pos, rect, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("distance_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("distance_{}", i));
                 }
 
                 // Name
                 if is_esp_toggled && config.esp.name_enabled {
-                    (*ui_functions.lock().unwrap()).insert(format!("player_name_{}", i), Box::new(move |ui| {
+                    (*render_list.lock().unwrap()).insert(format!("player_name_{}", i), Box::new(move |ui| {
                         render_name(ui, &entity.controller.player_name, rect, config);
                     }));
                 } else {
-                    (*ui_functions.lock().unwrap()).remove(&format!("player_name_{}", i));
+                    (*render_list.lock().unwrap()).remove(&format!("player_name_{}", i));
                 }
             }
 
             // Spectator List
             if config.misc.enabled && config.misc.spectator_list_enabled {
-                (*ui_functions.lock().unwrap()).insert("spectator_list".to_string(), Box::new(move |ui| {
+                (*render_list.lock().unwrap()).insert("spectator_list".to_string(), Box::new(move |ui| {
                     render_spectator_list(ui, spectators.clone(), config, no_pawn);
                 }));
             } else {
-                (*ui_functions.lock().unwrap()).remove("spectator_list");
+                (*render_list.lock().unwrap()).remove("spectator_list");
             }
             
             // Aim Info
@@ -453,38 +458,39 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
             // Crosshair
             if is_crosshair_toggled {
-                (*ui_functions.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
+                (*render_list.lock().unwrap()).insert("cross_hair".to_string(), Box::new(move |ui| {
                     render_crosshair(ui, Vector2 { x: window_info.1.0 as f32 / 2.0, y: window_info.1.1 as f32 / 2.0 }, aiming_at_enemy && allow_shoot, crosshair_config);
                 }));
             } else {
-                (*ui_functions.lock().unwrap()).remove("cross_hair");
+                (*render_list.lock().unwrap()).remove("cross_hair");
             }
 
             // Headshot Line
             if is_esp_toggled && config.esp.headshot_line_enabled {
-                (*ui_functions.lock().unwrap()).insert("headshot_line".to_string(), Box::new(move |ui| {
+                (*render_list.lock().unwrap()).insert("headshot_line".to_string(), Box::new(move |ui| {
                     render_headshot_line(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, local_entity.pawn.view_angle.x, config);
                 }));
             } else {
-                (*ui_functions.lock().unwrap()).remove("headshot_line");
+                (*render_list.lock().unwrap()).remove("headshot_line");
             }
 
             // FOV Circle
             if !no_pawn && config.aimbot.enabled && aimbot_config.fov_circle_enabled && (!config.aimbot.only_weapon || config.aimbot.only_weapon && !no_weapon) && (!aimbot_config.fov_circle_only_toggled || aimbot_config.fov_circle_only_toggled && is_aimbot_toggled) {
-                (*ui_functions.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
+                (*render_list.lock().unwrap()).insert("fov_circle".to_string(), Box::new(move |ui| {
                     render_fov_circle(ui, window_info.1.0, window_info.1.1, local_entity.pawn.fov, aimbot_info, aimbot_config);
                 }));
             } else {
-                (*ui_functions.lock().unwrap()).remove("fov_circle");
+                (*render_list.lock().unwrap()).remove("fov_circle");
             }
 
             // Radar
             if is_radar_toggled {
-                (*ui_functions.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
+                (*render_list.lock().unwrap()).insert("radar".to_string(), Box::new(move |ui| {
+                    let radar_points = if no_pawn { Vec::new() } else { radar_points.clone() };
                     render_radar(ui, config, local_entity.pawn.pos, local_entity.pawn.view_angle.y, radar_points.clone());
                 }));
             } else {
-                (*ui_functions.lock().unwrap()).remove("radar");
+                (*render_list.lock().unwrap()).remove("radar");
             }
 
             // Toggled

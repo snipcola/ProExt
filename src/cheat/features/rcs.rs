@@ -1,11 +1,19 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{sync::{Arc, Mutex}, time::Instant};
+use std::sync::{Arc, Mutex};
+use std::time::Instant;
+
 use lazy_static::lazy_static;
+
 use mint::Vector2;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::{Config, CONFIG, RCSConfigs, RCSConfig}, mouse::move_mouse}, cheat::{classes::entity::CUtlVector, functions::{cache_to_punch, is_feature_toggled, WeaponType}}};
+
+use crate::utils::mouse::move_mouse;
+use crate::utils::cheat::config::{Config, CONFIG, RCSConfigs, RCSConfig};
+
+use crate::cheat::classes::entity::CUtlVector;
+use crate::cheat::functions::{cache_to_punch, is_feature_toggled, WeaponType};
 
 lazy_static! {
     pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().rcs.default));

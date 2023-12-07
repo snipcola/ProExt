@@ -4,12 +4,15 @@
 use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
-use imgui::{Ui, ImColor32};
-use mint::{Vector2, Vector3};
+
 use lazy_static::lazy_static;
 
+use imgui::{Ui, ImColor32};
+use mint::{Vector2, Vector3};
+
+use crate::utils::cheat::config::{Config, CONFIG};
 use crate::cheat::functions::is_feature_toggled;
-use crate::utils::config::{Config, CONFIG};
+
 use crate::ui::functions::{color_u32_to_f32, color_with_masked_alpha};
 
 lazy_static! {

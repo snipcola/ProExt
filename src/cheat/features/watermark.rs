@@ -1,11 +1,18 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{sync::{Arc, Mutex}, time::SystemTime};
+use std::sync::{Arc, Mutex};
+use std::time::SystemTime;
+
+use lazy_static::lazy_static;
+
 use imgui::Ui;
 use mint::Vector4;
-use lazy_static::lazy_static;
-use crate::{utils::config::{CONFIG, Config, ProgramConfig}, ui::functions::color_u32_to_f32};
+
+use crate::config::ProgramConfig;
+
+use crate::utils::cheat::config::{CONFIG, Config};
+use crate::ui::functions::color_u32_to_f32;
 
 lazy_static!{ 
     pub static ref WATERMARK_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));

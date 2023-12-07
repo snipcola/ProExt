@@ -1,11 +1,19 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{sync::{Arc, Mutex}, ops::BitAnd};
+use std::sync::{Arc, Mutex};
+use std::ops::BitAnd;
+
+use lazy_static::lazy_static;
+
 use imgui::Ui;
 use mint::Vector4;
-use lazy_static::lazy_static;
-use crate::{utils::{process_manager::rpm_offset, config::{CONFIG, Config}}, ui::functions::color_u32_to_f32, cheat::classes::offsets::Offsets};
+
+use crate::config::Offsets;
+use crate::ui::functions::color_u32_to_f32;
+
+use crate::utils::cheat::process::rpm_offset;
+use crate::utils::cheat::config::{CONFIG, Config};
 
 lazy_static! {
     pub static ref SPECTATOR_LIST_RESET_POSITION: Arc<Mutex<Option<[f32; 2]>>> = Arc::new(Mutex::new(None));

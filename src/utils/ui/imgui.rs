@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: MIT
 
 use std::fs::read;
+
 use imgui::{Context, FontSource, FontConfig, FontGlyphRanges};
 use imgui_winit_support::{WinitPlatform, HiDpiMode};
-use crate::{ui::windows::Window, utils::config::ProgramConfig};
+
+use crate::config::ProgramConfig;
+use crate::utils::ui::windows::Window;
 
 pub fn add_imgui_default_font(fonts: &mut Vec<FontSource>, font_size: f32) {
     fonts.push(FontSource::DefaultFontData {

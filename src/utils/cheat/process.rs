@@ -5,6 +5,7 @@ use std::mem;
 use std::ffi::{OsString, c_void};
 use std::os::windows::prelude::OsStringExt;
 use std::sync::{Arc, Mutex};
+
 use lazy_static::lazy_static;
 
 use windows::Win32::Foundation::{HANDLE, BOOL, CloseHandle};
@@ -13,10 +14,10 @@ use windows::Win32::System::Diagnostics::ToolHelp::{CreateToolhelp32Snapshot, CR
 use windows::Win32::System::Threading::{OpenProcess, PROCESS_ALL_ACCESS, PROCESS_CREATE_THREAD};
 use windows::Win32::System::Memory::{VirtualQueryEx, MEMORY_BASIC_INFORMATION};
 
-use crate::utils::config::ProgramConfig;
+use crate::config::ProgramConfig;
 
 lazy_static! {
-    pub static ref PROCESS_MANAGER: Arc<Mutex<ProcessManager>> = Arc::new(Mutex::new(ProcessManager {
+    pub static ref PROCESS: Arc<Mutex<Process>> = Arc::new(Mutex::new(Process {
         attached: false,
         h_process: HANDLE::default(),
         process_id: 0,
@@ -24,60 +25,62 @@ lazy_static! {
     }));
 }
 
-pub struct ProcessManager {
+pub struct Process {
     pub attached: bool,
     pub h_process: HANDLE,
     pub process_id: u32,
     pub module_address: u64
 }
 
-pub fn attach_process_manager() -> Option<String> {
+pub fn attach_process() -> Option<String> {
     let process_name = ProgramConfig::TargetProcess::Executable;
-    let process_manager = PROCESS_MANAGER.clone();
-    let mut process_manager = process_manager.lock().unwrap();
+
+    let process = PROCESS.clone();
+    let mut process = process.lock().unwrap();
 
     match get_process_id(process_name) {
         0 => { return Some("ProcessId".to_string()); },
-        process_id => { (*process_manager).process_id = process_id; }
+        process_id => { (*process).process_id = process_id; }
     };
     
-    match unsafe { OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD, BOOL::from(true), (*process_manager).process_id) } {
-        Ok(handle) => { (*process_manager).h_process = handle; },
+    match unsafe { OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD, BOOL::from(true), (*process).process_id) } {
+        Ok(handle) => { (*process).h_process = handle; },
         Err(_) => { return Some("HProcess".to_string()); }
     }
 
-    drop(process_manager);
+    drop(process);
+
     let module_address = get_process_module_handle(process_name);
-    let mut process_manager = PROCESS_MANAGER.lock().unwrap();
+    let mut process = PROCESS.lock().unwrap();
 
     match module_address {
         0 => { return Some("Module".to_string()); },
-        module_address => { (*process_manager).module_address = module_address; }
+        module_address => { (*process).module_address = module_address; }
     };
 
-    (*process_manager).attached = true;
+    (*process).attached = true;
     return None;
 }
 
-pub fn detach_process_manager(process_manager: &mut ProcessManager) {
-    if !HANDLE::is_invalid(&process_manager.h_process) { 
+pub fn detach_process(process: &mut Process) {
+    if !HANDLE::is_invalid(&process.h_process) { 
         unsafe {
-            CloseHandle((*process_manager).h_process).ok();
+            CloseHandle((*process).h_process).ok();
         }
     }
 
-    process_manager.h_process = HANDLE::default();
-    process_manager.process_id = 0;
-    process_manager.module_address = 0;
-    process_manager.attached = false;
+    process.h_process = HANDLE::default();
+    process.process_id = 0;
+    process.module_address = 0;
+    process.attached = false;
 }
 
 pub fn rpm<ReadType: ?Sized>(address: u64, value: &mut ReadType, size: usize) -> bool {
-    let process_manager = PROCESS_MANAGER.clone();
-    let process_manager = process_manager.lock().unwrap();
+    let process = PROCESS.clone();
+    let process = process.lock().unwrap();
 
     unsafe {
-        match ReadProcessMemory((*process_manager).h_process, address as *mut c_void, value as *mut ReadType as *mut c_void, size, None) {
+        match ReadProcessMemory((*process).h_process, address as *mut c_void, value as *mut ReadType as *mut c_void, size, None) {
             Ok(_) => { return true; },
             Err(_) => { return false; }
         }
@@ -98,7 +101,7 @@ pub fn rpm_offset<ReadType>(address: u64, offset: u64, value: &mut ReadType) -> 
 }
 
 pub fn search_memory(signature: &str, start_address: u64, end_address: u64, search_num: i32) -> Vec<u64> {
-    let process_manager = PROCESS_MANAGER.clone();
+    let process = PROCESS.clone();
 
     fn get_signature_array(signature: &str) -> Vec<u16> {
         let mut signature_array: Vec<u16> = Vec::new();
@@ -186,7 +189,7 @@ pub fn search_memory(signature: &str, start_address: u64, end_address: u64, sear
     unsafe {
         let mut mbi: MEMORY_BASIC_INFORMATION = MEMORY_BASIC_INFORMATION::default();
 
-        while VirtualQueryEx((*process_manager.lock().unwrap()).h_process, Some(start_address as *mut c_void), &mut mbi, mem::size_of::<MEMORY_BASIC_INFORMATION>()) != 0 {
+        while VirtualQueryEx((*process.lock().unwrap()).h_process, Some(start_address as *mut c_void), &mut mbi, mem::size_of::<MEMORY_BASIC_INFORMATION>()) != 0 {
             let mut count = 0;
             let mut block_size = mbi.RegionSize;
 
@@ -290,11 +293,11 @@ pub fn get_process_amount(process_name: &str) -> u32 {
 }
 
 pub fn get_process_module_handle(module_name: &str) -> u64 {
-    let process_manager = PROCESS_MANAGER.clone();
-    let process_manager = process_manager.lock().unwrap();
+    let process = PROCESS.clone();
+    let process = process.lock().unwrap();
 
     let mut module_info: MODULEENTRY32W = MODULEENTRY32W::default();
-    let h_snapshot = match unsafe { CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, (*process_manager).process_id) } {
+    let h_snapshot = match unsafe { CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, (*process).process_id) } {
         Ok(snapshot) => snapshot,
         Err(_) => { return 0; }
     };
@@ -316,8 +319,8 @@ pub fn get_process_module_handle(module_name: &str) -> u64 {
     }
 }
 
-impl Drop for ProcessManager {
+impl Drop for Process {
     fn drop(&mut self) {
-        detach_process_manager(self);
+        detach_process(self);
     }
 }

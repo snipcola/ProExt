@@ -1,9 +1,13 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{sync::{Arc, Mutex}, time::Instant};
-use windows::Win32::UI::{Input::KeyboardAndMouse::{SendInput, INPUT, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, MOUSEEVENTF_MOVE, MOUSEINPUT, INPUT_MOUSE, MOUSE_EVENT_FLAGS}, WindowsAndMessaging::GetCursorPos};
+use std::sync::{Arc, Mutex};
+use std::time::Instant;
+
 use lazy_static::lazy_static;
+
+use windows::Win32::UI::Input::KeyboardAndMouse::{SendInput, INPUT, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, MOUSEEVENTF_MOVE, MOUSEINPUT, INPUT_MOUSE, MOUSE_EVENT_FLAGS};
+use windows::Win32::UI::WindowsAndMessaging::GetCursorPos;
 
 lazy_static! {
     pub static ref MOUSE_LOCKED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));

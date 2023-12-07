@@ -6,7 +6,14 @@ use imgui::{Style, ImColor32, Ui, ColorEditFlags, StyleColor};
 use mint::{Vector2, Vector3, Vector4};
 use mki::{Mouse, Keyboard};
 
-use crate::{utils::config::{CONFIG, WindowPositions}, cheat::features::{watermark::WATERMARK_RESET_POSITION, cheat_list::CHEAT_LIST_RESET_POSITION, spectator_list::SPECTATOR_LIST_RESET_POSITION, bomb_timer::BOMB_TIMER_RESET_POSITION, radar::RADAR_RESET_POSITION}, ui::menu::MENU_RESET_POSITION};
+use crate::utils::cheat::config::{CONFIG, WindowPositions};
+use crate::ui::menu::MENU_RESET_POSITION;
+
+use crate::cheat::features::watermark::WATERMARK_RESET_POSITION;
+use crate::cheat::features::cheat_list::CHEAT_LIST_RESET_POSITION;
+use crate::cheat::features::spectator_list::SPECTATOR_LIST_RESET_POSITION;
+use crate::cheat::features::bomb_timer::BOMB_TIMER_RESET_POSITION;
+use crate::cheat::features::radar::RADAR_RESET_POSITION;
 
 pub fn hotkey_index_to_io(hotkey_index: usize) -> Result<Mouse, Keyboard> {
     if hotkey_index == 1 {
