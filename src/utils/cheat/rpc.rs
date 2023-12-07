@@ -1,10 +1,13 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{thread::{self, sleep}, time::{SystemTime, UNIX_EPOCH}};
+use std::thread::{self, sleep};
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use discord_rpc_client::Client;
-use crate::utils::config::ProgramConfig;
-use crate::utils::config::CONFIG;
+
+use crate::config::ProgramConfig;
+use crate::utils::cheat::config::CONFIG;
 
 pub fn set_rpc_activity(client: &mut Client, started: u64) {
     client

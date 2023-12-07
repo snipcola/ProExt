@@ -3,21 +3,26 @@
 
 #![cfg_attr(all(target_os = "windows", not(debug_assertions)), windows_subsystem = "windows")]
 
+mod config;
 mod utils;
 mod cheat;
 mod ui;
 
-use std::{env, thread::{self, sleep}};
-use utils::messagebox::{MessageBoxStyle, MessageBoxButtons, MessageBoxResult};
+use std::env;
+use std::thread::{self, sleep};
 
-use crate::utils::messagebox::{create_messagebox, create_dialog};
+use crate::config::ProgramConfig;
+
 use crate::utils::open::open_url;
-use crate::utils::process_manager::{attach_process_manager, get_process_amount};
+use crate::utils::cheat::process::{attach_process, get_process_amount};
+use crate::utils::cheat::config::{setup_config, update_configs};
+use crate::utils::cheat::updater::{get_own_md5, get_latest_md5, update_exists};
+use crate::utils::messagebox::{create_messagebox, create_dialog, MessageBoxStyle, MessageBoxButtons, MessageBoxResult};
+
 use crate::cheat::classes::offsets::update_offsets;
 use crate::cheat::classes::game::init_game_address;
+
 use crate::ui::main::init_gui;
-use crate::utils::config::{setup_config, update_configs, ProgramConfig};
-use crate::utils::updater::{get_own_md5, get_latest_md5, update_exists};
 
 fn main() {
     let exe_pathbuf = match env::current_exe() {
@@ -67,7 +72,7 @@ fn main() {
         }
     }
 
-    match attach_process_manager() {
+    match attach_process() {
         Some(_) => {
             match create_dialog(MessageBoxStyle::Warning, MessageBoxButtons::OkCancel, "Not Found", &format!("Couldn't find {}, wait for it to open?", ProgramConfig::TargetProcess::Executable)) {
                 MessageBoxResult::Cancel => return,
@@ -77,7 +82,7 @@ fn main() {
             let mut failed_attempts: u32 = 0;
             
             loop {
-                match attach_process_manager() {
+                match attach_process() {
                     None => break,
                     Some(error) => {
                         if error != "ProcessId" {
@@ -90,7 +95,7 @@ fn main() {
                     }
                 }
                 
-                sleep(ProgramConfig::ThreadDelays::AttachTargetProcess);
+                sleep(ProgramConfig::CheckDelays::AttachProcess);
             }
         },
         None => {}
@@ -112,7 +117,7 @@ fn main() {
                     }
                 }
 
-                sleep(ProgramConfig::ThreadDelays::UpdateOffsets);
+                sleep(ProgramConfig::CheckDelays::UpdateOffsets);
             }
         },
         None => {}
@@ -134,7 +139,7 @@ fn main() {
                     }
                 }
 
-                sleep(ProgramConfig::ThreadDelays::InitAddresses);
+                sleep(ProgramConfig::CheckDelays::InitAddresses);
             }
         },
         true => {}

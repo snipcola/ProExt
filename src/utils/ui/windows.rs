@@ -1,12 +1,14 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use glutin::{event_loop::EventLoop, WindowedContext, PossiblyCurrent, window::WindowBuilder, platform::windows::WindowBuilderExtWindows, ContextBuilder};
+use glutin::event_loop::EventLoop;
+use glutin::platform::windows::WindowBuilderExtWindows;
+use glutin::{WindowedContext, PossiblyCurrent, window::WindowBuilder, ContextBuilder};
 
-use windows::{Win32::{Foundation::{HWND, RECT, POINT}, UI::WindowsAndMessaging::{IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY, GCLP_HBRBACKGROUND, SetClassLongPtrW, SetForegroundWindow}}, core::HSTRING};
-use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetForegroundWindow, FindWindowW};
+use windows::core::{PCWSTR, HSTRING};
+use windows::Win32::Foundation::{HWND, RECT, POINT};
+use windows::Win32::UI::WindowsAndMessaging::{GetClientRect, GetForegroundWindow, FindWindowW, IsWindow, SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY, GCLP_HBRBACKGROUND, SetClassLongPtrW, SetForegroundWindow};
 use windows::Win32::Graphics::Gdi::ClientToScreen;
-use windows::core::PCWSTR;
 
 pub type Window = WindowedContext<PossiblyCurrent>;
 

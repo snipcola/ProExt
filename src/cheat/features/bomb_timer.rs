@@ -1,11 +1,16 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{sync::{Arc, Mutex}, time::{Instant, Duration}};
-use imgui::Ui;
+use std::sync::{Arc, Mutex};
+use std::time::{Instant, Duration};
+
 use lazy_static::lazy_static;
+
+use imgui::Ui;
 use mint::Vector4;
-use crate::{utils::config::{Config, CONFIG}, ui::functions::color_u32_to_f32};
+
+use crate::utils::cheat::config::{Config, CONFIG};
+use crate::ui::functions::color_u32_to_f32;
 
 lazy_static! {
     pub static ref IS_PLANTED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));

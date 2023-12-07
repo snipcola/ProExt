@@ -3,12 +3,15 @@
 
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
-use imgui::{Ui, ImColor32};
-use mint::Vector2;
+
 use lazy_static::lazy_static;
 
+use imgui::{Ui, ImColor32};
+use mint::Vector2;
+
 use crate::cheat::functions::{is_feature_toggled, WeaponType};
-use crate::utils::config::{Config, CONFIG, CrosshairConfigs, CrosshairConfig};
+use crate::utils::cheat::config::{Config, CONFIG, CrosshairConfigs, CrosshairConfig};
+
 use crate::ui::functions::{color_u32_to_f32, color_with_masked_alpha};
 
 lazy_static! {

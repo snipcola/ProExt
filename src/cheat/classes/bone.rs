@@ -3,8 +3,9 @@
 
 use mint::{Vector3, Vector2};
 
-use crate::utils::process_manager::{rpm_offset, rpm_auto};
-use crate::cheat::classes::offsets::Offsets;
+use crate::config::Offsets;
+
+use crate::utils::cheat::process::{rpm_offset, rpm_auto};
 use crate::cheat::classes::view::View;
 
 #[derive(Clone, Copy)]

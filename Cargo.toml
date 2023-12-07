@@ -26,6 +26,7 @@ glow = "0.12.0"
 glutin = "0.29.1"
 rand = "0.8.5"
 indexmap = "2.1.0"
+open = "5.0.1"
 
 [build-dependencies]
 winres = "0.1.12"

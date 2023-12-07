@@ -1,11 +1,14 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{io::Read, fs::File, path::PathBuf};
+use std::io::Read;
+use std::fs::File;
+use std::path::PathBuf;
+
 use ureq::get;
 use md5::compute;
 
-use crate::utils::config::ProgramConfig;
+use crate::config::ProgramConfig;
 
 pub fn get_own_md5(exe_pathbuf: PathBuf) -> Option<String> {
     let mut file = match File::open(exe_pathbuf) {

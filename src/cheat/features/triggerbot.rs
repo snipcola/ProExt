@@ -1,11 +1,18 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{time::{Instant, Duration}, sync::{Arc, Mutex}};
+use std::time::{Instant, Duration};
+use std::sync::{Arc, Mutex};
+
 use lazy_static::lazy_static;
+
 use mint::Vector3;
 use rand::{Rng, thread_rng};
-use crate::{utils::{config::{Config, CONFIG, TriggerbotConfigs, TriggerbotConfig}, mouse::{MOUSE_LOCKED, click_mouse, press_mouse, release_mouse}}, cheat::functions::{is_feature_toggled, WeaponType, calculate_distance}};
+
+use crate::utils::mouse::{MOUSE_LOCKED, click_mouse, press_mouse, release_mouse};
+
+use crate::utils::cheat::config::{Config, CONFIG, TriggerbotConfigs, TriggerbotConfig};
+use crate::cheat::functions::{is_feature_toggled, WeaponType, calculate_distance};
 
 lazy_static! {
     pub static ref FEATURE_TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(CONFIG.lock().unwrap().triggerbot.default));

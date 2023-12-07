@@ -4,12 +4,13 @@
 use std::mem::size_of;
 use std::ops::{BitAnd, Shl};
 use std::time::{Instant, Duration};
+
 use mint::{Vector3, Vector2};
-use crate::cheat::classes::offsets::Offsets;
+
+use crate::config::{ProgramConfig, Offsets};
 use crate::ui::functions::{hotkey_index_to_io, distance_between_vec3};
-use crate::utils::config::ProgramConfig;
-use crate::utils::process_manager::rpm_auto;
-use crate::utils::process_manager::{rpm_offset, trace_address};
+
+use crate::utils::cheat::process::{rpm_auto, rpm_offset, trace_address};
 use crate::cheat::classes::entity::CUtlVector;
 
 pub fn is_enemy_at_crosshair(local_entity_pawn_address: u64, local_entity_controller_team_id: i32, game_address_entity_list: u64) -> (bool, bool, u64, Option<Vector3<f32>>) {

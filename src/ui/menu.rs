@@ -1,13 +1,18 @@
 // Copyright (c) 2023 Vytrol <vytrol@proton.me>
 // SPDX-License-Identifier: MIT
 
-use std::{sync::{Arc, Mutex}, path::PathBuf};
+use std::sync::{Arc, Mutex};
+use std::path::PathBuf;
+
 use imgui::{Ui, TabBar, TabItem};
 use lazy_static::lazy_static;
 
-use crate::utils::{config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, ProgramConfig, DEFAULT_CONFIG, CONFIG_EXTENSION}, open::open_url, messagebox::{MessageBoxStyle, create_messagebox}};
-use crate::ui::functions::color_edit_u32_tuple;
-use crate::ui::functions::reset_window_positions;
+use crate::config::ProgramConfig;
+use crate::ui::functions::{color_edit_u32_tuple, reset_window_positions};
+
+use crate::utils::cheat::config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, DEFAULT_CONFIG, CONFIG_EXTENSION};
+use crate::utils::open::open_url;
+use crate::utils::messagebox::{MessageBoxStyle, create_messagebox};
 
 lazy_static! {
     static ref NEW_CONFIG_NAME: Arc<Mutex<String>> = Arc::new(Mutex::new(String::new()));
