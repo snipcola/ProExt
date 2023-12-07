@@ -31,7 +31,7 @@ use crate::cheat::features::cheat_list::render_cheat_list;
 use crate::cheat::features::bomb_timer::render_bomb_timer;
 use crate::cheat::features::spectator_list::{is_spectating, render_spectator_list};
 
-use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position, is_enemy_visible, has_weapon, is_enemy_at_crosshair};
+use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position, is_enemy_visible, has_weapon, is_enemy_at_crosshair, calculate_distance};
 
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
     thread::spawn(move || {
@@ -115,7 +115,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             let is_triggerbot_toggled = !no_pawn && config.triggerbot.enabled && is_game_window_focused && (!config.triggerbot.only_weapon || config.triggerbot.only_weapon && !no_weapon) && (config.triggerbot.always || get_triggerbot_toggled(config));
             let is_rcs_toggled = !no_pawn && config.rcs.enabled && is_game_window_focused && (config.rcs.always || get_rcs_toggled(config));
             let is_esp_toggled = config.esp.enabled && (config.esp.always || get_esp_toggled(config));
-            let is_crosshair_toggled = !no_pawn && config.crosshair.enabled && (!config.crosshair.only_weapon || config.crosshair.only_weapon && !no_weapon) && (config.crosshair.always || get_crosshair_toggled(config));
+            let is_crosshair_toggled = config.crosshair.enabled && (!config.crosshair.only_weapon || no_pawn || config.crosshair.only_weapon && !no_weapon) && (config.crosshair.always || get_crosshair_toggled(config));
             let is_radar_toggled = config.radar.enabled && (config.radar.always || get_radar_toggled(config));
 
             // Cheat List
@@ -282,6 +282,9 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 // Enemy Visible
                 let enemy_visible = is_enemy_visible(entity.pawn.spotted_by_mask, local_entity.pawn.spotted_by_mask, local_player_controller_index, i);
 
+                // Distance
+                let distance = if no_pawn { 0 } else { calculate_distance(entity.pawn.pos, local_entity.pawn.pos) };
+
                 // Radar Point
                 if is_radar_toggled {
                     radar_points.push((entity.pawn.pos, entity.pawn.view_angle.y, enemy_visible, entity.controller.team_id == local_entity.controller.team_id));
@@ -304,7 +307,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
                 // Aimbot Check
                 if !no_pawn && config.aimbot.enabled && entity.controller.team_id != local_entity.controller.team_id {
-                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, enemy_visible, !entity.pawn.has_flag(Flags::InAir), entity.pawn.pos, local_entity.pawn.pos, aimbot_config);
+                    aimbot_check(bone.bone_pos_list, window_info.1.0, window_info.1.1, &mut aim_pos, &mut max_aim_distance, &mut aim_entity_address, entity.pawn.address, enemy_visible, !entity.pawn.has_flag(Flags::InAir), distance, aimbot_config);
                 }
 
                 // Skeleton
@@ -408,7 +411,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 // Distance
                 if !no_pawn && is_esp_toggled && config.esp.distance_enabled {
                     (*render_list.lock().unwrap()).insert(format!("distance_{}", i), Box::new(move |ui| {
-                        render_distance(ui, entity.pawn.pos, local_entity.pawn.pos, rect, config);
+                        render_distance(ui, distance, rect, config);
                     }));
                 } else {
                     (*render_list.lock().unwrap()).remove(&format!("distance_{}", i));

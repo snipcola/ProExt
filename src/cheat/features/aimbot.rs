@@ -17,7 +17,7 @@ use crate::ui::functions::{distance_between_vec2, color_with_masked_alpha, color
 use crate::utils::mouse::{move_mouse, LAST_MOVED};
 use crate::utils::cheat::config::{CONFIG, AimbotConfig, AimbotConfigs, Config};
 
-use crate::cheat::functions::{is_feature_toggled, WeaponType, calculate_distance};
+use crate::cheat::functions::{is_feature_toggled, WeaponType};
 use crate::cheat::classes::bone::{BoneIndex, BoneJointPos};
 use crate::cheat::classes::view::View;
 
@@ -140,7 +140,7 @@ pub fn get_aimbot_bone_indexes(config: AimbotConfig) -> Vec<usize> {
     return bone_indexes;
 }
 
-pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_address: &mut Option<u64>, address: u64, enemy_visible: bool, in_air: bool, position: Vector3<f32>, local_position: Vector3<f32>, config: AimbotConfig) {
+pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window_height: i32, aim_pos: &mut Option<Vector3<f32>>, max_aim_distance: &mut f32, entity_address: &mut Option<u64>, address: u64, enemy_visible: bool, in_air: bool, distance: u32, config: AimbotConfig) {
     if config.only_grounded && in_air {
         return;
     }
@@ -148,8 +148,6 @@ pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window
     if config.only_visible && !enemy_visible {
         return;
     }
-
-    let distance = calculate_distance(position, local_position);
 
     if config.min_distance_enabled && distance < config.min_distance || config.max_distance_enabled && distance > config.max_distance {
         return;
