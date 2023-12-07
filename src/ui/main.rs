@@ -23,7 +23,7 @@ lazy_static! {
     pub static ref WINDOW_INFO: Arc<Mutex<Option<((i32, i32), (i32, i32))>>> = Arc::new(Mutex::new(None));
     pub static ref RENDER_LIST: Arc<Mutex<HashMap<String, Box<dyn Fn(&mut Ui) + Send>>>> = Arc::new(Mutex::new(HashMap::new()));
     
-    pub static ref TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(true));
+    pub static ref TOGGLED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
     pub static ref EXIT: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
 }
 
