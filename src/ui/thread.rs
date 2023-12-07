@@ -24,7 +24,7 @@ use windows::Win32::Foundation::HWND;
 use crate::config::ProgramConfig;
 use crate::cheat::thread::run_cheats_thread;
 
-use crate::ui::main::{WINDOW_INFO, EXIT, TOGGLED, RENDER_LIST};
+use crate::ui::main::{WINDOW_INFO, EXIT, TOGGLED, RENDER_LIST, BG_ALPHA};
 use crate::ui::functions::apply_style;
 use crate::ui::menu::render_menu;
 
@@ -173,7 +173,7 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
             Event::RedrawRequested(_) => {
                 unsafe {
                     if toggled_value {
-                        renderer.gl_context().clear_color(0.0, 0.0, 0.0, 0.25);
+                        renderer.gl_context().clear_color(0.0, 0.0, 0.0, *BG_ALPHA.lock().unwrap());
                     } else {
                         renderer.gl_context().clear_color(0.0, 0.0, 0.0, 0.0);
                     }

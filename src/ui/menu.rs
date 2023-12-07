@@ -8,6 +8,8 @@ use imgui::{Ui, TabBar, TabItem};
 use lazy_static::lazy_static;
 
 use crate::config::ProgramConfig;
+
+use crate::ui::main::BG_ALPHA;
 use crate::ui::functions::{color_edit_u32_tuple, reset_window_positions};
 
 use crate::utils::cheat::config::{CONFIG, CONFIG_DIR, CONFIGS, Config, delete_config, DEFAULT_CONFIG, CONFIG_EXTENSION};
@@ -46,6 +48,9 @@ pub fn render_menu(ui: &mut Ui) {
         .build(|| {
             let window_pos = ui.window_pos();
             (*config).window_positions.menu = window_pos;
+
+            let bg_alpha = (*config).settings.toggle_bg_alpha;
+            *BG_ALPHA.lock().unwrap() = bg_alpha;
 
             TabBar::new("Cheat").build(&ui, || {
                 // ESP
@@ -978,8 +983,12 @@ pub fn render_menu(ui: &mut Ui) {
                         ui.separator();
 
                         // Exclude Team & Show on Spectate
-                        ui.checkbox("Exclude Team##Misc", &mut (*config).settings.exclude_team);
-                        ui.checkbox("Show On Spectate##Misc", &mut (*config).settings.show_on_spectate);
+                        ui.checkbox("Exclude Team##Settings", &mut (*config).settings.exclude_team);
+                        ui.checkbox("Show On Spectate##Settings", &mut (*config).settings.show_on_spectate);
+
+                        // Toggle Background Alpha
+                        ui.separator();
+                        ui.slider_config("Toggle Alpha##Settings", 0.0, 1.0).display_format("%.1f").build(&mut (*config).settings.toggle_bg_alpha);
                     }
                 });
 
