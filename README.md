@@ -37,6 +37,9 @@ SPDX-License-Identifier: MIT
 <li><i>...and more to come!</i></li>
 
 <h2>💬 Q&A:</h2>
+<h4><b>🤔  Does it work in fullscreen?</b></h4>
+<p>No, you have to use Windowed or Windowed Fullscreen, using fullscreen will not work and might even crash the game.</p>
+
 <h4><b>🤔  Is this detectable?</b></h4>
 <p>This software operates in user mode, so it is entirely possible to be detected. However, you should always avoid suspicious gameplay to evade potential reports.</p>
 
