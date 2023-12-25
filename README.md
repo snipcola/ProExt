@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2023 Vytrol <vytrol@proton.me>
+Copyright (c) 2023 Snipcola
 SPDX-License-Identifier: MIT
 -->
 
@@ -8,15 +8,15 @@ SPDX-License-Identifier: MIT
 </h1>
 
 <p align="center">
-    <a href="https://raw.githubusercontent.com/vytrol/ProExt/main/LICENSE" target="_blank">MIT License</a>
+    <a href="https://raw.githubusercontent.com/snipcola/ProExt/main/LICENSE" target="_blank">MIT License</a>
     •
     <a href="https://discord.gg/8t2vNHMJW6" target="_blank">Discord Community</a>
 </p>
 
 <div align="center">
-    <img src="https://img.shields.io/github/license/vytrol/proext?style=for-the-badge&logo=github&color=3380F5"/>
-    <img src="https://img.shields.io/github/actions/workflow/status/vytrol/proext/build-deploy.yml?style=for-the-badge&logo=github&color=3380F5"/>
-    <img src="https://img.shields.io/github/commit-activity/t/vytrol/proext?style=for-the-badge&logo=github&color=3380F5"/>
+    <img src="https://img.shields.io/github/license/snipcola/proext?style=for-the-badge&logo=github&color=3380F5"/>
+    <img src="https://img.shields.io/github/actions/workflow/status/snipcola/proext/build-deploy.yml?style=for-the-badge&logo=github&color=3380F5"/>
+    <img src="https://img.shields.io/github/commit-activity/t/snipcola/proext?style=for-the-badge&logo=github&color=3380F5"/>
 </div>
 
 <p align="center">An open-source, customizable modification for Counter-Strike 2, designed to enhance your gameplay.</p>

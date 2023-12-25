@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// Copyright (c) 2023 Snipcola
 // SPDX-License-Identifier: MIT
 
 use glutin::event_loop::EventLoop;
