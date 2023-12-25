@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// Copyright (c) 2023 Snipcola
 // SPDX-License-Identifier: MIT
 
 #![allow(non_snake_case, non_upper_case_globals)]
@@ -103,20 +103,20 @@ pub mod ProgramConfig {
     }
 
     pub mod Update {
-        pub const Enabled: bool = true;
-        pub const URL: &str = "https://github.com/vytrol/ProExt/raw/main/bin/proext.exe";
-        pub const HashURL: &str = "https://github.com/vytrol/ProExt/raw/main/bin/hash.txt";
+        pub const Enabled: bool = false;
+        pub const URL: &str = "";
+        pub const HashURL: &str = "";
     }
 
     pub mod RPC {
-        pub const Enabled: bool = true;
-        pub const ClientID: u64 = 1179079909579165696;
-        pub const ImageAsset: &str = "icon";
+        pub const Enabled: bool = false;
+        pub const ClientID: u64 = 0;
+        pub const ImageAsset: &str = "";
     }
 
     pub mod Links {
-        pub const Source: &str = "https://github.com/vytrol/ProExt";
-        pub const License: &str = "https://raw.githubusercontent.com/vytrol/ProExt/main/LICENSE";
+        pub const Source: &str = "https://github.com/snipcola/ProExt";
+        pub const License: &str = "https://raw.githubusercontent.com/snipcola/ProExt/main/LICENSE";
         pub const Discord: &str = "https://discord.gg/8t2vNHMJW6";
     }
 

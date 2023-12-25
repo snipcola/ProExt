@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Vytrol <vytrol@proton.me>
+// Copyright (c) 2023 Snipcola
 // SPDX-License-Identifier: MIT
 
 #![cfg_attr(all(target_os = "windows", not(debug_assertions)), windows_subsystem = "windows")]
@@ -35,7 +35,7 @@ fn main() {
     }
 
     if !cfg!(debug_assertions) {
-        let caption = "Copyright (c) 2023 Vytrol <vytrol@proton.me>";
+        let caption = "Copyright (c) 2023 Snipcola";
         let text = format!("Would you like to start {} v{}?", ProgramConfig::Package::Name, ProgramConfig::Package::Version);
 
         match create_dialog(MessageBoxStyle::Info, MessageBoxButtons::YesNo, &caption, &text) {
