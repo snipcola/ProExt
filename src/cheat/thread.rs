@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Snipcola
+// Copyright (c) 2024 Snipcola
 // SPDX-License-Identifier: MIT
 
 use std::thread;
@@ -85,6 +85,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             };
 
             let remove_ui_elements = || {
+                (*render_list.lock().unwrap()).remove("cross_hair");
                 (*render_list.lock().unwrap()).remove("fov_circle");
                 (*render_list.lock().unwrap()).remove("radar");
                 (*render_list.lock().unwrap()).remove("headshot_line");
@@ -515,7 +516,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 if let Some(aimbot_info) = aimbot_info {
                     if let Some(aim_pos) = aim_pos {
                         if let Some(entity_index) = aim_entity_address {
-                            run_aimbot(aimbot_config, aimbot_info, window_info, game.view, aim_pos, entity_index, rcs_toggled, rcs_info);
+                            run_aimbot(aimbot_config, aimbot_info, window_info, game.view, aim_pos, entity_index, is_rcs_toggled, rcs_info);
                         }
                     }
                 }

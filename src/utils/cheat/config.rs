@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Snipcola
+// Copyright (c) 2024 Snipcola
 // SPDX-License-Identifier: MIT
 
 use std::fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file};
