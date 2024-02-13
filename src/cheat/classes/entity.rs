@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Snipcola
+// Copyright (c) 2024 Snipcola
 // SPDX-License-Identifier: MIT
 
 use std::ops::{BitAnd, Shr};
@@ -163,7 +163,8 @@ impl Entity {
         }
 
         if !self.pawn.get_weapon() {
-            return false;
+            // TODO: Fix failure on some weapons.
+            // return false;
         }
 
         if !self.pawn.get_shots_fired() {
@@ -291,13 +292,13 @@ impl PlayerPawn {
     pub fn get_weapon(&mut self) -> bool {
         // Weapon Name & Type
         let weapon_name_address = trace_address(self.address + Offsets::C_CSPlayerPawnBase::m_pClippingWeapon as u64, &[0x10, 0x20, 0x0]);
-        let mut buffer: [u8; 40] = [0; 40];
+        let mut buffer: [u8; 50] = [0; 50];
 
         if weapon_name_address == 0 {
             return false;
         }
         
-        if !rpm(weapon_name_address, &mut buffer, 40) {
+        if !rpm(weapon_name_address, &mut buffer, 50) {
             return false;
         }
         
@@ -318,7 +319,7 @@ impl PlayerPawn {
             return false;
         }
 
-        if !rpm_offset(clipping_weapon, 0x360, &mut weapon_data) {
+        if !rpm_offset(clipping_weapon, 0x368, &mut weapon_data) {
             return false;
         }
 

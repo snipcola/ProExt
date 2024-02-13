@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Snipcola
+// Copyright (c) 2024 Snipcola
 // SPDX-License-Identifier: MIT
 
 use std::sync::{Arc, Mutex};
@@ -92,8 +92,6 @@ pub fn render_spectator_list(ui: &mut Ui, spectators: Vec<String>, config: Confi
             } else if spectators.len() == 0 {
                 ui.text_colored(spectator_list_color, "No spectators.");
             } else {
-                ui.text_colored(spectator_list_color, "Spectating:");
-
                 for spectator in spectators {
                     ui.text_colored(spectator_list_color, format!("- {}", spectator));
                 }

@@ -1,44 +1,44 @@
-// Copyright (c) 2023 Snipcola
+// Copyright (c) 2024 Snipcola
 // SPDX-License-Identifier: MIT
 
 #![allow(non_snake_case, non_upper_case_globals)]
 
 pub mod Offsets {
     pub mod C_BaseEntity {  // CEntityInstance
-        pub const m_iHealth: usize = 0x32C; // int32_t
-        pub const m_iTeamNum: usize = 0x3BF; // uint8_t
-        pub const m_pGameSceneNode: usize = 0x310; // CGameSceneNode*
-        pub const m_fFlags: usize = 0x3C8; // uint32_t
+        pub const m_iHealth: usize = 0x334; // int32_t
+        pub const m_iTeamNum: usize = 0x3CB; // uint8_t
+        pub const m_pGameSceneNode: usize = 0x318; // CGameSceneNode*
+        pub const m_fFlags: usize = 0x3D4; // uint32_t
     }
     
     pub mod CBasePlayerController { // C_BaseEntity
-        pub const m_hPawn: usize = 0x60C; // CHandle<C_BasePlayerPawn>
-        pub const m_iszPlayerName: usize = 0x640; // char[128]
+        pub const m_hPawn: usize = 0x604; // CHandle<C_BasePlayerPawn>
+        pub const m_iszPlayerName: usize = 0x638; // char[128]
     }
     
     pub mod CCSPlayerController { // CBasePlayerController
-        pub const m_hPlayerPawn: usize = 0x7EC; // CHandle<C_CSPlayerPawn>
-        pub const m_bPawnIsAlive: usize = 0x7F4; // bool
+        pub const m_hPlayerPawn: usize = 0x7E4; // CHandle<C_CSPlayerPawn>
+        pub const m_bPawnIsAlive: usize = 0x7EC; // bool
     }
     
     pub mod C_BasePlayerPawn { // C_BaseCombatCharacter
-        pub const m_pObserverServices: usize = 0x10C0; // CPlayer_ObserverServices*
-        pub const m_pCameraServices: usize = 0x10E0; // CPlayer_CameraServices*
-        pub const m_vOldOrigin: usize = 0x1224; // Vector
+        pub const m_pObserverServices: usize = 0x1118; // CPlayer_ObserverServices*
+        pub const m_pCameraServices: usize = 0x1138; // CPlayer_CameraServices*
+        pub const m_vOldOrigin: usize = 0x127C; // Vector
     }
 
     pub mod C_CSPlayerPawnBase { // C_BasePlayerPawn
-        pub const m_vecLastClipCameraPos: usize = 0x128C; // Vector
-        pub const m_angEyeAngles: usize = 0x1510; // QAngle
-        pub const m_pClippingWeapon: usize = 0x12A8; // C_CSWeaponBase*
-        pub const m_iIDEntIndex: usize = 0x153C; // CEntityIndex
-        pub const m_entitySpottedState: usize = 0x1630; // EntitySpottedState_t
-        pub const m_ArmorValue: usize = 0x1508; // int32_t
-        pub const m_iShotsFired: usize = 0x1418; // int32_t
+        pub const m_vecLastClipCameraPos: usize = 0x12EC; // Vector
+        pub const m_angEyeAngles: usize = 0x1578; // QAngle
+        pub const m_pClippingWeapon: usize = 0x1308; // C_CSWeaponBase*
+        pub const m_iIDEntIndex: usize = 0x15A4; // CEntityIndex
+        pub const m_entitySpottedState: usize = 0x1698; // EntitySpottedState_t
+        pub const m_ArmorValue: usize = 0x1570; // int32_t
+        pub const m_iShotsFired: usize = 0x147C; // int32_t
     }
 
     pub mod C_CSPlayerPawn { // C_CSPlayerPawnBase
-        pub const m_aimPunchCache: usize = 0x1738; // CUtlVector<QAngle>
+        pub const m_aimPunchCache: usize = 0x17A0; // CUtlVector<QAngle>
     }
 
     pub mod CGameSceneNode {
@@ -62,7 +62,7 @@ pub mod Offsets {
     }
 
     pub mod C_PlantedC4 { // CBaseAnimGraph
-        pub const m_nBombSite: usize = 0xE84; // int32_t
+        pub const m_nBombSite: usize = 0xEDC; // int32_t
     }
 
     pub mod CBasePlayerWeaponVData { // CEntitySubclassVDataBase
@@ -70,16 +70,16 @@ pub mod Offsets {
     }
 
     pub mod C_BasePlayerWeapon { // C_EconEntity
-        pub const m_iClip1: usize = 0x1570; // int32_t
+        pub const m_iClip1: usize = 0x15C8; // int32_t
     }
 }
 
 pub mod Signatures {
-    pub const dwEntityList: &str = "48 8B 0D ?? ?? ?? ?? 48 89 7C 24 ?? 8B FA C1";
+    pub const dwEntityList: &str = "48 8B 0D ?? ?? ?? ?? 48 89 7C 24 ?? 8B FA C1 EB";
     pub const dwLocalPlayerController: &str = "48 8B 05 ?? ?? ?? ?? 48 85 C0 74 4F";
     pub const dwLocalPlayerPawn: &str = "48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 48 83 EC ?? 8B 0D";
     pub const dwPlantedC4: &str = "48 8B 15 ?? ?? ?? ?? FF C0 48 8D 4C 24 40";
-    pub const dwViewAngles: &str = "48 8B 0D ?? ?? ?? ?? E9 ?? ?? ?? ?? CC CC CC CC 40 55";
+    pub const dwViewAngles: &str = "48 8B 0D ?? ?? ?? ?? E9 ?? ?? ?? ?? CC CC CC CC 48 C7 02";
     pub const dwViewMatrix: &str = "48 8D 0D ?? ?? ?? ?? 48 C1 E0 06";
 }
 
@@ -103,21 +103,21 @@ pub mod ProgramConfig {
     }
 
     pub mod Update {
-        pub const Enabled: bool = false;
-        pub const URL: &str = "";
-        pub const HashURL: &str = "";
+        pub const Enabled: bool = true;
+        pub const URL: &str = "https://git.snipcola.com/snipcola/ProExt/raw/branch/main/bin/proext.exe";
+        pub const HashURL: &str = "https://git.snipcola.com/snipcola/ProExt/raw/branch/main/bin/hash.txt";
     }
 
     pub mod RPC {
-        pub const Enabled: bool = false;
-        pub const ClientID: u64 = 0;
-        pub const ImageAsset: &str = "";
+        pub const Enabled: bool = true;
+        pub const ClientID: u64 = 1206447314470830151;
+        pub const ImageAsset: &str = "icon";
     }
 
     pub mod Links {
-        pub const Source: &str = "https://github.com/snipcola/ProExt";
-        pub const License: &str = "https://raw.githubusercontent.com/snipcola/ProExt/main/LICENSE";
-        pub const Discord: &str = "https://discord.gg/8t2vNHMJW6";
+        pub const Source: &str = "https://git.snipcola.com/snipcola/ProExt";
+        pub const License: &str = "https://git.snipcola.com/snipcola/ProExt/raw/branch/main/LICENSE";
+        pub const Discord: &str = "https://dsc.bio/snipcola";
     }
 
     pub mod Keys {

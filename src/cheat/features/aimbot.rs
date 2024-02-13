@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Snipcola
+// Copyright (c) 2024 Snipcola
 // SPDX-License-Identifier: MIT
 
 use std::f32::consts::PI;
@@ -96,8 +96,10 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
         return;
     }
 
-    let screen_diff_y = (screen_center_y - screen_pos.y).abs() / 10.0;
-    let use_rcs = rcs_toggled && screen_diff_y < 10.0;
+    let rcs_y = match rcs_info {
+        Some(rcs_info) => rcs_info.1.abs(),
+        None => 0
+    };
 
     let mut target_x = if screen_pos.x > screen_center_x { -(screen_center_x - screen_pos.x) } else { screen_pos.x - screen_center_x };
     target_x /= smooth;
@@ -115,7 +117,7 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
         target_y = if target_y.abs() < base_smooth { if target_y > 0.0 { base_smooth } else { -base_smooth } } else { target_y };
     }
 
-    move_mouse(target_x as i32, if use_rcs { rcs_info.unwrap().1 } else { target_y as i32 }, true);
+    move_mouse(target_x as i32, if rcs_toggled { ((target_y as i32) - rcs_y).max(0) } else { target_y as i32 }, true);
 }
 
 pub fn get_aimbot_bone_indexes(config: AimbotConfig) -> Vec<usize> {

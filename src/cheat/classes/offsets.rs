@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Snipcola
+// Copyright (c) 2024 Snipcola
 // SPDX-License-Identifier: MIT
 
 use std::sync::{Mutex, Arc};
@@ -75,7 +75,7 @@ pub fn update_offsets() -> Option<String> {
                 return Some("ViewAnglesMemory".to_string())
             };
             
-            *view_angle = (address + 24896 - client_dll) as u32;
+            *view_angle = (address + 0x5390 - client_dll) as u32;
         },
         None => return Some("ViewAngles".to_string())
     };

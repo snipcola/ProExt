@@ -1,5 +1,5 @@
 <!--
-Copyright (c) 2023 Snipcola
+Copyright (c) 2024 Snipcola
 SPDX-License-Identifier: MIT
 -->
 
