@@ -15,7 +15,6 @@ SPDX-License-Identifier: MIT
 
 <div align="center">
     <img src="https://img.shields.io/github/license/snipcola/proext?style=for-the-badge&logo=github&color=3380F5"/>
-    <img src="https://img.shields.io/github/actions/workflow/status/snipcola/proext/build-deploy.yml?style=for-the-badge&logo=github&color=3380F5"/>
     <img src="https://img.shields.io/github/commit-activity/t/snipcola/proext?style=for-the-badge&logo=github&color=3380F5"/>
 </div>
 
