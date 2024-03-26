@@ -33,16 +33,6 @@ fn main() {
     if get_process_amount(ProgramConfig::Package::Executable) > 1 || get_process_amount(&exe_pathbuf.file_name().unwrap().to_string_lossy()) > 1 {
         return create_messagebox(MessageBoxStyle::Error, "Already Running", &format!("{} is already running.", ProgramConfig::Package::Name));
     }
-
-    if !cfg!(debug_assertions) {
-        let caption = "Copyright (c) 2024 Snipcola";
-        let text = format!("Would you like to start {} v{}?", ProgramConfig::Package::Name, ProgramConfig::Package::Version);
-
-        match create_dialog(MessageBoxStyle::Info, MessageBoxButtons::YesNo, &caption, &text) {
-            MessageBoxResult::No => return,
-            _ => {}
-        }
-    }
     
     if !cfg!(debug_assertions) && ProgramConfig::Update::Enabled && update_exists() {
         let own_md5 = get_own_md5(exe_pathbuf);
