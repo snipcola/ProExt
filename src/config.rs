@@ -1,48 +1,48 @@
 // Copyright (c) 2024 Snipcola
 // SPDX-License-Identifier: MIT
 
-#![allow(non_snake_case, non_upper_case_globals)]
+#![allow(non_upper_case_globals, non_camel_case_types, non_snake_case, unused)]
 
 pub mod Offsets {
     pub mod C_BaseEntity {  // CEntityInstance
-        pub const m_iHealth: usize = 0x334; // int32_t
-        pub const m_iTeamNum: usize = 0x3CB; // uint8_t
-        pub const m_pGameSceneNode: usize = 0x318; // CGameSceneNode*
-        pub const m_fFlags: usize = 0x3D4; // uint32_t
+        pub const m_iHealth: usize = 0x324; // int32_t
+        pub const m_iTeamNum: usize = 0x3C3; // uint8_t
+        pub const m_pGameSceneNode: usize = 0x308; // CGameSceneNode*
+        pub const m_fFlags: usize = 0x3CC; // uint32_t
     }
     
     pub mod CBasePlayerController { // C_BaseEntity
-        pub const m_hPawn: usize = 0x604; // CHandle<C_BasePlayerPawn>
-        pub const m_iszPlayerName: usize = 0x638; // char[128]
+        pub const m_hPawn: usize = 0x5FC; // CHandle<C_BasePlayerPawn>
+        pub const m_iszPlayerName: usize = 0x630; // char[128]
     }
     
     pub mod CCSPlayerController { // CBasePlayerController
-        pub const m_hPlayerPawn: usize = 0x7E4; // CHandle<C_CSPlayerPawn>
-        pub const m_bPawnIsAlive: usize = 0x7EC; // bool
+        pub const m_hPlayerPawn: usize = 0x7D4; // CHandle<C_CSPlayerPawn>
+        pub const m_bPawnIsAlive: usize = 0x7E4; // bool
     }
     
     pub mod C_BasePlayerPawn { // C_BaseCombatCharacter
-        pub const m_pObserverServices: usize = 0x1118; // CPlayer_ObserverServices*
-        pub const m_pCameraServices: usize = 0x1138; // CPlayer_CameraServices*
-        pub const m_vOldOrigin: usize = 0x127C; // Vector
+        pub const m_pObserverServices: usize = 0x1110; // CPlayer_ObserverServices*
+        pub const m_pCameraServices: usize = 0x1130; // CPlayer_CameraServices*
+        pub const m_vOldOrigin: usize = 0x1274; // Vector
     }
 
     pub mod C_CSPlayerPawnBase { // C_BasePlayerPawn
-        pub const m_vecLastClipCameraPos: usize = 0x12EC; // Vector
-        pub const m_angEyeAngles: usize = 0x1578; // QAngle
-        pub const m_pClippingWeapon: usize = 0x1308; // C_CSWeaponBase*
-        pub const m_iIDEntIndex: usize = 0x15A4; // CEntityIndex
-        pub const m_entitySpottedState: usize = 0x1698; // EntitySpottedState_t
-        pub const m_ArmorValue: usize = 0x1570; // int32_t
-        pub const m_iShotsFired: usize = 0x147C; // int32_t
+        pub const m_vecLastClipCameraPos: usize = 0x12D4; // Vector
+        pub const m_angEyeAngles: usize = 0x1388; // QAngle
+        pub const m_pClippingWeapon: usize = 0x12F0; // C_CSWeaponBase*
+        pub const m_iIDEntIndex: usize = 0x13A8; // CEntityIndex
+        pub const m_entitySpottedState: usize = 0x1AB8; // EntitySpottedState_t
+        pub const m_ArmorValue: usize = 0x22C0; // int32_t
+        pub const m_iShotsFired: usize = 0x22A4; // int32_t
     }
 
     pub mod C_CSPlayerPawn { // C_CSPlayerPawnBase
-        pub const m_aimPunchCache: usize = 0x17A0; // CUtlVector<QAngle>
+        pub const m_aimPunchCache: usize = 0x14F0; // CUtlVector<QAngle>
     }
 
     pub mod CGameSceneNode {
-        pub const m_vecAbsOrigin: usize = 0xC8; // Vector
+        pub const m_vecAbsOrigin: usize = 0xD0; // Vector
     }
 
     pub mod CCSPlayerBase_CameraServices { // CPlayer_CameraServices
@@ -62,7 +62,7 @@ pub mod Offsets {
     }
 
     pub mod C_PlantedC4 { // CBaseAnimGraph
-        pub const m_nBombSite: usize = 0xEDC; // int32_t
+        pub const m_nBombSite: usize = 0xED4; // int32_t
     }
 
     pub mod CBasePlayerWeaponVData { // CEntitySubclassVDataBase
@@ -70,7 +70,7 @@ pub mod Offsets {
     }
 
     pub mod C_BasePlayerWeapon { // C_EconEntity
-        pub const m_iClip1: usize = 0x15C8; // int32_t
+        pub const m_iClip1: usize = 0x15C0; // int32_t
     }
 }
 

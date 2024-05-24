@@ -1,0 +1,1214 @@
+{
+  "esp": {
+    "enabled": true,
+    "key": 8,
+    "mode": 1,
+    "always": false,
+    "default": true,
+    "outline": true,
+    "thickness": 1.0,
+    "rounding": 0,
+    "box_enabled": true,
+    "box_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "box_mode": 0,
+    "box_target_enabled": true,
+    "box_target_color": [
+      255,
+      0,
+      0,
+      255
+    ],
+    "box_friendly_enabled": true,
+    "box_friendly_color": [
+      0,
+      255,
+      255,
+      255
+    ],
+    "filled_box_enabled": true,
+    "filled_box_color_one": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "filled_box_color_two": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "filled_box_alpha": 0.1,
+    "skeleton_enabled": true,
+    "skeleton_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "head_enabled": true,
+    "head_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "head_mode": 0,
+    "eye_ray_enabled": false,
+    "eye_ray_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "health_bar_enabled": true,
+    "health_bar_first_color": [
+      0,
+      255,
+      0,
+      255
+    ],
+    "health_bar_second_color": [
+      255,
+      255,
+      0,
+      255
+    ],
+    "health_bar_third_color": [
+      255,
+      0,
+      0,
+      255
+    ],
+    "armor_bar_enabled": true,
+    "armor_bar_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "ammo_bar_enabled": true,
+    "ammo_bar_color": [
+      255,
+      165,
+      0,
+      255
+    ],
+    "bar_mode": 1,
+    "name_enabled": true,
+    "name_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "weapon_name_enabled": true,
+    "weapon_name_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "distance_enabled": true,
+    "distance_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "bomb_enabled": true,
+    "bomb_color": [
+      255,
+      0,
+      0,
+      255
+    ],
+    "filled_bomb_enabled": true,
+    "filled_bomb_color": [
+      255,
+      0,
+      0,
+      255
+    ],
+    "filled_bomb_alpha": 0.1,
+    "snap_line_enabled": false,
+    "snap_line_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "snap_line_mode": 1,
+    "headshot_line_enabled": false,
+    "headshot_line_color": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  "rcs": {
+    "enabled": false,
+    "key": 9,
+    "mode": 1,
+    "always": false,
+    "default": true,
+    "shared": false,
+    "sensitivity": 3.0,
+    "configs": {
+      "shared": {
+        "start_bullet": 1,
+        "yaw": 1.0,
+        "yaw_offset": 0.2,
+        "pitch": 1.0,
+        "pitch_offset": 0.2
+      },
+      "pistol": {
+        "start_bullet": 1,
+        "yaw": 1.0,
+        "yaw_offset": 0.2,
+        "pitch": 1.0,
+        "pitch_offset": 0.2
+      },
+      "rifle": {
+        "start_bullet": 1,
+        "yaw": 1.0,
+        "yaw_offset": 0.2,
+        "pitch": 1.0,
+        "pitch_offset": 0.2
+      },
+      "submachine": {
+        "start_bullet": 1,
+        "yaw": 1.0,
+        "yaw_offset": 0.2,
+        "pitch": 1.0,
+        "pitch_offset": 0.2
+      },
+      "sniper": {
+        "start_bullet": 1,
+        "yaw": 1.0,
+        "yaw_offset": 0.2,
+        "pitch": 1.0,
+        "pitch_offset": 0.2
+      },
+      "shotgun": {
+        "start_bullet": 1,
+        "yaw": 1.0,
+        "yaw_offset": 0.2,
+        "pitch": 1.0,
+        "pitch_offset": 0.2
+      },
+      "machinegun": {
+        "start_bullet": 1,
+        "yaw": 1.0,
+        "yaw_offset": 0.2,
+        "pitch": 1.0,
+        "pitch_offset": 0.2
+      },
+      "other": {
+        "start_bullet": 1,
+        "yaw": 1.0,
+        "yaw_offset": 0.2,
+        "pitch": 1.0,
+        "pitch_offset": 0.2
+      }
+    }
+  },
+  "aimbot": {
+    "enabled": true,
+    "key": 0,
+    "mode": 0,
+    "always": false,
+    "default": false,
+    "shared": false,
+    "only_weapon": true,
+    "configs": {
+      "shared": {
+        "fov_circle_enabled": true,
+        "fov_circle_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "fov_circle_target_enabled": true,
+        "fov_circle_target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "fov_circle_outline_enabled": true,
+        "fov_circle_only_toggled": true,
+        "fov_circle_thickness": 1.2,
+        "only_visible": true,
+        "only_grounded": true,
+        "bone_head": true,
+        "bone_neck": true,
+        "bone_spine": false,
+        "bone_pelvis": false,
+        "fov": 5,
+        "smooth": 1.0,
+        "smooth_offset": 0.2,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "pistol": {
+        "fov_circle_enabled": true,
+        "fov_circle_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "fov_circle_target_enabled": true,
+        "fov_circle_target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "fov_circle_outline_enabled": true,
+        "fov_circle_only_toggled": true,
+        "fov_circle_thickness": 1.2,
+        "only_visible": true,
+        "only_grounded": true,
+        "bone_head": true,
+        "bone_neck": true,
+        "bone_spine": false,
+        "bone_pelvis": false,
+        "fov": 5,
+        "smooth": 1.0,
+        "smooth_offset": 0.2,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "rifle": {
+        "fov_circle_enabled": true,
+        "fov_circle_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "fov_circle_target_enabled": true,
+        "fov_circle_target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "fov_circle_outline_enabled": true,
+        "fov_circle_only_toggled": true,
+        "fov_circle_thickness": 1.2,
+        "only_visible": true,
+        "only_grounded": true,
+        "bone_head": true,
+        "bone_neck": true,
+        "bone_spine": false,
+        "bone_pelvis": false,
+        "fov": 5,
+        "smooth": 1.0,
+        "smooth_offset": 0.2,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "submachine": {
+        "fov_circle_enabled": true,
+        "fov_circle_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "fov_circle_target_enabled": true,
+        "fov_circle_target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "fov_circle_outline_enabled": true,
+        "fov_circle_only_toggled": true,
+        "fov_circle_thickness": 1.2,
+        "only_visible": true,
+        "only_grounded": true,
+        "bone_head": true,
+        "bone_neck": true,
+        "bone_spine": false,
+        "bone_pelvis": false,
+        "fov": 5,
+        "smooth": 1.0,
+        "smooth_offset": 0.2,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "sniper": {
+        "fov_circle_enabled": false,
+        "fov_circle_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "fov_circle_target_enabled": true,
+        "fov_circle_target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "fov_circle_outline_enabled": true,
+        "fov_circle_only_toggled": true,
+        "fov_circle_thickness": 1.2,
+        "only_visible": true,
+        "only_grounded": true,
+        "bone_head": true,
+        "bone_neck": true,
+        "bone_spine": false,
+        "bone_pelvis": false,
+        "fov": 5,
+        "smooth": 1.0,
+        "smooth_offset": 0.2,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "shotgun": {
+        "fov_circle_enabled": true,
+        "fov_circle_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "fov_circle_target_enabled": true,
+        "fov_circle_target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "fov_circle_outline_enabled": true,
+        "fov_circle_only_toggled": true,
+        "fov_circle_thickness": 1.2,
+        "only_visible": true,
+        "only_grounded": true,
+        "bone_head": true,
+        "bone_neck": true,
+        "bone_spine": false,
+        "bone_pelvis": false,
+        "fov": 5,
+        "smooth": 1.0,
+        "smooth_offset": 0.2,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "machinegun": {
+        "fov_circle_enabled": true,
+        "fov_circle_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "fov_circle_target_enabled": true,
+        "fov_circle_target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "fov_circle_outline_enabled": true,
+        "fov_circle_only_toggled": true,
+        "fov_circle_thickness": 1.2,
+        "only_visible": true,
+        "only_grounded": true,
+        "bone_head": true,
+        "bone_neck": true,
+        "bone_spine": false,
+        "bone_pelvis": false,
+        "fov": 5,
+        "smooth": 1.0,
+        "smooth_offset": 0.2,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "knife": {
+        "fov_circle_enabled": true,
+        "fov_circle_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "fov_circle_target_enabled": true,
+        "fov_circle_target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "fov_circle_outline_enabled": true,
+        "fov_circle_only_toggled": true,
+        "fov_circle_thickness": 1.2,
+        "only_visible": true,
+        "only_grounded": true,
+        "bone_head": true,
+        "bone_neck": true,
+        "bone_spine": false,
+        "bone_pelvis": false,
+        "fov": 5,
+        "smooth": 1.0,
+        "smooth_offset": 0.2,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "other": {
+        "fov_circle_enabled": true,
+        "fov_circle_color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "fov_circle_target_enabled": true,
+        "fov_circle_target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "fov_circle_outline_enabled": true,
+        "fov_circle_only_toggled": true,
+        "fov_circle_thickness": 1.2,
+        "only_visible": true,
+        "only_grounded": true,
+        "bone_head": true,
+        "bone_neck": true,
+        "bone_spine": false,
+        "bone_pelvis": false,
+        "fov": 5,
+        "smooth": 1.0,
+        "smooth_offset": 0.2,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      }
+    }
+  },
+  "triggerbot": {
+    "enabled": false,
+    "key": 0,
+    "mode": 0,
+    "always": false,
+    "default": false,
+    "shared": false,
+    "only_weapon": true,
+    "configs": {
+      "shared": {
+        "action": 0,
+        "tap_interval": 160,
+        "tap_interval_offset": 15,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "pistol": {
+        "action": 0,
+        "tap_interval": 160,
+        "tap_interval_offset": 15,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "rifle": {
+        "action": 1,
+        "tap_interval": 160,
+        "tap_interval_offset": 15,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "submachine": {
+        "action": 1,
+        "tap_interval": 160,
+        "tap_interval_offset": 15,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "sniper": {
+        "action": 0,
+        "tap_interval": 160,
+        "tap_interval_offset": 15,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "shotgun": {
+        "action": 0,
+        "tap_interval": 160,
+        "tap_interval_offset": 15,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "machinegun": {
+        "action": 1,
+        "tap_interval": 160,
+        "tap_interval_offset": 15,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "knife": {
+        "action": 0,
+        "tap_interval": 160,
+        "tap_interval_offset": 15,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      },
+      "other": {
+        "action": 0,
+        "tap_interval": 160,
+        "tap_interval_offset": 15,
+        "delay": 70,
+        "delay_offset": 15,
+        "min_distance_enabled": false,
+        "min_distance": 150,
+        "max_distance_enabled": false,
+        "max_distance": 0
+      }
+    }
+  },
+  "crosshair": {
+    "enabled": true,
+    "key": 10,
+    "mode": 1,
+    "always": false,
+    "default": true,
+    "shared": false,
+    "only_weapon": true,
+    "configs": {
+      "shared": {
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "target_enabled": true,
+        "target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "outline_enabled": true,
+        "dot_enabled": true,
+        "dot_size": 1,
+        "circle_enabled": true,
+        "circle_radius": 5,
+        "lines_enabled": true,
+        "lines_width": 9,
+        "lines_height": 9,
+        "lines_space": 7,
+        "lines_thickness": 1
+      },
+      "pistol": {
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "target_enabled": true,
+        "target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "outline_enabled": true,
+        "dot_enabled": true,
+        "dot_size": 1,
+        "circle_enabled": true,
+        "circle_radius": 5,
+        "lines_enabled": true,
+        "lines_width": 9,
+        "lines_height": 9,
+        "lines_space": 7,
+        "lines_thickness": 1
+      },
+      "rifle": {
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "target_enabled": true,
+        "target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "outline_enabled": true,
+        "dot_enabled": true,
+        "dot_size": 1,
+        "circle_enabled": true,
+        "circle_radius": 5,
+        "lines_enabled": true,
+        "lines_width": 9,
+        "lines_height": 9,
+        "lines_space": 7,
+        "lines_thickness": 1
+      },
+      "submachine": {
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "target_enabled": true,
+        "target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "outline_enabled": true,
+        "dot_enabled": true,
+        "dot_size": 1,
+        "circle_enabled": true,
+        "circle_radius": 5,
+        "lines_enabled": true,
+        "lines_width": 9,
+        "lines_height": 9,
+        "lines_space": 7,
+        "lines_thickness": 1
+      },
+      "sniper": {
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "target_enabled": true,
+        "target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "outline_enabled": true,
+        "dot_enabled": true,
+        "dot_size": 1,
+        "circle_enabled": true,
+        "circle_radius": 5,
+        "lines_enabled": true,
+        "lines_width": 9,
+        "lines_height": 9,
+        "lines_space": 7,
+        "lines_thickness": 1
+      },
+      "shotgun": {
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "target_enabled": true,
+        "target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "outline_enabled": true,
+        "dot_enabled": true,
+        "dot_size": 1,
+        "circle_enabled": true,
+        "circle_radius": 5,
+        "lines_enabled": true,
+        "lines_width": 9,
+        "lines_height": 9,
+        "lines_space": 7,
+        "lines_thickness": 1
+      },
+      "machinegun": {
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "target_enabled": true,
+        "target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "outline_enabled": true,
+        "dot_enabled": true,
+        "dot_size": 1,
+        "circle_enabled": true,
+        "circle_radius": 5,
+        "lines_enabled": true,
+        "lines_width": 9,
+        "lines_height": 9,
+        "lines_space": 7,
+        "lines_thickness": 1
+      },
+      "knife": {
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "target_enabled": true,
+        "target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "outline_enabled": true,
+        "dot_enabled": true,
+        "dot_size": 1,
+        "circle_enabled": true,
+        "circle_radius": 5,
+        "lines_enabled": true,
+        "lines_width": 9,
+        "lines_height": 9,
+        "lines_space": 7,
+        "lines_thickness": 1
+      },
+      "other": {
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "target_enabled": true,
+        "target_color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "outline_enabled": true,
+        "dot_enabled": true,
+        "dot_size": 1,
+        "circle_enabled": true,
+        "circle_radius": 5,
+        "lines_enabled": true,
+        "lines_width": 9,
+        "lines_height": 9,
+        "lines_space": 7,
+        "lines_thickness": 1
+      }
+    }
+  },
+  "radar": {
+    "enabled": true,
+    "key": 11,
+    "mode": 1,
+    "always": false,
+    "default": true,
+    "color": [
+      255,
+      165,
+      0,
+      255
+    ],
+    "target_enabled": true,
+    "target_color": [
+      255,
+      0,
+      0,
+      255
+    ],
+    "friendly_enabled": true,
+    "friendly_color": [
+      0,
+      255,
+      255,
+      255
+    ],
+    "style": 2,
+    "alpha": 0.0,
+    "outline": true,
+    "crossline_enabled": false,
+    "crossline_color": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "point_size": 1.0,
+    "proportion": 31,
+    "range": 143
+  },
+  "misc": {
+    "enabled": true,
+    "watermark_enabled": true,
+    "watermark_color_one": [
+      255,
+      255,
+      0,
+      255
+    ],
+    "watermark_color_two": [
+      0,
+      255,
+      0,
+      255
+    ],
+    "cheat_list_enabled": true,
+    "cheat_list_color_one": [
+      0,
+      255,
+      255,
+      255
+    ],
+    "cheat_list_color_two": [
+      0,
+      255,
+      0,
+      255
+    ],
+    "bomb_timer_enabled": false,
+    "bomb_timer_color_disabled": [
+      0,
+      255,
+      255,
+      255
+    ],
+    "bomb_timer_color_enabled": [
+      255,
+      0,
+      0,
+      255
+    ],
+    "spectator_list_enabled": false,
+    "spectator_list_color": [
+      0,
+      255,
+      255,
+      255
+    ]
+  },
+  "style": {
+    "enabled": true,
+    "alpha": 1.0,
+    "window_padding": [
+      7.5,
+      7.5
+    ],
+    "window_rounding": 0.0,
+    "window_border_size": 1.0,
+    "window_title_align": [
+      0.5,
+      0.5
+    ],
+    "frame_padding": [
+      1.5,
+      1.5
+    ],
+    "frame_rounding": 0.5,
+    "frame_border_size": 0.0,
+    "tab_rounding": 0.0,
+    "tab_border_size": 0.0,
+    "scrollbar_rounding": 0.5,
+    "scrollbar_size": 2.0,
+    "popup_rounding": 0.0,
+    "popup_border_size": 0.0,
+    "item_spacing": [
+      5.0,
+      6.0
+    ],
+    "item_inner_spacing": [
+      5.0,
+      5.0
+    ],
+    "indent_spacing": 2.5,
+    "grab_rounding": 0.0,
+    "colors": {
+      "text": [
+        225,
+        225,
+        225,
+        255
+      ],
+      "text_disabled": [
+        200,
+        200,
+        200,
+        255
+      ],
+      "window_bg": [
+        25,
+        25,
+        25,
+        235
+      ],
+      "child_bg": [
+        25,
+        25,
+        25,
+        235
+      ],
+      "popup_bg": [
+        35,
+        35,
+        35,
+        235
+      ],
+      "border": [
+        51,
+        128,
+        245,
+        255
+      ],
+      "border_shadow": [
+        15,
+        15,
+        15,
+        255
+      ],
+      "frame_bg": [
+        51,
+        128,
+        245,
+        50
+      ],
+      "frame_bg_hovered": [
+        51,
+        128,
+        245,
+        100
+      ],
+      "frame_bg_active": [
+        51,
+        128,
+        245,
+        150
+      ],
+      "title_bg": [
+        51,
+        128,
+        245,
+        235
+      ],
+      "title_bg_collapsed": [
+        51,
+        128,
+        245,
+        235
+      ],
+      "title_bg_active": [
+        51,
+        128,
+        245,
+        235
+      ],
+      "text_selected_bg": [
+        51,
+        128,
+        245,
+        255
+      ],
+      "checkmark": [
+        51,
+        128,
+        245,
+        255
+      ],
+      "scrollbar_bg": [
+        25,
+        25,
+        25,
+        255
+      ],
+      "scrollbar_grab": [
+        45,
+        45,
+        45,
+        255
+      ],
+      "scrollbar_grab_hovered": [
+        45,
+        45,
+        45,
+        225
+      ],
+      "scrollbar_grab_active": [
+        45,
+        45,
+        45,
+        200
+      ],
+      "slider_grab": [
+        51,
+        128,
+        245,
+        255
+      ],
+      "slider_grab_active": [
+        51,
+        128,
+        245,
+        225
+      ],
+      "button": [
+        51,
+        128,
+        245,
+        255
+      ],
+      "button_hovered": [
+        51,
+        128,
+        245,
+        225
+      ],
+      "button_active": [
+        51,
+        128,
+        245,
+        200
+      ],
+      "tab": [
+        51,
+        128,
+        245,
+        255
+      ],
+      "tab_hovered": [
+        51,
+        128,
+        245,
+        175
+      ],
+      "tab_active": [
+        51,
+        128,
+        245,
+        150
+      ],
+      "separator": [
+        175,
+        175,
+        175,
+        125
+      ]
+    }
+  },
+  "settings": {
+    "enabled": true,
+    "bypass_capture": true,
+    "discord_rpc_enabled": false,
+    "exclude_team": true,
+    "show_on_spectate": true,
+    "toggle_bg_alpha": 0.2
+  },
+  "window_positions": {
+    "menu": [
+      600.0,
+      150.0
+    ],
+    "watermark": [
+      315.0,
+      5.0
+    ],
+    "cheat_list": [
+      315.0,
+      70.0
+    ],
+    "bomb_timer": [
+      5.0,
+      330.0
+    ],
+    "spectator_list": [
+      5.0,
+      415.0
+    ],
+    "radar": [
+      5.0,
+      5.0
+    ]
+  }
+}
