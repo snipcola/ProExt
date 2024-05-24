@@ -46,3 +46,8 @@ SPDX-License-Identifier: MIT
 <p>Yes, enable developer console and run the following:</p>
 
 <code>engine_no_focus_sleep 0</code>
+
+Hello! I'm wanted to contect with you because the cheat errors this when i lunch.
+"Fialed to update Offsets (Bomb)"
+
+i think because of the new cs2 update can you fix that? Thanks, bro!
