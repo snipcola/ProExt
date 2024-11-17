@@ -165,7 +165,7 @@ pub fn search_memory(signature: &str, start_address: u64, end_address: u64, sear
                 return;
             }
 
-            let num = next_array[memory_buffer[i as usize + signature_length as usize] as usize];
+            let num = next_array[memory_buffer[i as usize + signature_length] as usize];
 
             if num == -1 {
                 i += signature_length as u32 - next_array[256] as u32;
