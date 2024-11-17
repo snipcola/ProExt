@@ -59,7 +59,7 @@ pub fn init_game_address() -> bool {
     let local_player_pawn = LOCAL_PLAYER_PAWN.lock().unwrap();
     let bomb = BOMB.lock().unwrap();
 
-    (*game).address.client_dll = get_process_module_handle("client.dll") as u64;
+    (*game).address.client_dll = get_process_module_handle("client.dll");
     (*game).address.entity_list = (*game).address.client_dll + *entity_list as u64;
     (*game).address.matrix = (*game).address.client_dll + *matrix as u64;
     (*game).address.view_angle = (*game).address.client_dll + *view_angle as u64;

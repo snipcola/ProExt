@@ -48,7 +48,7 @@ pub fn update_offsets() -> Option<String> {
     let mut local_player_pawn = LOCAL_PLAYER_PAWN.lock().unwrap();
     let mut bomb = BOMB.lock().unwrap();
 
-    let client_dll = get_process_module_handle("client.dll") as u64;
+    let client_dll = get_process_module_handle("client.dll");
 
     if client_dll == 0 {
         return Some("ClientDLL".to_string());

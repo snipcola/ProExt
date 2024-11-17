@@ -166,7 +166,7 @@ pub fn aimbot_check(bone_pos_list: [BoneJointPos; 30], window_width: i32, window
             *entity_address = Some(address);
             *aim_pos = Some(bone_pos_list[bone_index].pos);
 
-            if bone_index as usize == BoneIndex::Head as usize {
+            if bone_index == BoneIndex::Head as usize {
                 if let Some(aim_pos) = aim_pos {
                     aim_pos.z -= -1.0;
                 }

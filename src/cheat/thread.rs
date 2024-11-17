@@ -235,7 +235,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 let mut entity = Entity::default();
                 let mut entity_address: u64 = 0;
 
-                if let Some(sum) = ((i + 1) as u64).checked_mul(0x78) {
+                if let Some(sum) = (i + 1).checked_mul(0x78) {
                     if !rpm_offset(game.address.entity_list_entry, sum, &mut entity_address) {
                         remove_esp(i);
                         continue;

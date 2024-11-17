@@ -44,7 +44,7 @@ pub fn render_bomb_timer(ui: &mut Ui, bomb_planted: bool, bomb_site: Option<Stri
 
     let remaining_time: Option<u64> = {
         if let Some(plant_time) = *plant_time {
-            let elapsed_time = plant_time.elapsed().as_secs() as u64;
+            let elapsed_time = plant_time.elapsed().as_secs();
 
             if elapsed_time < 40 {
                 Some(40 - elapsed_time)
