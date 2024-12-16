@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::time::{Instant, Duration};
 use std::sync::{Arc, Mutex};
 

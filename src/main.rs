@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 #![cfg_attr(all(target_os = "windows", not(debug_assertions)), windows_subsystem = "windows")]
 
 mod config;
@@ -16,12 +13,10 @@ use crate::config::ProgramConfig;
 use crate::utils::open::open_url;
 use crate::utils::cheat::process::{attach_process, get_process_amount};
 use crate::utils::cheat::config::{setup_config, update_configs};
-use crate::utils::cheat::updater::{get_own_md5, get_latest_md5, update_exists};
+use crate::utils::cheat::updater::update_available;
 use crate::utils::messagebox::{create_messagebox, create_dialog, MessageBoxStyle, MessageBoxButtons, MessageBoxResult};
 
-use crate::cheat::classes::offsets::update_offsets;
 use crate::cheat::classes::game::init_game_address;
-
 use crate::ui::main::init_gui;
 
 fn main() {
@@ -34,17 +29,13 @@ fn main() {
         return create_messagebox(MessageBoxStyle::Error, "Already Running", &format!("{} is already running.", ProgramConfig::Package::Name));
     }
     
-    if !cfg!(debug_assertions) && ProgramConfig::Update::Enabled && update_exists() {
-        let own_md5 = get_own_md5(exe_pathbuf);
-        let latest_md5 = get_latest_md5();
-
-        if own_md5.is_some() && latest_md5.is_some() {
-            if own_md5.unwrap() != latest_md5.unwrap() {
-                match create_dialog(MessageBoxStyle::Info, MessageBoxButtons::YesNo, "Update Available", &format!("This version of {} is outdated, would you like to update?", ProgramConfig::Package::Name)) {
-                    MessageBoxResult::Yes => return open_url(ProgramConfig::Update::URL),
-                    _ => {}
-                };
-            }
+    if !cfg!(debug_assertions) && ProgramConfig::Update::Enabled {
+        match update_available() {
+            Some(new_version) => match create_dialog(MessageBoxStyle::Info, MessageBoxButtons::YesNo, &format!("{} Available", new_version), &format!("{} {} is outdated, would you like to update?", ProgramConfig::Package::Name, ProgramConfig::Package::Version)) {
+                MessageBoxResult::Yes => return open_url(ProgramConfig::Update::URL),
+                _ => {}
+            },
+            None => {}
         }
     }
 
@@ -86,28 +77,6 @@ fn main() {
                 }
                 
                 sleep(ProgramConfig::CheckDelays::AttachProcess);
-            }
-        },
-        None => {}
-    }
-
-    match update_offsets() {
-        Some(_) => {
-            let mut failed_attempts: u32 = 0;
-
-            loop {
-                match update_offsets() {
-                    None => break,
-                    Some(error) => {
-                        failed_attempts += 1;
-
-                        if failed_attempts >= ProgramConfig::TargetProcess::UpdateOffsetsMaxAttempts {
-                            return create_messagebox(MessageBoxStyle::Error, "Error", &format!("Failed to update offsets ({}).", error));
-                        }
-                    }
-                }
-
-                sleep(ProgramConfig::CheckDelays::UpdateOffsets);
             }
         },
         None => {}

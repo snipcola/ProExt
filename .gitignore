@@ -1,7 +1,4 @@
-# Copyright (c) 2024 Snipcola
-# SPDX-License-Identifier: MIT
-
 target
 build
 Cargo.lock
-.vscode
+.DS_Store

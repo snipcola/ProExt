@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::time::Instant;
 use std::thread::{self, sleep};
 use std::sync::{Arc, Mutex};
@@ -29,7 +26,6 @@ use crate::ui::functions::apply_style;
 use crate::ui::menu::render_menu;
 
 use crate::utils::ui::windows::{Window, get_glow_context, focus_window, get_window_info, is_window_focused};
-use crate::utils::cheat::rpc::initialize_rpc;
 use crate::utils::mouse::get_mouse_position;
 
 lazy_static! {
@@ -129,8 +125,6 @@ pub fn run_event_loop(event_loop_window: Arc<Mutex<(EventLoop<()>, Window)>>, wi
     run_cheats_thread(hwnd, self_hwnd);
 
     bind_ui_keys(hwnd);
-    initialize_rpc();
-
     window.window().set_visible(true);
     
     event_loop.run(move | event, _, control_flow | {

@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::ops::{BitAnd, Shr};
 use mint::{Vector2, Vector3};
 
@@ -319,7 +316,7 @@ impl PlayerPawn {
             return false;
         }
 
-        if !rpm_offset(clipping_weapon, 0x368, &mut weapon_data) {
+        if !rpm_offset(clipping_weapon, Offsets::C_BaseEntity::m_nSubclassID as u64 + 0x08, &mut weapon_data) {
             return false;
         }
 

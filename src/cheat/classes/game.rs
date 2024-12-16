@@ -1,12 +1,8 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::sync::{Arc, Mutex};
 use lazy_static::lazy_static;
 
 use crate::utils::cheat::process::{get_process_module_handle, rpm_auto, rpm_offset};
-
-use crate::cheat::classes::offsets::{ENTITY_LIST, MATRIX, VIEW_ANGLE, LOCAL_PLAYER_CONTROLLER, LOCAL_PLAYER_PAWN, BOMB};
+use crate::config::Offsets::client_dll::{dwEntityList, dwLocalPlayerController, dwLocalPlayerPawn, dwPlantedC4, dwViewAngles, dwViewMatrix};
 use crate::cheat::classes::view::View;
 
 lazy_static! {
@@ -52,20 +48,14 @@ pub struct Address {
 
 pub fn init_game_address() -> bool {
     let mut game = GAME.lock().unwrap();
-    let entity_list = ENTITY_LIST.lock().unwrap();
-    let matrix = MATRIX.lock().unwrap();
-    let view_angle = VIEW_ANGLE.lock().unwrap();
-    let local_player_controller = LOCAL_PLAYER_CONTROLLER.lock().unwrap();
-    let local_player_pawn = LOCAL_PLAYER_PAWN.lock().unwrap();
-    let bomb = BOMB.lock().unwrap();
 
     (*game).address.client_dll = get_process_module_handle("client.dll") as u64;
-    (*game).address.entity_list = (*game).address.client_dll + *entity_list as u64;
-    (*game).address.matrix = (*game).address.client_dll + *matrix as u64;
-    (*game).address.view_angle = (*game).address.client_dll + *view_angle as u64;
-    (*game).address.local_controller = (*game).address.client_dll + *local_player_controller as u64;
-    (*game).address.local_pawn = (*game).address.client_dll + *local_player_pawn as u64;
-    (*game).address.bomb = (*game).address.client_dll + *bomb as u64;
+    (*game).address.entity_list = (*game).address.client_dll + dwEntityList as u64;
+    (*game).address.matrix = (*game).address.client_dll + dwViewMatrix as u64;
+    (*game).address.view_angle = (*game).address.client_dll + dwViewAngles as u64;
+    (*game).address.local_controller = (*game).address.client_dll + dwLocalPlayerController as u64;
+    (*game).address.local_pawn = (*game).address.client_dll + dwLocalPlayerPawn as u64;
+    (*game).address.bomb = (*game).address.client_dll + dwPlantedC4 as u64;
 
     return (*game).address.client_dll != 0;
 }

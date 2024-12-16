@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::ops::BitAnd;
 use imgui::{Style, ImColor32, Ui, ColorEditFlags, StyleColor};
 use mint::{Vector2, Vector3, Vector4};

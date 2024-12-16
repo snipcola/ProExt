@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::fs::{File, OpenOptions, read_dir, metadata, create_dir_all, remove_file};
 use std::sync::{Arc, Mutex};
 use std::path::PathBuf;
@@ -548,7 +545,7 @@ impl Default for Radar {
             crossline_enabled: false,
             crossline_color: (255, 255, 255, 255),
             point_size: 1.0,
-            proportion: 31,
+            proportion: 37,
             range: 143
         };
     }
@@ -711,7 +708,6 @@ impl Default for Style {
 pub struct Settings {
     pub enabled: bool,
     pub bypass_capture: bool,
-    pub discord_rpc_enabled: bool,
     pub exclude_team: bool,
     pub show_on_spectate: bool,
     pub toggle_bg_alpha: f32
@@ -722,7 +718,6 @@ impl Default for Settings {
         return Self {
             enabled: true,
             bypass_capture: true,
-            discord_rpc_enabled: false,
             exclude_team: true,
             show_on_spectate: true,
             toggle_bg_alpha: 0.2

@@ -1,32 +1,38 @@
-# Copyright (c) 2024 Snipcola
-# SPDX-License-Identifier: MIT
-
 [package]
 name = "proext"
-version = "0.0.6"
+version = "0.0.7"
 authors = ["Snipcola"]
 edition = "2021"
 license = "MIT"
 
 [dependencies]
-lazy_static = "1.4.0"
+lazy_static = "1.5.0"
 imgui = "0.11.0"
 imgui-winit-support = "0.11.0"
 mint = "0.5.9"
-serde = { version = "1.0.190", features = ["derive"] }
-serde_json = "1.0.108"
+serde = { version = "1.0.216", features = ["derive"] }
+serde_json = "1.0.133"
 directories = "5.0.1"
-windows = { version = "0.52.0", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_UI_Input_KeyboardAndMouse", "Win32_Graphics_Gdi", "Win32_System_Threading", "Win32_System_Diagnostics_Debug", "Win32_System_Memory", "Win32_System_Diagnostics_ToolHelp"] }
+windows = { version = "0.57.0", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_Graphics_Gdi",
+    "Win32_System_Threading",
+    "Win32_System_Diagnostics_Debug",
+    "Win32_System_Memory",
+    "Win32_System_Diagnostics_ToolHelp",
+] }
 mki = "0.2.3"
-md5 = "0.7.0"
-ureq = "2.8.0"
-discord-rpc-client = "0.4.0"
+ureq = "2.12.1"
 imgui-glow-renderer = "0.11.0"
 glow = "0.12.0"
 glutin = "0.29.1"
 rand = "0.8.5"
-indexmap = "2.1.0"
-open = "5.0.1"
+indexmap = "2.7.0"
+open = "5.3.1"
+toml = "0.8.19"
+semver = "1.0.24"
 
 [build-dependencies]
 winres = "0.1.12"

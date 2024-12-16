@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use mint::{Vector3, Vector2};
 
 use crate::config::Offsets;
@@ -32,6 +29,7 @@ pub enum BoneIndex {
 #[derive(Clone, Copy)]
 pub struct BoneJointData {
     pub pos: Vector3<f32>,
+    #[allow(unused)]
     pub pad: [u8; 0x14]
 }
 
@@ -82,7 +80,7 @@ impl Bone {
             return false;
         }
 
-        if !rpm_offset(game_scene_node, Offsets::CompositeMaterialEditorPoint_t::m_vecCompositeMaterialAssemblyProcedures  as u64, &mut bone_array_address) {
+        if !rpm_offset(game_scene_node, (Offsets::CSkeletonInstance::m_modelState as u64 + 0x80) as u64, &mut bone_array_address) {
             return false;
         }
 

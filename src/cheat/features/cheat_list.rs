@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::sync::{Arc, Mutex};
 use lazy_static::lazy_static;
 
@@ -129,10 +126,6 @@ pub fn render_cheat_list(ui: &mut Ui, config: Config, pawn: bool, aimbot_toggled
 
                 if config.settings.bypass_capture {
                     ui.text_colored(cheat_list_two_color, "- Bypass Capture");
-                }
-
-                if config.settings.discord_rpc_enabled {
-                    ui.text_colored(cheat_list_two_color, "- Discord RPC");
                 }
 
                 if config.settings.exclude_team {

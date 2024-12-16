@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use glutin::event_loop::EventLoop;
 use glutin::platform::windows::WindowBuilderExtWindows;
 use glutin::{WindowedContext, PossiblyCurrent, window::WindowBuilder, ContextBuilder};
@@ -36,11 +33,11 @@ pub fn get_window_info(hwnd: HWND) -> Option<((i32, i32), (i32, i32))> {
     unsafe {
         match GetClientRect(hwnd, &mut client_rect as *mut RECT) {
             Ok(_) => {
-                ClientToScreen(hwnd, &mut top_left);
+                let _ = ClientToScreen(hwnd, &mut top_left);
                 window_rect.left = top_left.x;
                 window_rect.top = top_left.y;
 
-                ClientToScreen(hwnd, &mut bottom_right);
+                let _ = ClientToScreen(hwnd, &mut bottom_right);
                 window_rect.right = bottom_right.x;
                 window_rect.bottom = bottom_right.y;
 
@@ -76,7 +73,9 @@ pub fn is_window_focused(window: HWND) -> bool {
 }
 
 pub fn focus_window(window: HWND) {
-    unsafe { SetForegroundWindow(window) };
+    unsafe {
+        let _ = SetForegroundWindow(window);
+    }
 }
 
 pub fn create_window(title: &str, hwnd: HWND) -> (EventLoop<()>, Window) {

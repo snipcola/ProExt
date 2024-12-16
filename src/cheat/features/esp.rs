@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::f32::consts::PI;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;

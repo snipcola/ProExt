@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::mem::size_of;
 use std::ops::{BitAnd, Shl};
 use std::time::Instant;

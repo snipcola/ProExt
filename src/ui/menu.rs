@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 use std::sync::{Arc, Mutex};
 use std::path::PathBuf;
 
@@ -977,9 +974,8 @@ pub fn render_menu(ui: &mut Ui) {
                     if (*config).settings.enabled {
                         ui.separator();
 
-                        // Bypass Capture & Discord RPC
+                        // Bypass Capture
                         ui.checkbox("Bypass Capture##Settings", &mut (*config).settings.bypass_capture);
-                        ui.checkbox("Discord RPC##Settings", &mut (*config).settings.discord_rpc_enabled);
                         ui.separator();
 
                         // Exclude Team & Show on Spectate
@@ -1112,12 +1108,6 @@ pub fn render_menu(ui: &mut Ui) {
 
                     if ui.button("License") {
                         open_url(ProgramConfig::Links::License);
-                    }
-
-                    ui.same_line();
-
-                    if ui.button("Discord") {
-                        open_url(ProgramConfig::Links::Discord);
                     }
                 });
             });

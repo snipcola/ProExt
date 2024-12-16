@@ -1,6 +1,3 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
 pub mod esp;
 pub mod rcs;
 pub mod aimbot;

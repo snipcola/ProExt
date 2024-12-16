@@ -1,45 +1,51 @@
-// Copyright (c) 2024 Snipcola
-// SPDX-License-Identifier: MIT
-
-use std::io::Read;
-use std::fs::File;
-use std::path::PathBuf;
-
 use ureq::get;
-use md5::compute;
+use toml::{Value, de::from_str};
 
+use semver::Version;
 use crate::config::ProgramConfig;
 
-pub fn get_own_md5(exe_pathbuf: PathBuf) -> Option<String> {
-    let mut file = match File::open(exe_pathbuf) {
-        Ok(file) => file,
-        Err(_) => { return None; }
+fn get_latest_version() -> Option<String> {
+    let response = match get(ProgramConfig::Update::CargoTomlURL).call() {
+        Ok(response) => response,
+        Err(_) => return None
     };
 
-    let mut buffer = Vec::new();
+    let response_string = match response.into_string() {
+        Ok(text) => text,
+        Err(_) => return None
+    };
 
-    if let Err(_) = file.read_to_end(&mut buffer) {
+    let parsed_toml: Value = match from_str::<Value>(&response_string) {
+        Ok(value) => value,
+        Err(_) => return None,
+    };
+
+    return parsed_toml
+        .get("package")
+        .and_then(|pkg| pkg.get("version"))
+        .and_then(|version| version.as_str().map(|s| s.to_string()));
+}
+
+fn update_exists() -> bool {
+    match get(ProgramConfig::Update::URL).call() {
+        Ok(response) => response.status() == 200,
+        Err(_) => false
+    }
+}
+
+pub fn update_available() -> Option<String> {
+    if !update_exists() {
         return None;
     }
 
-    return Some(format!("{:x}", compute(&buffer)));
-}
+    let current_version = ProgramConfig::Package::Version;
+    let latest_version = get_latest_version()?;
 
-pub fn get_latest_md5() -> Option<String> {
-    let response = match get(ProgramConfig::Update::HashURL).call() {
-        Ok(response) => response,
-        Err(_) => { return None; }
+    let current = Version::parse(current_version).ok()?;
+    let latest = Version::parse(&latest_version).ok()?;
+
+    return match latest > current {
+        true => Some(latest_version),
+        false => None
     };
-
-    return match response.into_string() {
-        Ok(text) => Some(text.trim().to_string()),
-        Err(_) => None
-    };
-}
-
-pub fn update_exists() -> bool {
-    match get(ProgramConfig::Update::URL).call() {
-        Ok(response) => { return response.status() == 200; },
-        Err(_) => { return false; }
-    }
 }
