@@ -1,33 +1,85 @@
-<div align="center">
-    <img src="./assets/banner.png" width="450"/>
+<div align = "center">
+
+<img src="assets/banner.png" alias="banner" width="450"/>
+
+_An open-source, customizable cheat for Counter-Strike 2._
+
 </div>
 
----
-
-<p align="center">
-    An open-source, customizable modification for Counter-Strike 2, designed to enhance your gameplay.
-</p>
+## 🖼️ Preview
 
 <div align="center">
-    <img src="./assets/showcase.png"/>
+
+![preview](assets/preview.png)
+
 </div>
 
-<h2>📋 Features:</h2>
-<li>ESP</li>
-<li>RCS</li>
-<li>Aimbot</li>
-<li>Triggerbot</li>
-<li>Crosshair</li>
-<li>Radar</li>
-<li>Bomb Timer</li>
-<li>Spectator List</li>
-<li>Styling</li>
-<li>Configuration</li>
+## 📝 Instructions:
 
-<h2>💬 Q&A:</h2>
-<h4><b>🤔  Does it work in fullscreen?</b></h4>
-<p>No.</p>
+To use ProExt, you can follow two methods.
 
-<h4><b>🤔  Game lags when toggled, what's the fix?</b></h4>
-<p>Run the following, using the developer console:</p>
-<code>engine_no_focus_sleep 0</code>
+### Method 1: Download the prebuilt binary
+
+This method is the easiest and is recommended for most. You can find the latest binary [here](https://git.snipcola.com/snipcola/ProExt/raw/branch/main/bin/proext.exe).
+
+### Method 2: Build the application
+
+#### Dependencies:
+
+- [PowerShell](https://winget.run/pkg/Microsoft/PowerShell)
+- [Git](https://winget.run/pkg/Git/MinGit)
+- [Rust](https://rustup.rs)
+
+#### Installation:
+
+1. Clone the repository:
+
+   ```
+   git clone https://git.snipcola.com/snipcola/ProExt.git
+   ```
+
+2. Enter the directory:
+
+   ```
+   cd ProExt
+   ```
+
+3. Build the application:
+
+   ```
+   ./scripts/deploy.ps1
+   ```
+
+4. The binary should be located inside of the `bin` folder.
+
+## ⌨️ Shortcuts:
+
+- `Insert / Ins` - Show/hide the menu.
+- `End` - Exits the application.
+
+## 📋 Features:
+
+- ESP
+- RCS
+- Aimbot
+- Triggerbot
+- Crosshair
+- Radar
+- Bomb Timer
+- Spectator List
+- Styling
+- Configuration
+
+## 💬 Q&A:
+
+- **Does it work in fullscreen?**
+
+  No.
+
+- **Game lags when toggled, what's the fix?**
+
+  Run the following, using the developer console:
+
+  ```
+  engine_no_focus_sleep 0
+  ```
