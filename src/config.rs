@@ -2,12 +2,12 @@
 
 pub mod Offsets {
     pub mod client_dll {
-        pub const dwEntityList: usize = 0x1A146E8;
-        pub const dwLocalPlayerController: usize = 0x1A64E80;
-        pub const dwLocalPlayerPawn: usize = 0x1868CC8;
-        pub const dwPlantedC4: usize = 0x1A84F90;
-        pub const dwViewAngles: usize = 0x1A89710;
-        pub const dwViewMatrix: usize = 0x1A7F610;
+        pub const dwEntityList: usize = 0x1A157C8;
+        pub const dwLocalPlayerController: usize = 0x1A65F70;
+        pub const dwLocalPlayerPawn: usize = 0x1869D88;
+        pub const dwPlantedC4: usize = 0x1A86090;
+        pub const dwViewAngles: usize = 0x1A8A810;
+        pub const dwViewMatrix: usize = 0x1A80870;
     }
 
     pub mod C_BaseEntity {
