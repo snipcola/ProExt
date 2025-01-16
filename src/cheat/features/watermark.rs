@@ -37,7 +37,7 @@ pub fn render_watermark(ui: &mut Ui, config: Config) {
 
     drop(reset_position);
 
-    ui.window(format!("{} v{}", ProgramConfig::Package::Name, ProgramConfig::Package::Version))
+    ui.window(ProgramConfig::Package::Name)
         .collapsible(false)
         .always_auto_resize(true)
         .position(window_position, condition)
@@ -47,11 +47,6 @@ pub fn render_watermark(ui: &mut Ui, config: Config) {
             let watermark_one_f32 = color_u32_to_f32(config.misc.watermark_color_one);
             let watermark_one_color = Vector4 { x: watermark_one_f32.0, y: watermark_one_f32.1, z: watermark_one_f32.2, w: watermark_one_f32.3 };
 
-            let watermark_two_f32 = color_u32_to_f32(config.misc.watermark_color_two);
-            let watermark_two_color = Vector4 { x: watermark_two_f32.0, y: watermark_two_f32.1, z: watermark_two_f32.2, w: watermark_two_f32.3 };
-
             ui.text_colored(watermark_one_color, get_current_time());
-            ui.same_line();
-            ui.text_colored(watermark_two_color, format!("{} FPS", ui.io().framerate.floor()));
         });
 }
