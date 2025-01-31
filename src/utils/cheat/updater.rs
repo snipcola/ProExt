@@ -5,12 +5,12 @@ use semver::Version;
 use crate::config::ProgramConfig;
 
 fn get_latest_version() -> Option<String> {
-    let response = match get(ProgramConfig::Update::CargoTomlURL).call() {
+    let mut response = match get(ProgramConfig::Update::CargoTomlURL).call() {
         Ok(response) => response,
         Err(_) => return None
     };
 
-    let response_string = match response.into_string() {
+    let response_string = match response.body_mut().read_to_string() {
         Ok(text) => text,
         Err(_) => return None
     };

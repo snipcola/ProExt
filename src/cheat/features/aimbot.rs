@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use std::time::{Instant, Duration};
 
 use lazy_static::lazy_static;
-use rand::{Rng, thread_rng};
+use rand::{Rng, rngs::ThreadRng};
 
 use imgui::Ui;
 use mint::{Vector3, Vector2};
@@ -61,7 +61,7 @@ pub fn get_aimbot_yaw_pitch(config: AimbotConfig, aim_pos: Vector3<f32>, camera_
     return Some(norm);
 }
 
-pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, address: u64, rcs_toggled: bool, rcs_info: Option<(i32, i32)>) {
+pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i32, i32)), game_view: View, aim_pos: Vector3<f32>, address: u64, rcs_info: Option<(i32, i32)>, rng: &mut ThreadRng) {
     let mut locked_entity = AB_LOCKED_ENTITY.lock().unwrap();
 
     if locked_entity.is_none() {
@@ -74,7 +74,7 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
             return;
         }
 
-        let delay_offset = if config.delay_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.delay_offset as f32) .. config.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
+        let delay_offset = if config.delay_offset == 0 { 0.0 } else { (rng.random_range(-(config.delay_offset as f32) .. config.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
         let delay = Duration::from_secs_f32((config.delay as f32 + delay_offset).min(500.0).max(0.0) / 1000.0);
         
         if locked_on.elapsed() < delay {
@@ -83,7 +83,7 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
     }
     
     let base_smooth = 1.0;
-    let smooth_offset = if config.smooth_offset == 0.0 { 0.0 } else { (thread_rng().gen_range(-config.smooth_offset .. config.smooth_offset) * 1000.0).trunc() / 1000.0 };
+    let smooth_offset = if config.smooth_offset == 0.0 { 0.0 } else { (rng.random_range(-config.smooth_offset .. config.smooth_offset) * 1000.0).trunc() / 1000.0 };
     let smooth = (config.smooth + smooth_offset).min(5.0).max(0.0) + base_smooth;
     
     let (screen_center_x, screen_center_y) = ((window_info.1.0 / 2) as f32, (window_info.1.1 / 2) as f32);
@@ -92,11 +92,6 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
     if (*LAST_MOVED.lock().unwrap()).elapsed() < ProgramConfig::CheatDelays::Aimbot || !game_view.world_to_screen(aim_pos, &mut screen_pos, window_info) || ((screen_center_x - screen_pos.x).abs() <= 1.0 && (screen_center_y - screen_pos.y).abs() <= 1.0)  {
         return;
     }
-
-    let rcs_y = match rcs_info {
-        Some(rcs_info) => rcs_info.1.abs(),
-        None => 0
-    };
 
     let mut target_x = if screen_pos.x > screen_center_x { -(screen_center_x - screen_pos.x) } else { screen_pos.x - screen_center_x };
     target_x /= smooth;
@@ -114,7 +109,12 @@ pub fn run_aimbot(config: AimbotConfig, norm: f32, window_info: ((i32, i32), (i3
         target_y = if target_y.abs() < base_smooth { if target_y > 0.0 { base_smooth } else { -base_smooth } } else { target_y };
     }
 
-    move_mouse(target_x as i32, if rcs_toggled { ((target_y as i32) - rcs_y).max(0) } else { target_y as i32 }, true);
+    let (x, y) = match rcs_info {
+        Some((x, y)) => ((target_x as i32) - x, (target_y as i32) - y),
+        None => (target_x as i32, target_y as i32)
+    };
+
+    move_mouse(x, y, true);
 }
 
 pub fn get_aimbot_bone_indexes(config: AimbotConfig) -> Vec<usize> {

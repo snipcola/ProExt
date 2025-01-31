@@ -3,6 +3,7 @@ use std::time::Instant;
 
 use mint::{Vector3, Vector2};
 use windows::Win32::Foundation::HWND;
+use rand::rng;
 
 use crate::config::ProgramConfig;
 use crate::utils::mouse::release_mouse;
@@ -38,6 +39,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
         
         let mut no_pawn = false;
         let mut local_entity = Entity::default();
+        let mut rng = rng();
 
         loop {
             let game = GAME.lock().unwrap().clone();
@@ -459,7 +461,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             };
 
             // RCS Info
-            let rcs_info = get_rcs_mouse(config, rcs_config, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache);
+            let rcs_info = if is_rcs_toggled { get_rcs_mouse(config, rcs_config, local_entity.pawn.shots_fired, local_entity.pawn.aim_punch_cache, &mut rng) } else { None };
 
             // Crosshair
             if is_crosshair_toggled {
@@ -501,10 +503,9 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
             // Toggled
             let aimbot_toggled = is_aimbot_toggled && aim_entity_address.is_some() && aim_pos.is_some() && aimbot_info.is_some();
             let triggerbot_toggled = is_triggerbot_toggled && aiming_at_enemy && allow_shoot && aiming_at_address != 0 && aiming_at_pos.is_some();
-            let rcs_toggled = is_rcs_toggled && rcs_info.is_some();
 
             // RCS
-            if rcs_toggled && !aimbot_toggled {
+            if rcs_info.is_some() && !aimbot_toggled {
                 run_rcs(rcs_info.unwrap());
             }
 
@@ -513,7 +514,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
                 if let Some(aimbot_info) = aimbot_info {
                     if let Some(aim_pos) = aim_pos {
                         if let Some(entity_index) = aim_entity_address {
-                            run_aimbot(aimbot_config, aimbot_info, window_info, game.view, aim_pos, entity_index, is_rcs_toggled, rcs_info);
+                            run_aimbot(aimbot_config, aimbot_info, window_info, game.view, aim_pos, entity_index, rcs_info, &mut rng);
                         }
                     }
                 }
@@ -537,7 +538,7 @@ pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
 
             // Triggerbot
             if triggerbot_toggled {
-                run_triggerbot(aiming_at_address, triggerbot_config, aiming_at_pos.unwrap(), local_entity.pawn.pos);
+                run_triggerbot(aiming_at_address, triggerbot_config, aiming_at_pos.unwrap(), local_entity.pawn.pos, &mut rng);
             } else {
                 release_mouse();
             }

@@ -1,15 +1,17 @@
 #![allow(non_snake_case, non_upper_case_globals)]
 
 pub mod Offsets {
+    // https://raw.githubusercontent.com/a2x/cs2-dumper/refs/heads/main/output/offsets.rs
     pub mod client_dll {
-        pub const dwEntityList: usize = 0x1A157C8;
-        pub const dwLocalPlayerController: usize = 0x1A65F70;
-        pub const dwLocalPlayerPawn: usize = 0x1869D88;
-        pub const dwPlantedC4: usize = 0x1A86090;
-        pub const dwViewAngles: usize = 0x1A8A810;
-        pub const dwViewMatrix: usize = 0x1A80870;
+        pub const dwEntityList: usize = 0x1A292F0;
+        pub const dwLocalPlayerController: usize = 0x1A79C58;
+        pub const dwLocalPlayerPawn: usize = 0x187CEF0;
+        pub const dwPlantedC4: usize = 0x1A986D0;
+        pub const dwViewAngles: usize = 0x1A9E400;
+        pub const dwViewMatrix: usize = 0x1A942F0;
     }
 
+    // https://raw.githubusercontent.com/a2x/cs2-dumper/refs/heads/main/output/client_dll.rs
     pub mod C_BaseEntity {
         pub const m_iHealth: usize = 0x344; // int32
         pub const m_iTeamNum: usize = 0x3E3; // uint8

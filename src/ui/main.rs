@@ -7,7 +7,7 @@ use lazy_static::lazy_static;
 use imgui::{Ui, Context};
 use imgui_winit_support::WinitPlatform;
 
-use rand::{Rng, thread_rng, distributions::Alphanumeric};
+use rand::{Rng, rng, distr::Alphanumeric};
 
 use crate::config::ProgramConfig;
 use crate::ui::thread::run_event_loop;
@@ -27,8 +27,9 @@ lazy_static! {
 }
 
 pub fn init_gui() {
-    let mut rng = thread_rng();
-    let self_title_length = rng.gen_range(6 .. 12);
+    let mut rng = rng();
+
+    let self_title_length = rng.random_range(6 .. 12);
     let self_title: String = rng.sample_iter(&Alphanumeric).take(self_title_length).map(char::from).collect();
 
     let window_title = ProgramConfig::TargetProcess::Window::Title;

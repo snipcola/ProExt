@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 use lazy_static::lazy_static;
 
 use mint::Vector3;
-use rand::{Rng, thread_rng};
+use rand::{Rng, rngs::ThreadRng};
 
 use crate::utils::mouse::{MOUSE_LOCKED, click_mouse, press_mouse, release_mouse};
 
@@ -41,11 +41,11 @@ pub fn get_triggerbot_config(configs: TriggerbotConfigs, weapon_type: WeaponType
     };
 }
 
-pub fn run_triggerbot(address: u64, config: TriggerbotConfig, position: Vector3<f32>, local_position: Vector3<f32>) {
+pub fn run_triggerbot(address: u64, config: TriggerbotConfig, position: Vector3<f32>, local_position: Vector3<f32>, rng: &mut ThreadRng) {
     let mouse_locked = MOUSE_LOCKED.lock().unwrap().clone();
     let mut shot_entity = TB_SHOT_ENTITY.lock().unwrap();
     let mut locked_entity = TB_LOCKED_ENTITY.lock().unwrap();
-    
+
     let distance = calculate_distance(position, local_position);
 
     if config.min_distance_enabled && distance < config.min_distance || config.max_distance_enabled && distance > config.max_distance {
@@ -64,7 +64,7 @@ pub fn run_triggerbot(address: u64, config: TriggerbotConfig, position: Vector3<
             return;
         }
 
-        let delay_offset = if config.delay_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.delay_offset as f32) .. config.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
+        let delay_offset = if config.delay_offset == 0 { 0.0 } else { (rng.random_range(-(config.delay_offset as f32) .. config.delay_offset as f32) * 1000.0).trunc() / 1000.0 };
         let delay = Duration::from_secs_f32((config.delay as f32 + delay_offset).min(500.0).max(0.0) / 1000.0);
 
         if locked_on.elapsed() < delay {
@@ -72,7 +72,7 @@ pub fn run_triggerbot(address: u64, config: TriggerbotConfig, position: Vector3<
         }
     }
     
-    let interval_offset = if config.tap_interval_offset == 0 { 0.0 } else { (thread_rng().gen_range(-(config.tap_interval_offset as f32) .. config.tap_interval_offset as f32) * 1000.0).trunc() / 1000.0 };
+    let interval_offset = if config.tap_interval_offset == 0 { 0.0 } else { (rng.random_range(-(config.tap_interval_offset as f32) .. config.tap_interval_offset as f32) * 1000.0).trunc() / 1000.0 };
     let interval = Duration::from_secs_f32((config.tap_interval as f32 + interval_offset).min(500.0).max(50.0) / 1000.0);
 
     if config.action == 0 && shot_entity.elapsed() >= interval {
