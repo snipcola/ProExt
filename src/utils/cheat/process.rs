@@ -5,12 +5,21 @@ use std::sync::{Arc, Mutex};
 
 use lazy_static::lazy_static;
 
-use windows::Win32::Foundation::{HANDLE, BOOL, CloseHandle};
+use windows::Win32::Foundation::{HANDLE, CloseHandle};
 use windows::Win32::System::Diagnostics::Debug::ReadProcessMemory;
 use windows::Win32::System::Diagnostics::ToolHelp::{CreateToolhelp32Snapshot, CREATE_TOOLHELP_SNAPSHOT_FLAGS, PROCESSENTRY32W, Process32NextW, MODULEENTRY32W, TH32CS_SNAPMODULE, Module32NextW};
 use windows::Win32::System::Threading::{OpenProcess, PROCESS_ALL_ACCESS, PROCESS_CREATE_THREAD};
 
 use crate::config::ProgramConfig;
+
+pub struct Process {
+    pub attached: bool,
+    pub h_process: HANDLE,
+    pub process_id: u32,
+    pub module_address: u64
+}
+
+unsafe impl Send for Process {}
 
 lazy_static! {
     pub static ref PROCESS: Arc<Mutex<Process>> = Arc::new(Mutex::new(Process {
@@ -19,13 +28,6 @@ lazy_static! {
         process_id: 0,
         module_address: 0
     }));
-}
-
-pub struct Process {
-    pub attached: bool,
-    pub h_process: HANDLE,
-    pub process_id: u32,
-    pub module_address: u64
 }
 
 pub fn attach_process() -> Option<String> {
@@ -39,7 +41,7 @@ pub fn attach_process() -> Option<String> {
         process_id => { (*process).process_id = process_id; }
     };
     
-    match unsafe { OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD, BOOL::from(true), (*process).process_id) } {
+    match unsafe { OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD, true, (*process).process_id) } {
         Ok(handle) => { (*process).h_process = handle; },
         Err(_) => { return Some("HProcess".to_string()); }
     }

@@ -51,7 +51,7 @@ pub fn create_messagebox(style: MessageBoxStyle, caption: &str, text: &str) {
     let caption = HSTRING::from(caption);
     let style = convert_mbstyle(style);
 
-    unsafe { MessageBoxW(HWND::default(), &text, &caption, style); }
+    unsafe { MessageBoxW(Some(HWND::default()), &text, &caption, style); }
 }
 
 pub fn create_dialog(style: MessageBoxStyle, buttons: MessageBoxButtons, caption: &str, text: &str) -> MessageBoxResult {
@@ -60,5 +60,5 @@ pub fn create_dialog(style: MessageBoxStyle, buttons: MessageBoxButtons, caption
     let style = convert_mbstyle(style);
     let buttons = convert_mbbuttons(buttons);
 
-    return convert_mbresult( unsafe { MessageBoxW(HWND::default(), &text, &caption, style | buttons) });
+    return convert_mbresult( unsafe { MessageBoxW(Some(HWND::default()), &text, &caption, style | buttons) });
 }

@@ -1,5 +1,6 @@
 use std::thread;
 use std::time::Instant;
+use std::sync::Mutex;
 
 use mint::{Vector3, Vector2};
 use windows::Win32::Foundation::HWND;
@@ -31,12 +32,22 @@ use crate::cheat::features::spectator_list::{is_spectating, render_spectator_lis
 
 use crate::cheat::functions::{get_bomb_planted, get_bomb, get_bomb_site, get_bomb_position, is_enemy_visible, has_weapon, is_enemy_at_crosshair, calculate_distance};
 
+#[derive(Clone)]
+struct HwndWrapper(HWND);
+unsafe impl Send for HwndWrapper {}
+
 pub fn run_cheats_thread(hwnd: HWND, self_hwnd: HWND) {
+    let hwnd = Mutex::new(HwndWrapper(hwnd));
+    let self_hwnd = Mutex::new(HwndWrapper(self_hwnd));
+    
     thread::spawn(move || {
         let mut window_hidden_from_capture = false;
         let window_info = WINDOW_INFO.clone();
         let render_list = RENDER_LIST.clone();
-        
+
+        let hwnd = hwnd.lock().unwrap().0;
+        let self_hwnd = self_hwnd.lock().unwrap().0;
+
         let mut no_pawn = false;
         let mut local_entity = Entity::default();
         let mut rng = rng();

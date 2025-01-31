@@ -33,11 +33,18 @@ lazy_static! {
     pub static ref FOCUS_SELF: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
 }
 
+#[derive(Clone)]
+struct HwndWrapper(HWND);
+unsafe impl Send for HwndWrapper {}
+
 pub fn run_windows_thread(hwnd: HWND) {
+    let hwnd = Mutex::new(HwndWrapper(hwnd));
+
     thread::spawn(move || {
         let window_offset = 2;
         let window_info = WINDOW_INFO.clone();
         let exit = EXIT.clone();
+        let hwnd = hwnd.lock().unwrap().0;
 
         loop {
             if let Some(((x, y), (width, height))) = get_window_info(hwnd) {
@@ -69,12 +76,17 @@ pub fn run_io_thread() {
 }
 
 pub fn bind_ui_keys(hwnd: HWND) {
+    let hwnd = Arc::new(Mutex::new(HwndWrapper(hwnd)));
+    let hwnd_clone = Arc::clone(&hwnd);
+
     let toggled = TOGGLED.clone();
     let focused = FOCUS_SELF.clone();
 
     ProgramConfig::Keys::ToggleKeyMKI.act_on(Action {
         callback: Box::new(move | _, state | {
             if state == State::Released {
+                let hwnd: HWND = hwnd_clone.lock().unwrap().0;
+                
                 if !is_window_focused(hwnd) {
                     return;
                 }
@@ -94,8 +106,10 @@ pub fn bind_ui_keys(hwnd: HWND) {
         sequencer: false
     });
 
+    let hwnd_clone_exit = Arc::clone(&hwnd);
+
     ProgramConfig::Keys::ExitKeyMKI.bind(move | _ | {
-        if !is_window_focused(hwnd) {
+        if !is_window_focused(hwnd_clone_exit.lock().unwrap().0) {
             return;
         }
 

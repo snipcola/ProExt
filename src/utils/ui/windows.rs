@@ -16,8 +16,10 @@ pub fn find_window(title: &str, class: Option<&str>) -> Option<HWND> {
             None => FindWindowW(PCWSTR::null(), &HSTRING::from(title.to_string()))
         };
         
-        if IsWindow(hwnd).into() {
-            return Some(hwnd);
+        if let Ok(hwnd) = hwnd {
+            if IsWindow(Some(hwnd)).into() {
+                return Some(hwnd);
+            }
         }
     }
 
@@ -81,7 +83,7 @@ pub fn focus_window(window: HWND) {
 pub fn create_window(title: &str, hwnd: HWND) -> (EventLoop<()>, Window) {
     let event_loop = EventLoop::new();
     let window_builder = WindowBuilder::new()
-        .with_owner_window(hwnd.0)
+        .with_owner_window(hwnd.0 as isize)
         .with_title(title)
         .with_visible(false)
         .with_transparent(true)
