@@ -24,7 +24,7 @@ This method is the easiest and is recommended for most. You can find the latest 
 
 ### Method 2: Build the application
 
-#### Dependencies:
+#### Requirements:
 
 - [PowerShell](https://winget.run/pkg/Microsoft/PowerShell)
 - [Git](https://winget.run/pkg/Git/MinGit)
