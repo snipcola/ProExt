@@ -19,17 +19,17 @@ pub mod Offsets {
         pub const m_fFlags: usize = 0x3EC; // uint32
         pub const m_nSubclassID: usize = 0x378; // CUtlStringToken
     }
-    
+
     pub mod CBasePlayerController {
         pub const m_hPawn: usize = 0x62C; // CHandle<C_BasePlayerPawn>
         pub const m_iszPlayerName: usize = 0x660; // char[128]
     }
-    
+
     pub mod CCSPlayerController {
         pub const m_hPlayerPawn: usize = 0x80C; // CHandle<C_CSPlayerPawn>
         pub const m_bPawnIsAlive: usize = 0x814; // bool
     }
-    
+
     pub mod C_BasePlayerPawn {
         pub const m_pObserverServices: usize = 0x11C0; // CPlayer_ObserverServices*
         pub const m_pCameraServices: usize = 0x11E0; // CPlayer_CameraServices*
@@ -58,7 +58,7 @@ pub mod Offsets {
         pub const m_iFOVStart: usize = 0x214; // uint32
     }
 
-    pub mod EntitySpottedState_t {        
+    pub mod EntitySpottedState_t {
         pub const m_bSpottedByMask: usize = 0xC; // uint32[2]
     }
 
@@ -104,13 +104,13 @@ pub mod ProgramConfig {
 
     pub mod Update {
         pub const Enabled: bool = true;
-        pub const URL: &str = "https://git.snipcola.com/snipcola/ProExt/raw/branch/main/bin/proext.exe";
-        pub const CargoTomlURL: &str = "https://git.snipcola.com/snipcola/ProExt/raw/branch/main/Cargo.toml";
+        pub const URL: &str = "https://code.snipcola.st/snipcola/ProExt/raw/branch/main/bin/proext.exe";
+        pub const CargoTomlURL: &str = "https://code.snipcola.st/snipcola/ProExt/raw/branch/main/Cargo.toml";
     }
 
     pub mod Links {
-        pub const Source: &str = "https://git.snipcola.com/snipcola/ProExt";
-        pub const License: &str = "https://git.snipcola.com/snipcola/ProExt/raw/branch/main/LICENSE";
+        pub const Source: &str = "https://code.snipcola.st/snipcola/ProExt";
+        pub const License: &str = "https://code.snipcola.st/snipcola/ProExt/raw/branch/main/LICENSE";
     }
 
     pub mod Keys {
@@ -146,7 +146,7 @@ pub mod ProgramConfig {
 
     pub mod ThreadDelays {
         use std::time::Duration;
-        
+
         pub const UpdateConfigs: Duration = Duration::from_millis(250);
         pub const WindowTasks: Duration = Duration::from_millis(25);
         pub const IOTasks: Duration = Duration::from_millis(25);

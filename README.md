@@ -20,7 +20,7 @@ To use ProExt, you can follow two methods.
 
 ### Method 1: Download the prebuilt binary
 
-This method is the easiest and is recommended for most. You can find the latest binary [here](https://git.snipcola.com/snipcola/ProExt/raw/branch/main/bin/proext.exe).
+This method is the easiest and is recommended for most. You can find the latest binary [here](https://code.snipcola.st/snipcola/ProExt/raw/branch/main/bin/proext.exe).
 
 ### Method 2: Build the application
 
@@ -35,7 +35,7 @@ This method is the easiest and is recommended for most. You can find the latest 
 1. Clone the repository:
 
    ```
-   git clone https://git.snipcola.com/snipcola/ProExt.git
+   git clone https://code.snipcola.st/snipcola/ProExt
    ```
 
 2. Enter the directory:
